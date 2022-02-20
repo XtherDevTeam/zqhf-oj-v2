@@ -10,6 +10,8 @@ drop table if exists oj_images;
 
 drop table if exists oj_fileserver;
 
+drop table if exists oj_bulletins;
+
 create table oj_problems(
     id integer primary key autoincrement,
     name string not null,
@@ -28,7 +30,9 @@ create table oj_users(
     username string not null,
     password string not null,
     introduction string not null,
-    full_introduction string not null
+    full_introduction string not null,
+    ac_count integer not null,
+    other_message blob not null
 );
 
 create table oj_fileserver(
@@ -42,4 +46,11 @@ create table oj_problem_lists(
     name string not null,
     description blob not null,
     problems string not null
+);
+
+create table oj_bulletins(
+    id integer primary key autoincrement,
+    name string not null,
+    time string not null,
+    content string not null
 );

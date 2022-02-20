@@ -1,6 +1,6 @@
 import json
 
-config_file_path = "config.json"
+config_file_path = "src/config.json"
 
 def get(key):
     with open(config_file_path, "r+") as file:

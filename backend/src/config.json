@@ -1,5 +1,5 @@
 {
-    "database-path": "../database.db",
+    "database-path": "database.db",
     "web-server-address": "0.0.0.0",
     "web-server-port": 5913
 }

@@ -16,8 +16,8 @@ export default {
 <style>
 #app {
   font-family: Helvetica, sans-serif;
-  text-align: center;
 }
+
 a {
   text-decoration: none;
 }

@@ -6,21 +6,24 @@ import App from './App.vue'
 import LoginPage from './routes/LoginPage.vue'
 import Home from './routes/Home.vue'
 import NotFound from './routes/NotFound.vue'
+import ProfilePage from "./routes/Profile";
+
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/login', component: LoginPage },
-  { path: '*', component: NotFound },
+    {path: '/', component: Home},
+    {path: '/profile', component: ProfilePage},
+    {path: '/login', component: LoginPage},
+    {path: '*', component: NotFound},
 ]
 
 const router = new VueRouter({
-  routes,
+    routes,
 });
 
 Vue.use(VueRouter)
 Vue.use(ElementUI)
 
-const app = new Vue({
-  router,
-  render: h => h(App)
+new Vue({
+    router,
+    render: h => h(App)
 }).$mount("#app")

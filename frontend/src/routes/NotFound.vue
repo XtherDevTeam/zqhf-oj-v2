@@ -1,5 +1,5 @@
 <template>
-    <h3>页面未找到!</h3>
+    <h3>未找到页面!</h3>
 </template>
 
 <script>
@@ -18,7 +18,6 @@ export default {
 <style>
 #app {
   font-family: Helvetica, sans-serif;
-  text-align: center;
 }
 a {
   text-decoration:none

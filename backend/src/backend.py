@@ -30,22 +30,22 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 
-def make_password_md5(user: str, password: str):
-    return hashlib.md5(("__@zqhf-oj-reset-v2_" + user + "@" + password).encode('utf-8')).hexdigest()
+def make_password_md5(password: str):
+    return hashlib.md5(("__@zqhf-oj-reset-v2_" + "@" + password).encode('utf-8')).hexdigest()
 
 
 def check_login(user: str, password: str):
     user_item = query_user_by_name(user)
     if user_item is None:
         return False
-    return user_item['password'] == make_password_md5(user, password)
+    return user_item['password'] == make_password_md5(password)
 
 
 def register_user(user: str, password: str, permission_level: int = 1):
     query_db(
         '''insert into oj_users (username, password, introduction, full_introduction, ac_count, other_message) values 
         (?, ?, ?, ?, ?, ?)''',
-        [user, make_password_md5(user, password), "", "", 0, pickle.dumps({
+        [user, make_password_md5(password), "", "", 0, pickle.dumps({
             "images_own": [],
             "files_own": [],
             "permission_level": permission_level  # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
@@ -78,8 +78,22 @@ def set_user_attr_by_id(user: int, attr_name: str, attr_val):
     return query_db("update oj_users set %s = ? where id = ?" % attr_name, [attr_val, user], True)
 
 
+def change_user_attrs(user: int, name: str, introduction: str, full_introduction: str):
+    set_user_attr_by_id(user, 'username', name)
+    set_user_attr_by_id(user, 'introduction', introduction)
+    set_user_attr_by_id(user, 'full_introduction', full_introduction)
+
+
+def change_user_password(user: int, password: str):
+    make_password_md5(password)
+    set_user_attr_by_id(user, 'password', password)
+
+
 def query_bulletins_by_size(start: int, count: int):
-    return query_db("select * from oj_bulletins order by id limit ? offset ?", [count, start])
+    data = query_db("select * from oj_bulletins order by id limit ? offset ?", [count, start])
+    for i in data:
+        del i['content']
+    return data
 
 
 def query_bulletins_by_name(name: str):
@@ -135,7 +149,13 @@ def remove_bulletin_by_name(name: str):
 
 
 def query_ranking(start: int, count: int):
-    return query_db("select * from oj_users order by ac_count limit ? offset ?", [count, start])
+    result = query_db("select * from oj_users order by ac_count desc limit ? offset ?", [count, start])
+    for i in result:
+        del i['other_message']
+        del i['user_image']
+        del i['password']
+
+    return result
 
 
 def search_problems(way: str, content: str):

@@ -73,7 +73,7 @@ export default {
       app_name: "肇庆华附在线评测系统",
     };
   },
-  created: function () {
+  mounted: function () {
     this.init();
   },
 };

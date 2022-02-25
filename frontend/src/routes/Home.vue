@@ -18,6 +18,17 @@
           </el-table-column>
         </el-table>
       </el-card>
+      <el-card class="is-always-shadow el-card" style="height: 500px; margin: 10px auto;">
+        <div slot="header" class="clearfix">
+          <span>Ranking · 前十</span>
+        </div>
+        <el-table :data="ranking_top10" style="width: 100%">
+          <el-table-column fixed prop="id" label="User ID" width="128"></el-table-column>
+          <el-table-column fixed prop="ac_count" label="通过题目数量" width="128"></el-table-column>
+          <el-table-column fixed prop="username" label="用户名"></el-table-column>
+          <el-table-column prop="introduction" label="一句话介绍"></el-table-column>
+        </el-table>
+      </el-card>
     </el-aside>
     <el-main>
       <div v-if="logged_in === true">
@@ -99,11 +110,28 @@ export default {
             console.log(error);
           });
       axios
+          .get("/api/v1/ranking/get", {
+            params: {},
+          })
+          .then((response) => {
+            if (response.data['code'] !== 0) {
+              this.$message({
+                type: 'error',
+                message: '拉取排名失败: ' + response.data['text']
+              });
+            } else {
+              this.ranking_top10 = response.data['data'];
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      axios
           .get("//v1.hitokoto.cn/?c=a", {
             params: {},
           })
           .then((response) => {
-              this.hitokoto = response.data;
+            this.hitokoto = response.data;
           })
           .catch(function (error) {
             console.log(error);
@@ -144,7 +172,7 @@ export default {
       window.location = '/#/bulletins/view?id=' + toCheck.id;
     }
   },
-  created() {
+  mounted() {
     this.init();
   },
   data() {
@@ -156,6 +184,7 @@ export default {
       search_result: [],
       bulletins: [],
       hitokoto: {},
+      ranking_top10: []
     };
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width: 500px; margin: 0 auto;">
     <div id="EventShowArea"></div>
     <el-card class="login-box">
       <div slot="header" class="clearfix">
@@ -30,38 +30,30 @@ export default {
   components: {App},
   methods: {
     handleLoginEvent() {
-      console.log("username: ", this.usernameInput);
-      console.log("password: ", this.passwordInput);
-      console.log(
-          "bulit url is: ",
+      axios.post(
           "/api/v1/user/login/" + this.usernameInput + "/" + this.passwordInput
-      );
-      axios
-          .post(
-              "/api/v1/user/login/" + this.usernameInput + "/" + this.passwordInput
-          )
-          .then((response) => {
-            if (response.data["code"] !== 0) {
-              let Message = Vue.extend({
-                template:
-                    '<el-alert id="EventShowArea" title="登陆失败!" type="error" description="代码' +
-                    response.data["code"] +
-                    ":" +
-                    response.data["text"] +
-                    '" show-icon ></el-alert> ',
-              });
-              new Message().$mount('#EventShowArea');
-            } else {
-              let Message = Vue.extend({
-                template:
-                    '<el-alert id="EventShowArea" title="登陆成功!" type="success" description="正在重定向到主页..." show-icon ></el-alert> ',
-              });
-              new Message().$mount('#EventShowArea');
-              setTimeout(() => {
-                window.location = '/';
-              }, 1000);
-            }
+      ).then((response) => {
+        if (response.data["code"] !== 0) {
+          let Message = Vue.extend({
+            template:
+                '<el-alert id="EventShowArea" title="登陆失败!" type="error" description="代码' +
+                response.data["code"] +
+                ":" +
+                response.data["text"] +
+                '" show-icon ></el-alert> ',
           });
+          new Message().$mount('#EventShowArea');
+        } else {
+          let Message = Vue.extend({
+            template:
+                '<el-alert id="EventShowArea" title="登陆成功!" type="success" description="正在重定向到主页..." show-icon ></el-alert> ',
+          });
+          new Message().$mount('#EventShowArea');
+          setTimeout(() => {
+            window.location = '/';
+          }, 1000);
+        }
+      });
     },
   },
   data() {

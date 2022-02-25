@@ -47,7 +47,7 @@ export default {
       full_introduction_rendered: "",
     };
   },
-  created: function () {
+  mounted: function () {
     this.init();
   }
 };

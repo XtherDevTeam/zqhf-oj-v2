@@ -1,7 +1,5 @@
 import pickle
-import random
 import sqlite3
-import time
 
 import flask
 import config
@@ -42,7 +40,7 @@ def teardown_request(exception):
         backend.db.commit()
         backend.db.close()
         return
-    except sqlite3.Error as e:
+    except sqlite3.Error:
         return
 
 
@@ -76,6 +74,23 @@ def logout_router():
         del flask.session['user_id']
         return {"code": 0, "text": "登出成功!"}
     return {"code": 7, "text": "用户未登录!"}
+
+
+@app.route("/v1/user/change_info", methods=['POST'])
+def user_info_change_router():
+    if flask.session.get('user_id') is not None:
+        request = flask.request.get_json()
+        if request.get('username') is None:
+            return {"code": 5, "text": "缺少用户名!"}
+        if request.get('introduction') is None:
+            return {"code": 5, "text": "缺少用户简介!"}
+        if request.get('full_introduction') is None:
+            return {"code": 5, "text": "缺少用户长简介!"}
+        backend.change_user_attrs(flask.session.get('user_id'), request.get('username'),
+                                  request.get('introduction'), request.get('full_introduction'))
+        return {"code": 0, "text": "操作成功!"}
+    else:
+        return {"code": 7, "text": "用户未登录!"}
 
 
 @app.route("/v1/user/details", methods=['GET'])
@@ -124,11 +139,20 @@ def user_detail_router():
 
 
 @app.route("/v1/bulletins/get/<int:start>/<int:count>", methods=['GET'])
-def bulletins_get_router(start, count):
+def bulletins_get_by_size_router(start, count):
     return {
         'code': 0,
         'text': '请求成功',
         'data': backend.query_bulletins_by_size(start, count)
+    }
+
+
+@app.route("/v1/bulletins/get/<int:ident>", methods=['GET'])
+def bulletins_get_by_id_router(ident):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.query_bulletins_by_id(ident)
     }
 
 

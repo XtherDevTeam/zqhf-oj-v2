@@ -13,7 +13,6 @@
 
 <script>
 import axios from "axios";
-import Vue from "vue";
 
 
 const markdown = require('markdown-it')(),
@@ -58,7 +57,7 @@ export default {
 
 .box-card {
   margin: 0 auto;
-  width: 500px;
+  width: 1000px;
 }
 
 .clearfix:before,

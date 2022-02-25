@@ -1,25 +1,38 @@
 <template>
-    <h3>未找到页面!</h3>
+  <h3>未找到页面!</h3>
 </template>
 
 <script>
 import axios from "axios";
 
+
 export default {
   methods: {
-    
+    init() {
+      console.log(this.user_info);
+      axios
+          .get("/api/v1/user/details", {
+            params: {},
+          })
+          .then((response) => {
+            this.user_info = response.data;
+            this.logged_in = response.data['code'] === 0;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+
   },
   data() {
-    
+    return {
+      user_info: "",
+      logged_in: ""
+    }
   }
 };
 </script>
 
-<style>
-#app {
-  font-family: Helvetica, sans-serif;
-}
-a {
-  text-decoration:none
-}
+<style scoped>
+
 </style>

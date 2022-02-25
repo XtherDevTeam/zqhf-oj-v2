@@ -2,6 +2,22 @@
   <el-container>
     <el-aside width="70%">
       <img src="../assets/head-image.png" style="width: 100%;"/>
+      <el-card class="is-always-shadow el-card" style="height: 500px; margin: 10px auto;">
+        <div slot="header" class="clearfix">
+          <span>公告</span>
+        </div>
+        <el-table :data="bulletins" style="width: 100%">
+          <el-table-column fixed prop="id" label="编号" width="64"></el-table-column>
+          <el-table-column fixed prop="time" label="日期" width="200"></el-table-column>
+          <el-table-column prop="name" label="名称"></el-table-column>
+          <el-table-column fixed="right" label="操作" width="100">
+            <template v-slot="scope">
+              <el-button @click="bulletins_check(scope.row)" type="text" size="small">查看</el-button>
+              <el-button v-if="logged_in && user_info['data']['permission']" type="text" size="small">编辑</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
     </el-aside>
     <el-main>
       <div v-if="logged_in === true">
@@ -11,6 +27,13 @@
           </div>
           <div class="text item">{{ user_info['data']['introduction'] }}</div>
           <div class="text item">已通过题目: {{ user_info['data']['ac_count'] }}</div>
+        </el-card>
+        <el-card style="margin: 10px auto;">
+          <div slot="header" class="clearfix">
+            <span>一言(ひとこと)</span>
+          </div>
+          <div class="text item">{{ hitokoto['hitokoto'] }}</div>
+          <div class="text item">-- 《{{ hitokoto['from'] }}》 {{ hitokoto['from_who'] }}</div>
         </el-card>
         <el-card style="margin: 10px auto; height: 512px;">
           <div slot="header" class="clearfix">
@@ -58,6 +81,33 @@ export default {
           .catch(function (error) {
             console.log(error);
           });
+      axios
+          .get("/api/v1/bulletins/get/0/10", {
+            params: {},
+          })
+          .then((response) => {
+            if (response.data['code'] !== 0) {
+              this.$message({
+                type: 'error',
+                message: '拉取公告失败: ' + response.data['text']
+              });
+            } else {
+              this.bulletins = response.data['data'];
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      axios
+          .get("//v1.hitokoto.cn/?c=a", {
+            params: {},
+          })
+          .then((response) => {
+              this.hitokoto = response.data;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
     },
     on_search_event() {
       if (this.search_input === "") {
@@ -90,6 +140,9 @@ export default {
             });
       }
     },
+    bulletins_check(toCheck) {
+      window.location = '/#/bulletins/view?id=' + toCheck.id;
+    }
   },
   created() {
     this.init();
@@ -101,6 +154,8 @@ export default {
       search_input: "",
       search_select: "",
       search_result: [],
+      bulletins: [],
+      hitokoto: {},
     };
   },
 };

@@ -1,4 +1,7 @@
 import pickle
+import random
+import sqlite3
+import time
 
 import flask
 import config
@@ -35,8 +38,12 @@ def before_request():
 
 @app.teardown_request
 def teardown_request(exception):
-    backend.db.commit()
-    backend.db.close()
+    try:
+        backend.db.commit()
+        backend.db.close()
+        return
+    except sqlite3.Error as e:
+        return
 
 
 @app.route("/", methods=['GET'])
@@ -80,8 +87,8 @@ def user_detail_router():
             if flask.session.get('user_id') is None:
                 return {"code": 7, "text": "用户未登录!"}
             result = backend.query_user_by_id(flask.session['user_id'])
+            result['other_message'] = pickle.loads(result['other_message'])
             del result['password']
-            del result['other_message']
             return {
                 'code': 0,
                 'text': '请求成功',
@@ -91,8 +98,11 @@ def user_detail_router():
             result = backend.query_user_by_id(int(ident))
             if result is None:
                 return {"code": 2, "text": "用户不存在!"}
+            result['other_message'] = pickle.loads(result['other_message'])
+            result['other_message'] = {
+                'permission_level': result['other_message']['permission_level']
+            }
             del result['password']
-            del result['other_message']
             return {
                 'code': 0,
                 'text': '请求成功',

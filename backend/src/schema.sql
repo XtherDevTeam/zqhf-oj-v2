@@ -12,6 +12,8 @@ drop table if exists oj_fileserver;
 
 drop table if exists oj_bulletins;
 
+drop table if exists oj_records;
+
 create table oj_problems
 (
     id          integer primary key autoincrement,
@@ -19,7 +21,8 @@ create table oj_problems
     description string,
     examples    string,
     author      string not null,
-    tags        string not null
+    tags        string not null,
+    timeout     int    not null default 1000
 );
 
 create table oj_problems_data
@@ -62,4 +65,13 @@ create table oj_bulletins
     name    string not null,
     time    string not null,
     content string not null
+);
+
+create table oj_records
+(
+    id      integer primary key autoincrement,
+    author  integer not null,
+    code    string  not null,
+    lang    string  not null,
+    problem string  not null
 );

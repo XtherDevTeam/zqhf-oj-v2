@@ -6,11 +6,14 @@ import App from './App.vue'
 import LoginPage from './routes/LoginPage.vue'
 import Home from './routes/Home.vue'
 import NotFound from './routes/NotFound.vue'
-import ProfilePage from "./routes/Profile";
+import ProfilePage from "./routes/Profile"
+import EditProfilePage from "./routes/EditProfile";
+
 
 
 const routes = [
     {path: '/', component: Home},
+    {path: '/profile/edit', component: EditProfilePage},
     {path: '/profile', component: ProfilePage},
     {path: '/login', component: LoginPage},
     {path: '*', component: NotFound},

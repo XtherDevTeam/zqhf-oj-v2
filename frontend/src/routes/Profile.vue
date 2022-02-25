@@ -6,7 +6,7 @@
       </div>
       <div class="text item"><span>通过题目数: {{ user_info['data']['ac_count'] }}</span></div>
       <div class="text item"><span>介绍: {{ user_info['data']['introduction'] }}</span></div>
-      <div class="mountedMarkdownRender"></div>
+      <div v-html="full_introduction_rendered"></div>
     </el-card>
   </div>
 </template>
@@ -54,21 +54,11 @@ export default {
 };
 </script>
 
-<style>
-#app {
-  font-family: Helvetica, sans-serif;
-}
+<style scoped>
 
-a {
-  text-decoration: none;
-}
-
-.text {
-  font-size: 14px;
-}
-
-.item {
-  margin-bottom: 18px;
+.box-card {
+  margin: 0 auto;
+  width: 500px;
 }
 
 .clearfix:before,
@@ -79,9 +69,5 @@ a {
 
 .clearfix:after {
   clear: both
-}
-
-.box-card {
-  width: 500px;
 }
 </style>

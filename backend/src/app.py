@@ -176,5 +176,86 @@ def ranking_get_router(start, count):
     }
 
 
+@app.route("/v1/problems/get/<int:start>/<int:count>", methods=['GET'])
+def problems_get_size_router(start, count):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.query_problem_by_size(start, count)
+    }
+
+
+@app.route("/v1/problems/post", methods=['POST'])
+def problems_post_router():
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    request = flask.request.get_json()
+    if request.get('name') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目名称参数'
+        }
+    if request.get('description') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目描述参数'
+        }
+    if request.get('tags') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目标签参数'
+        }
+    if request.get('examples') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目样例参数'
+        }
+    backend.post_problem(backend.query_user_by_id(flask.session.get("user_id"))['username'], request['name'],
+                         request['description'], request['tags'],
+                         request['examples'])
+    return {
+        'code': 0,
+        'text': '请求成功'
+    }
+
+
+@app.route("/v1/search/problems/by_id/<int:content>", methods=['GET'])
+def search_problems_id_router(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problems('by_id', content)
+    }
+
+
+@app.route("/v1/search/problems/by_author/<content>", methods=['GET'])
+def search_problems_author_router(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problems('by_author', content)
+    }
+
+
+@app.route("/v1/search/problems/by_description/<content>", methods=['GET'])
+def search_problems_description_router(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problems('by_description', content)
+    }
+
+
+@app.route("/v1/search/problems/by_tags/<content>", methods=['GET'])
+def search_problems_tags_router(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problems('by_tags', content)
+    }
+
+
 if __name__ == "main":
     app.run(host=config.get("api-server-host"), port=config.get("api-server-port"))

@@ -12,45 +12,54 @@ drop table if exists oj_fileserver;
 
 drop table if exists oj_bulletins;
 
-create table oj_problems(
-    id integer primary key autoincrement,
-    name string not null,
-    description string nit null,
-    examples string nit null
+create table oj_problems
+(
+    id          integer primary key autoincrement,
+    name        string not null,
+    description string,
+    examples    string,
+    author      string not null,
+    tags        string not null
 );
 
-create table oj_problems_data(
-    id integer primary key autoincrement,
-    inputs string not null,
+create table oj_problems_data
+(
+    id      integer primary key autoincrement,
+    inputs  string not null,
     outputs string not null
 );
 
-create table oj_users(
-    id integer primary key autoincrement,
-    username string not null,
-    password string not null,
-    introduction string not null,
-    full_introduction string not null,
-    ac_count integer not null,
-    other_message blob not null
+create table oj_users
+(
+    id                integer primary key autoincrement,
+    username          string  not null,
+    password          string  not null,
+    introduction      string  not null,
+    full_introduction string  not null,
+    ac_count          integer not null,
+    other_message     blob    not null,
+    user_image        blob
 );
 
-create table oj_fileserver(
-    id integer primary key autoincrement,
+create table oj_fileserver
+(
+    id       integer primary key autoincrement,
     filename string not null,
-    content blob not null
+    content  blob   not null
 );
 
-create table oj_problem_lists(
-    id integer primary key autoincrement,
-    name string not null,
-    description blob not null,
-    problems string not null
+create table oj_problem_lists
+(
+    id          integer primary key autoincrement,
+    name        string not null,
+    description blob   not null,
+    problems    string not null
 );
 
-create table oj_bulletins(
-    id integer primary key autoincrement,
-    name string not null,
-    time string not null,
+create table oj_bulletins
+(
+    id      integer primary key autoincrement,
+    name    string not null,
+    time    string not null,
     content string not null
 );

@@ -11,27 +11,25 @@
             <img height="60px" src="./assets/logo-dark.png"/>
           </li>
           <el-menu-item index="1">
-            <router-link to="/">主页</router-link>
+            <a href="/#/">主页</a>
           </el-menu-item>
 
           <el-submenu v-if="user_info['code'] === 0" index="2">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
-            <router-link to="/profile">
-              <el-menu-item index="2-1">个人空间</el-menu-item>
-            </router-link>
-            <router-link to="/profile/edit">
-              <el-menu-item index="2-2">修改个人资料</el-menu-item>
-            </router-link>
+            <el-menu-item index="2-1"><a href="/#/profile">个人空间</a></el-menu-item>
+            <el-menu-item index="2-2"><a href="/#/profile/edit">修改个人资料</a></el-menu-item>
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
           <el-menu-item v-else index="2">
-            <router-link to="/login">登录</router-link>
+            <a href="/#/login">登录</a>
           </el-menu-item>
         </el-menu>
       </el-header>
-      <el-main style="margin: 0 auto">
-        <router-view></router-view>
+      <el-main style="margin: 0 auto;">
+        <div class="ui main-container">
+          <router-view></router-view>
+        </div>
       </el-main>
       <el-footer class="oj-footer">
         <h6>{{ app_name }} · Powered by <a href="//github.com/XtherDevTeam/zqhf-oj-v2">zqhf-oj-v2</a></h6>
@@ -85,6 +83,44 @@ export default {
 #app {
   font-family: Helvetica, sans-serif;
 }
+
+.ui.main-container {
+  width: 933px;
+  margin: 0 auto;
+}
+
+@media only screen and (min-width: 1200px) {
+  .ui.main-container {
+    width: 1127px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+@media only screen and (min-width: 1500px) {
+  .ui.main-container {
+    width: 1512px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .ui.main-container {
+    width: auto !important;
+    margin-left: 1em !important;
+    margin-right: 1em !important
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .ui.main-container {
+    width: 723px;
+    margin-left: auto !important;
+    margin-right: auto !important
+  }
+}
+
 
 a {
   text-decoration: none;

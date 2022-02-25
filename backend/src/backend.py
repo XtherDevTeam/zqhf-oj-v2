@@ -1,4 +1,5 @@
 import hashlib
+import json
 import pickle
 import sqlite3
 from contextlib import closing
@@ -134,4 +135,40 @@ def remove_bulletin_by_name(name: str):
 
 
 def query_ranking(start: int, count: int):
-    return query_db("select * from main.oj_users order by ac_count limit ? offset ?", [count, start])
+    return query_db("select * from oj_users order by ac_count limit ? offset ?", [count, start])
+
+
+def search_problems(way: str, content: str):
+    result = []
+    if way == "by_id":
+        result = query_db("select * from oj_problems where id = ?", [content])
+    elif way == "by_author":
+        result = query_db("select * from oj_problems where author = ?", [content])
+    elif way == "by_description":
+        result = query_db("select * from oj_problems where description like ?", [content])
+    elif way == "by_tags":
+        result = query_db("select * from oj_problems where tags like ?", [content])
+    return result
+
+
+def post_problem(author: str, name: str, description: str = "", tags: list = None, io_examples: list = None):
+    if tags is None:
+        tags = []
+    if io_examples is None:
+        io_examples = []
+    query_db("insert into oj_problems (name, description, examples, author, tags) values (?, ?, ?, ?, ?)",
+             [name, description, json.dumps(io_examples), author, json.dumps(tags)])
+
+    return None
+
+
+def query_problem_by_id(ident: int):
+    return query_db("select * from oj_problems where id = ?", [ident], one=True)
+
+
+def query_problem_by_name(name: str):
+    return query_db("select * from oj_problems where name = ?", [name])
+
+
+def query_problem_by_size(start: int, limit: int):
+    return query_db("select * from oj_problems order by id limit ? offset ?", [limit, start])

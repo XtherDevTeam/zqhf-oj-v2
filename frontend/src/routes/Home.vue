@@ -13,7 +13,9 @@
           <el-table-column fixed="right" label="操作" width="100">
             <template v-slot="scope">
               <el-button @click="bulletins_check(scope.row)" type="text" size="small">查看</el-button>
-              <el-button v-if="logged_in && user_info['data']['permission']" type="text" size="small">编辑</el-button>
+              <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']" type="text"
+                         size="small" @click="bulletins_edit(scope.row)" >编辑
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -81,61 +83,49 @@ export default {
   methods: {
     init() {
       console.log(this.user_info);
-      axios
-          .get("/api/v1/user/details", {
-            params: {},
-          })
-          .then((response) => {
-            this.user_info = response.data;
-            this.logged_in = response.data['code'] === 0;
-          })
-          .catch(function (error) {
-            console.log(error);
+      axios.get("/api/v1/user/details", {
+        params: {},
+      }).then((response) => {
+        this.user_info = response.data;
+        this.logged_in = response.data['code'] === 0;
+      }).catch(function (error) {
+        console.log(error);
+      });
+      axios.get("/api/v1/bulletins/get/0/10", {
+        params: {},
+      }).then((response) => {
+        if (response.data['code'] !== 0) {
+          this.$message({
+            type: 'error',
+            message: '拉取公告失败: ' + response.data['text']
           });
-      axios
-          .get("/api/v1/bulletins/get/0/10", {
-            params: {},
-          })
-          .then((response) => {
-            if (response.data['code'] !== 0) {
-              this.$message({
-                type: 'error',
-                message: '拉取公告失败: ' + response.data['text']
-              });
-            } else {
-              this.bulletins = response.data['data'];
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
+        } else {
+          this.bulletins = response.data['data'];
+        }
+      }).catch(function (error) {
+        console.log(error);
+      });
+      axios.get("/api/v1/ranking/get", {
+        params: {},
+      }).then((response) => {
+        if (response.data['code'] !== 0) {
+          this.$message({
+            type: 'error',
+            message: '拉取排名失败: ' + response.data['text']
           });
-      axios
-          .get("/api/v1/ranking/get", {
-            params: {},
-          })
-          .then((response) => {
-            if (response.data['code'] !== 0) {
-              this.$message({
-                type: 'error',
-                message: '拉取排名失败: ' + response.data['text']
-              });
-            } else {
-              this.ranking_top10 = response.data['data'];
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      axios
-          .get("//v1.hitokoto.cn/?c=a", {
-            params: {},
-          })
-          .then((response) => {
-            this.hitokoto = response.data;
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+        } else {
+          this.ranking_top10 = response.data['data'];
+        }
+      }).catch(function (error) {
+        console.log(error);
+      });
+      axios.get("//v1.hitokoto.cn/?c=a", {
+        params: {},
+      }).then((response) => {
+        this.hitokoto = response.data;
+      }).catch(function (error) {
+        console.log(error);
+      });
     },
     on_search_event() {
       if (this.search_input === "") {
@@ -170,6 +160,9 @@ export default {
     },
     bulletins_check(toCheck) {
       window.location = '/#/bulletins/view?id=' + toCheck.id;
+    },
+    bulletins_edit(toCheck) {
+      window.location = '/#/bulletins/edit?id=' + toCheck.id;
     }
   },
   mounted() {

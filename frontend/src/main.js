@@ -9,6 +9,7 @@ import NotFound from './routes/NotFound'
 import ProfilePage from "./routes/Profile"
 import EditProfilePage from "./routes/EditProfile";
 import BulletinViewPage from "./routes/BulletinView";
+import BulletinEditPage from "./routes/BulletinEdit";
 
 
 const routes = [
@@ -16,6 +17,7 @@ const routes = [
     {path: '/profile/edit', component: EditProfilePage},
     {path: '/profile', component: ProfilePage},
     {path: '/bulletins/view', component: BulletinViewPage},
+    {path: '/bulletins/edit', component: BulletinEditPage},
     {path: '/login', component: LoginPage},
     {path: '*', component: NotFound},
 ]

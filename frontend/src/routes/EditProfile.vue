@@ -18,6 +18,7 @@
 
 <script>
 import axios from "axios";
+import 'mavon-editor/dist/css/index.css'
 
 export default {
   methods: {

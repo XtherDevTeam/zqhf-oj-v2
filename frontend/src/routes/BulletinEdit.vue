@@ -1,16 +1,14 @@
 <template>
   <el-card class="box-card">
     <div slot="header" class="clearfix">
-      <span>编辑个人信息</span>
+      <span>编辑公告</span>
     </div>
-    <el-input placeholder="请输入内容" v-model="username">
-      <template slot="prepend">用户名</template>
+    <el-input placeholder="请输入内容" v-model="bulletin_name">
+      <template slot="prepend">标题</template>
     </el-input>
-    <el-input placeholder="简短的一句话~" v-model="introduction" style="margin: 10px auto;">
-      <template slot="prepend">介绍</template>
-    </el-input>
-    <span style="margin: 10px auto;">长介绍(将显示在个人主页)</span>
-    <editor style="margin: 10px auto;" v-model="full_introduction" @init="editorInit" lang="html" theme="chrome"
+    <div style="margin: 10px auto;"></div>
+    <span style="margin: 10px auto;">公告内容</span>
+    <editor style="margin: 10px auto;" v-model="bulletin_content" @init="editorInit" lang="html" theme="chrome"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>
@@ -28,11 +26,20 @@ export default {
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
-        this.username = response.data['data']['username'];
-        this.introduction = response.data['data']['introduction'];
-        this.full_introduction = response.data['data']['full_introduction'];
       }).catch(function (error) {
         console.log(error);
+      });
+
+      axios.get('/api/v1/bulletins/get/' + this.$route.query['id']).then((response) => {
+        if (response.data['data'] == null) {
+          this.$message({
+            type: "error",
+            message: "公告内容拉取失败!"
+          });
+        } else {
+          this.bulletin_name = response.data['data']['name'];
+          this.bulletin_content = response.data['data']['content'];
+        }
       });
     },
     editorInit() {
@@ -44,15 +51,14 @@ export default {
       require('brace/snippets/javascript') //snippet
     },
     submit_changes() {
-      axios.post('/api/v1/user/change_info', {
-        'username': this.username,
-        'introduction': this.introduction,
-        'full_introduction': this.full_introduction
+      axios.post('/api/v1/bulletins/edit/' + this.$route.query['id'], {
+        'name': this.name,
+        'content': this.bulletin_content
       }).then((response) => {
         if (response.data['code'] !== 0) {
           this.$message({
             type: "error",
-            message: "[" + response['code'] + "] " + response.data['text'] + " 上传用户信息失败"
+            message: "[" + response['code'] + "] " + response.data['text'] + " 上传公告失败"
           });
         } else {
           window.location = '/#/';
@@ -65,9 +71,8 @@ export default {
       user_info: "",
       logged_in: "",
       edit_content: "",
-      username: "",
-      introduction: "",
-      full_introduction: "",
+      bulletin_name: "",
+      bulletin_content: "",
     }
   },
   components: {

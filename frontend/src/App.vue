@@ -14,6 +14,10 @@
             <a href="/#/">主页</a>
           </el-menu-item>
 
+          <el-menu-item index="2">
+            <a href="/#/problems">题库</a>
+          </el-menu-item>
+
           <el-submenu v-if="user_info['code'] === 0" index="2">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
             <el-menu-item index="2-1"><a href="/#/profile">个人空间</a></el-menu-item>

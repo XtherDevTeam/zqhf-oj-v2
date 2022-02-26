@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import pickle
 import sqlite3
 from contextlib import closing
@@ -147,7 +148,7 @@ def remove_bulletin_by_name(name: str):
 
 def query_ranking(start: int, count: int):
     result = query_db(
-        "select other_message, user_image, password from oj_users order by ac_count desc limit ? offset ?",
+        "select username, id, ac_count from oj_users order by ac_count desc limit ? offset ?",
         [count, start])
 
     return result
@@ -166,15 +167,88 @@ def search_problems(way: str, content: str):
     return result
 
 
-def post_problem(author: str, name: str, description: str = "", tags: list = None, io_examples: list = None):
+def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None,
+                 io_examples: list = None):
     if tags is None:
         tags = []
     if io_examples is None:
         io_examples = []
-    query_db("insert into oj_problems (name, description, examples, author, tags) values (?, ?, ?, ?, ?)",
-             [name, description, json.dumps(io_examples), author, json.dumps(tags)])
+    query_db(
+        "insert into oj_problems (name, description, examples, author, tags, timeout, memory)"
+        " values (?, ?, ?, ?, ?, ?, ?)",
+        [name, description, json.dumps(io_examples), author, json.dumps(tags), timeout, memory_limit])
 
+    last = query_db("select id from oj_problems where name = ?", [name], one=True)
+    make_checkpoint_dir(last['id'])
     return None
+
+
+def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None, io_examples: list = None):
+    if tags is None:
+        tags = []
+    if io_examples is None:
+        io_examples = []
+
+    if query_problem_by_id(pid) is not None:
+        query_db("update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?"
+                 " where id = ?",
+                 [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, pid])
+        return True
+    return False
+
+
+def add_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data: str, output_data: str):
+    if query_problem_by_id(pid) is not None:
+        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in') as file:
+            file.write(input_data)
+        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out') as file:
+            file.write(output_data)
+        return True
+    else:
+        return False
+
+
+def remove_checkpoint_from_problem(pid: int, checkpoint_name: str):
+    if os.access(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in', os.F_OK):
+        os.remove(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in')
+    else:
+        return False
+
+    if os.access(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out', os.F_OK):
+        os.remove(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out')
+    else:
+        return False
+
+    return True
+
+
+def make_checkpoint_dir(pid: int):
+    os.mkdir(config.get('uploads-path') + "/problems_data/" + str(pid))
+
+
+def remove_checkpoint_dir(pid: int):
+    os.removedirs(config.get('uploads-path') + "/problems_data/" + str(pid))
+
+
+def get_checkpoint_list(pid: int):
+    result = os.listdir(config.get('uploads-path') + "/problems_data/" + str(pid))
+    new_result = []
+    for i in result:
+        if i.endswith('.out'):
+            new_result.append(i[0: -3])
+        else:
+            pass
+
+    return new_result
+
+
+def delete_problem(pid: int):
+    if query_problem_by_id(pid) is not None:
+        query_db("delete from oj_problems where id = ?", [pid])
+        remove_checkpoint_dir(pid)
+        return True
+    else:
+        return False
 
 
 def query_problem_by_id(ident: int):

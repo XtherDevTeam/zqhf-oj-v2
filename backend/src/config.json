@@ -1,5 +1,6 @@
 {
     "database-path": "database.db",
+    "uploads-path": "uploads",
     "web-server-address": "0.0.0.0",
-    "web-server-port": 5913
+    "web-server-port": 5000
 }

@@ -247,6 +247,77 @@ def problems_get_id_router(ident):
     }
 
 
+@app.route("/v1/problems/delete/<int:ident>", methods=['POST'])
+def problems_remove_router(ident):
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    if backend.delete_problem(ident):
+        return {
+            'code': 0,
+            'text': '请求成功'
+        }
+    else:
+        return {
+            'code': 2,
+            'text': '将要删除的题目不存在！'
+        }
+
+
+@app.route("/v1/problems/edit/<int:ident>", methods=['POST'])
+def problem_edit_router(ident: int):
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    request = flask.request.get_json()
+    if request.get('name') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目名称参数'
+        }
+    if request.get('description') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目描述参数'
+        }
+    if request.get('tags') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目标签参数'
+        }
+    if request.get('examples') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目样例参数'
+        }
+    if request.get('timeout') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目超时时间参数'
+        }
+    if request.get('memory_limit') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目内存限制参数'
+        }
+    if backend.edit_problem(pid=ident,
+                            name=request['name'],
+                            description=request['description'], tags=request['tags'],
+                            io_examples=request['examples'], timeout=request['timeout'],
+                            memory_limit=request['memory_limit']):
+        return {
+            'code': 0,
+            'text': '操作成功!'
+        }
+    else:
+        return {
+            'code': 2,
+            'text': '将要修改的题目不存在!'
+        }
+
+
 @app.route("/v1/problems/post", methods=['POST'])
 def problems_post_router():
     require_admin = require_admin_permission()
@@ -274,9 +345,21 @@ def problems_post_router():
             'code': 5,
             'text': '表单缺少题目样例参数'
         }
-    backend.post_problem(backend.query_user_by_id(flask.session.get("user_id"))['username'], request['name'],
-                         request['description'], request['tags'],
-                         request['examples'])
+    if request.get('timeout') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目超时时间参数'
+        }
+    if request.get('memory_limit') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目内存限制参数'
+        }
+    backend.post_problem(author=backend.query_user_by_id(flask.session.get("user_id"))['username'],
+                         name=request['name'],
+                         description=request['description'], tags=request['tags'],
+                         io_examples=request['examples'], timeout=request['timeout'],
+                         memory_limit=request['memory_limit'])
     return {
         'code': 0,
         'text': '请求成功'

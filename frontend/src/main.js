@@ -11,11 +11,13 @@ import EditProfilePage from "./routes/EditProfile";
 import BulletinViewPage from "./routes/BulletinView";
 import BulletinEditPage from "./routes/BulletinEdit";
 import ProblemsPage from "./routes/Problems";
+import ProblemEditPage from "./routes/ProblemEdit";
 
 
 const routes = [
     {path: '/', component: Home},
     {path: '/problems', component: ProblemsPage},
+    {path: '/problems/edit', component: ProblemEditPage},
     {path: '/profile/edit', component: EditProfilePage},
     {path: '/profile', component: ProfilePage},
     {path: '/bulletins/view', component: BulletinViewPage},

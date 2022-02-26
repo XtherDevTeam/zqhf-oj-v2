@@ -1,7 +1,5 @@
 drop table if exists oj_problems;
 
-drop table if exists oj_problems_data;
-
 drop table if exists oj_problem_lists;
 
 drop table if exists oj_users;
@@ -22,14 +20,8 @@ create table oj_problems
     examples    string,
     author      string not null,
     tags        string not null,
-    timeout     int    not null default 1000
-);
-
-create table oj_problems_data
-(
-    id      integer primary key autoincrement,
-    inputs  string not null,
-    outputs string not null
+    timeout     int    not null default 1000,
+    memory      int    not null default 65536
 );
 
 create table oj_users

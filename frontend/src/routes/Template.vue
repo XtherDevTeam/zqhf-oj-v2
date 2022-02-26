@@ -27,7 +27,8 @@ export default {
   data() {
     return {
       user_info: "",
-      logged_in: ""
+      logged_in: "",
+      app_name: this.$parent.$parent.$parent.app_name
     }
   }
 };

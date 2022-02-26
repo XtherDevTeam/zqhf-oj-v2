@@ -85,14 +85,11 @@ def change_user_attrs(user: int, name: str, introduction: str, full_introduction
 
 
 def change_user_password(user: int, password: str):
-    make_password_md5(password)
-    set_user_attr_by_id(user, 'password', password)
+    set_user_attr_by_id(user, 'password', make_password_md5(password))
 
 
 def query_bulletins_by_size(start: int, count: int):
-    data = query_db("select * from oj_bulletins order by id limit ? offset ?", [count, start])
-    for i in data:
-        del i['content']
+    data = query_db("select time, name from oj_bulletins order by id limit ? offset ?", [count, start])
     return data
 
 
@@ -125,7 +122,7 @@ def set_bulletin_by_name(sel_name: str, name: str, content: str):
 
 
 def set_bulletin_by_id(sel_id: int, name: str, content: str):
-    if query_bulletins_by_name(name) is None:
+    if query_bulletins_by_id(sel_id) is None:
         return False
     cur_time = time.time()
     cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(cur_time))
@@ -149,11 +146,9 @@ def remove_bulletin_by_name(name: str):
 
 
 def query_ranking(start: int, count: int):
-    result = query_db("select * from oj_users order by ac_count desc limit ? offset ?", [count, start])
-    for i in result:
-        del i['other_message']
-        del i['user_image']
-        del i['password']
+    result = query_db(
+        "select other_message, user_image, password from oj_users order by ac_count desc limit ? offset ?",
+        [count, start])
 
     return result
 
@@ -163,11 +158,11 @@ def search_problems(way: str, content: str):
     if way == "by_id":
         result = query_db("select * from oj_problems where id = ?", [content])
     elif way == "by_author":
-        result = query_db("select * from oj_problems where author = ?", [content])
+        result = query_db("select * from oj_problems where author like ?", ["%" + content + "%"])
     elif way == "by_description":
-        result = query_db("select * from oj_problems where description like ?", [content])
+        result = query_db("select * from oj_problems where description like ?", ["%" + json.dumps(content)[1:-1] + "%"])
     elif way == "by_tags":
-        result = query_db("select * from oj_problems where tags like ?", [content])
+        result = query_db("select * from oj_problems where tags like ?", ["%" + json.dumps(content)[1:-1] + "%"])
     return result
 
 
@@ -191,4 +186,4 @@ def query_problem_by_name(name: str):
 
 
 def query_problem_by_size(start: int, limit: int):
-    return query_db("select * from oj_problems order by id limit ? offset ?", [limit, start])
+    return query_db("select id, name, tags, author from oj_problems order by id limit ? offset ?", [limit, start])

@@ -1,5 +1,15 @@
 {
+  "name": "zqhf-oj-frontend",
+  "description": "OJ frontend of The Aillated Zhaoqing School of SCNU",
+  "author": "zhouyongkang4321@gmail.com",
+  "private": true,
+  "scripts": {
+  },
   "dependencies": {
-    "cnpm": "^7.1.1"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "devDependencies": {
   }
 }

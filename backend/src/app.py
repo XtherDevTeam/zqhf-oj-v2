@@ -68,6 +68,24 @@ def login_router(username, password):
         return {"code": 6, "text": "用户名或密码错误!"}
 
 
+@app.route("/v1/user/change_password", methods=['POST'])
+def change_password_router():
+    if flask.session.get('user_id') is not None:
+        request = flask.request.get_json()
+        if request.get('old_password') is None:
+            return {"code": 5, "text": "缺少参数: 旧密码!"}
+        if request.get('new_password') is None:
+            return {"code": 5, "text": "缺少参数: 新密码!"}
+        if backend.check_login(backend.query_user_by_id(flask.session.get('user_id'))['username'],
+                               request.get('old_password')):
+            backend.change_user_password(flask.session.get('user_id'), request.get('new_password'))
+            return {"code": 0, "text": "修改成功!"}
+        else:
+            return {"code": 6, "text": "用户名或密码错误!"}
+    else:
+        return {"code": 7, "text": "用户未登录!"}
+
+
 @app.route('/v1/user/logout', methods=['GET'])
 def logout_router():
     if flask.session.get('user_id') is not None:
@@ -169,13 +187,14 @@ def bulletin_post_router():
         return {'code': 3, 'text': '具有相同公告标题的公告已存在!'}
 
 
-@app.route("/v1/bulletins/edit/<int:id>", methods=['POST'])
+@app.route("/v1/bulletins/edit/<int:ident>", methods=['POST'])
 def bulletin_edit_router(ident: int):
     require_admin = require_admin_permission()
     if require_admin is not True:
         return require_admin
 
     data = flask.request.get_json()
+    print(data)
     if backend.set_bulletin_by_id(ident, data['name'], data['content']):
         return {'code': 0, 'text': '请求成功!'}
     else:
@@ -216,6 +235,15 @@ def problems_get_size_router(start, count):
         'code': 0,
         'text': '请求成功',
         'data': backend.query_problem_by_size(start, count)
+    }
+
+
+@app.route("/v1/problems/get/<int:ident>", methods=['GET'])
+def problems_get_id_router(ident):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.query_problem_by_id(ident)
     }
 
 

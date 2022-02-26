@@ -1,20 +1,47 @@
 <template>
   <el-container>
-    <el-aside width="70%">
-      <img src="../assets/head-image.png" style="width: 100%;"/>
+    <el-dialog title="新建公告" :visible.sync="create_bulletin_dialog_visible" width="500px">
+      <el-input placeholder="请输入内容" v-model="create_bulletin_dialog_name">
+        <template slot="prepend">标题</template>
+      </el-input>
+      <div style="margin: 10px auto;"></div>
+      <span style="margin: 10px auto;">公告内容</span>
+      <editor style="margin: 10px auto;" v-model="create_bulletin_dialog_content" @init="editorInit" lang="html"
+              theme="chrome"
+              width="100%" height="256px"></editor>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="create_bulletin_dialog_visible = false">取 消</el-button>
+        <el-button type="primary" @click="bulletins_create">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-aside width="70%" style="padding: 20px;">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>欢迎来到{{ app_name }}!</span>
+        </div>
+        <img src="../assets/head-image.png" style="width: 100%;"/>
+      </el-card>
       <el-card class="is-always-shadow el-card" style="height: 500px; margin: 10px auto;">
         <div slot="header" class="clearfix">
           <span>公告</span>
+          <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
+                     style="float: right; padding: 3px 0" type="text"
+                     @click="create_bulletin_dialog_visible = true">
+            新建
+          </el-button>
         </div>
         <el-table :data="bulletins" style="width: 100%">
           <el-table-column fixed prop="id" label="编号" width="64"></el-table-column>
           <el-table-column fixed prop="time" label="日期" width="200"></el-table-column>
           <el-table-column prop="name" label="名称"></el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
+          <el-table-column fixed="right" label="操作" width="256">
             <template v-slot="scope">
               <el-button @click="bulletins_check(scope.row)" type="text" size="small">查看</el-button>
               <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']" type="text"
-                         size="small" @click="bulletins_edit(scope.row)" >编辑
+                         size="small" @click="bulletins_edit(scope.row)">编辑
+              </el-button>
+              <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
+                         @click="bulletins_delete(scope.row)" type="text" size="small">删除
               </el-button>
             </template>
           </el-table-column>
@@ -29,6 +56,11 @@
           <el-table-column fixed prop="ac_count" label="通过题目数量" width="128"></el-table-column>
           <el-table-column fixed prop="username" label="用户名"></el-table-column>
           <el-table-column prop="introduction" label="一句话介绍"></el-table-column>
+          <el-table-column fixed="right" label="操作" width="100">
+            <template v-slot="scope">
+              <el-button @click="profile_click(scope.row)" type="text" size="small">个人主页</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
     </el-aside>
@@ -161,12 +193,54 @@ export default {
     bulletins_check(toCheck) {
       window.location = '/#/bulletins/view?id=' + toCheck.id;
     },
+    bulletins_delete(toCheck) {
+      axios.post('/api/v1/bulletins/delete/' + toCheck.id).then((response) => {
+        if (response.data['code'] === 0) {
+          window.location.reload();
+        } else {
+          this.$message({
+            type: "error",
+            message: "错误[" + response.data['code'] + ']: ' + response.data['text']
+          });
+        }
+      });
+    },
+    bulletins_create() {
+      axios.post('/api/v1/bulletins/post', {
+        name: this.create_bulletin_dialog_name,
+        content: this.create_bulletin_dialog_content
+      }).then((response) => {
+        if (response.data['code'] === 0) {
+          window.location.reload();
+        } else {
+          this.$message({
+            type: "error",
+            message: "错误[" + response.data['code'] + ']: ' + response.data['text']
+          });
+        }
+      })
+    },
     bulletins_edit(toCheck) {
       window.location = '/#/bulletins/edit?id=' + toCheck.id;
-    }
+    },
+    profile_click(toCheck) {
+      window.location = '/#/profile?id=' + toCheck.id;
+    },
+    editorInit() {
+      require('brace/ext/language_tools') //language extension prerequisite...
+      require('brace/mode/html')
+      require('brace/mode/javascript')    //language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') //snippet
+    },
+  },
+  components: {
+    editor: require('vue2-ace-editor'),
   },
   mounted() {
     this.init();
+    console.log(this.$parent);
   },
   data() {
     return {
@@ -177,7 +251,11 @@ export default {
       search_result: [],
       bulletins: [],
       hitokoto: {},
-      ranking_top10: []
+      ranking_top10: [],
+      create_bulletin_dialog_visible: false,
+      create_bulletin_dialog_name: "",
+      create_bulletin_dialog_content: "",
+      app_name: this.$parent.$parent.$parent.app_name
     };
   },
 };

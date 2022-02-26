@@ -52,7 +52,7 @@ export default {
     },
     submit_changes() {
       axios.post('/api/v1/bulletins/edit/' + this.$route.query['id'], {
-        'name': this.name,
+        'name': this.bulletin_name,
         'content': this.bulletin_content
       }).then((response) => {
         if (response.data['code'] !== 0) {

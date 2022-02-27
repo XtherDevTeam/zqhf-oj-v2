@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 import sqlite3
+import threading
 from contextlib import closing
 import time
 import config
@@ -14,7 +15,7 @@ db = None
 
 def connect_db():
     global db
-    db = sqlite3.connect(DATABASE)
+    db = sqlite3.connect(DATABASE, check_same_thread=False)
     return db
 
 
@@ -26,9 +27,12 @@ def init_db():
 
 
 def query_db(query, args=(), one=False):
+    lock = threading.Lock()
+    lock.acquire()
     cur = db.execute(query, args)
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
+    lock.release()
     return (rv[0] if rv else None) if one else rv
 
 
@@ -91,7 +95,8 @@ def change_user_password(user: int, password: str):
 
 
 def query_records_by_size(start: int, count: int):
-    data = query_db("select id, author, lang from oj_records order by id desc limit ? offset ?", [count, start])
+    data = query_db("select id, author, lang, problem from oj_records order by id desc limit ? offset ?",
+                    [count, start])
     return data
 
 
@@ -314,7 +319,7 @@ def submit_judge(problem: int, author: int, code: str, lang: str, timestamp: int
 
     for i in checkpoint_list:
         datas = ["", ""]
-        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
+        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.in',
                   "r+") as file:
             datas[0] = file.read()
         with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',

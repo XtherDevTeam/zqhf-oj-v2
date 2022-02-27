@@ -19,11 +19,11 @@
             <el-form-item label="返回值">
               <span>{{ props.row['return_code'] }}</span>
             </el-form-item>
-            <el-form-item label="输入">
-              <span class="markdown-body"><pre style="padding: 5px"><code>{{ props.row['stdin'] }}</code></pre></span>
+            <el-form-item label="标准错误(stderr)">
+              <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stderr'] }}</code></pre></span>
             </el-form-item>
-            <el-form-item label="输出">
-              <span class="markdown-body"><pre style="padding: 5px"><code>{{ props.row['stdout'] }}</code></pre></span>
+            <el-form-item label="标准输出(stdout)">
+              <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stdout'] }}</code></pre></span>
             </el-form-item>
           </el-form>
         </template>

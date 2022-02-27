@@ -3,6 +3,7 @@ import json
 import pickle
 import sqlite3
 import time
+import threading
 
 import flask
 from flask_cors import CORS
@@ -283,8 +284,11 @@ def judge_submit_router(ident):
 
     timestamp = int(time.time() * 100)
 
-    backend.submit_judge(ident, flask.session['user_id'], request['code'],
-                         request['lang'], timestamp)
+    th = threading.Thread(target=backend.submit_judge, args=(ident, flask.session['user_id'], request['code'],
+                                                             request['lang'], timestamp))
+    th.start()
+    th.join()
+    time.sleep(0.1)
 
     return {
         'code': 0,

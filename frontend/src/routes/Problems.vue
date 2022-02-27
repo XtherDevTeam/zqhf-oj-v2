@@ -114,7 +114,9 @@ export default {
     },
     handlePageNumberChange() {
       window.location = '/#/problems?from=' + (this.problems_limit * this.page_number) + '&limit=' + this.problems_limit;
-      window.location.reload();
+      this.problems_start = this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']);
+      this.problems_limit = this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']);
+      this.init();
     },
     new_problem_tags_remove(tag) {
       this.new_problem_tags.splice(this.new_problem_tags.indexOf(tag), 1);

@@ -14,6 +14,7 @@ import ProblemsPage from "./routes/Problems";
 import ProblemViewPage from "./routes/ProblemView";
 import ProblemEditPage from "./routes/ProblemEdit";
 import JudgeRecordViewPage from "./routes/JudgeRecordView";
+import RecordsPage from "./routes/Records";
 
 
 const routes = [
@@ -25,7 +26,8 @@ const routes = [
     {path: '/profile', component: ProfilePage},
     {path: '/bulletins/view', component: BulletinViewPage},
     {path: '/bulletins/edit', component: BulletinEditPage},
-    {path: '/record/view', component: JudgeRecordViewPage},
+    {path: '/records', component: RecordsPage},
+    {path: '/records/view', component: JudgeRecordViewPage},
     {path: '/login', component: LoginPage},
     {path: '*', component: NotFound},
 ]

@@ -18,6 +18,10 @@
             <el-link href="/#/problems">题库</el-link>
           </el-menu-item>
 
+          <el-menu-item index="3">
+            <el-link href="/#/records">评测记录</el-link>
+          </el-menu-item>
+
           <el-submenu v-if="user_info['code'] === 0" index="2">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
             <el-menu-item index="2-1"><el-link href="/#/profile">个人空间</el-link></el-menu-item>
@@ -26,7 +30,7 @@
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
-          <el-menu-item v-else index="3">
+          <el-menu-item v-else index="4">
             <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>

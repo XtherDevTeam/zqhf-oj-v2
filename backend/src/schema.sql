@@ -67,5 +67,6 @@ create table oj_records
     lang      string  not null,
     problem   integer not null,
     points    string default '[]' not null,
-    timestamp integer not null
+    timestamp integer not null,
+    status    string  not null
 );

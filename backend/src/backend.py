@@ -11,11 +11,12 @@ import judge
 
 DATABASE = config.get("database-path")
 db = None
+lock = threading.Lock()
 
 
 def connect_db():
     global db
-    db = sqlite3.connect(DATABASE, check_same_thread=False)
+    db = sqlite3.connect(DATABASE, check_same_thread=False, isolation_level=None)
     return db
 
 
@@ -27,11 +28,11 @@ def init_db():
 
 
 def query_db(query, args=(), one=False):
-    lock = threading.Lock()
     lock.acquire()
     cur = db.execute(query, args)
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
+    db.commit()
     lock.release()
     return (rv[0] if rv else None) if one else rv
 
@@ -95,7 +96,7 @@ def change_user_password(user: int, password: str):
 
 
 def query_records_by_size(start: int, count: int):
-    data = query_db("select id, author, lang, problem from oj_records order by id desc limit ? offset ?",
+    data = query_db("select id, author, lang, problem, status from oj_records order by id desc limit ? offset ?",
                     [count, start])
     return data
 
@@ -300,17 +301,22 @@ def get_judge_server_info():
     }
 
 
-def submit_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
-    problem_content = query_problem_by_id(problem)
-    checkpoint_list = get_checkpoint_list(problem)
-    checkpoint_status = []
-    submit_time = timestamp
-    query_db("insert into oj_records (author, code, lang, problem, timestamp) VALUES (?, ?, ?, ?, ?)",
-             [author, code, lang, problem, submit_time])
+def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
+    query_db(
+        "insert into oj_records (author, code, lang, problem, timestamp, status) VALUES (?, ?, ?, ?, ?, 'Judging...')",
+        [author, code, lang, problem, timestamp])
     jid = \
         query_db(
             "select id from oj_records where author = ? and code = ? and lang = ? and problem = ? and timestamp = ?",
-            [author, code, lang, problem, submit_time], one=True)['id']
+            [author, code, lang, problem, timestamp], one=True)['id']
+    return jid
+
+
+def submit_judge(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):
+    problem_content = query_problem_by_id(problem)
+    checkpoint_list = get_checkpoint_list(problem)
+    checkpoint_status = []
+    full_ac = True
 
     env_vars = {
         'source_file': 'temp.' + config.get('judge-server-language-exts')[lang],
@@ -335,7 +341,17 @@ def submit_judge(problem: int, author: int, code: str, lang: str, timestamp: int
             mem_limit=problem_content['memory'],
             env_variables=env_vars
         ))
+        if checkpoint_status[-1]['status'] != 'Accepted':
+            full_ac = False
         query_db("update oj_records set points = ? where id = ?", [json.dumps(checkpoint_status), jid])
+
+    if full_ac:
+        ac_count = query_user_by_id(author)['ac_count'] + 1
+        set_user_attr_by_id(author, 'ac_count', ac_count)
+        query_db("update oj_records set status = 'Accepted' where id = ?", [jid])
+    else:
+        query_db("update oj_records set status = 'Wrong answer' where id = ?", [jid])
+
     return True
 
 

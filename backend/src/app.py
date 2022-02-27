@@ -1,9 +1,8 @@
 import io
 import json
 import pickle
-import sqlite3
-import time
 import threading
+import time
 
 import flask
 from flask_cors import CORS
@@ -37,16 +36,6 @@ def require_admin_permission():
 @app.before_request
 def before_request():
     backend.db = backend.connect_db()
-
-
-@app.teardown_request
-def teardown_request(exception):
-    try:
-        backend.db.commit()
-        backend.db.close()
-        return
-    except sqlite3.Error:
-        return
 
 
 @app.route("/", methods=['GET'])
@@ -284,10 +273,12 @@ def judge_submit_router(ident):
 
     timestamp = int(time.time() * 100)
 
-    th = threading.Thread(target=backend.submit_judge, args=(ident, flask.session['user_id'], request['code'],
-                                                             request['lang'], timestamp))
+    jid = backend.create_judge(ident, flask.session['user_id'], request['code'],
+                               request['lang'], timestamp)
+
+    th = threading.Thread(target=backend.submit_judge,
+                          args=(jid, flask.session['user_id'], ident, request['code'], request['lang'], timestamp))
     th.start()
-    th.join()
     time.sleep(0.1)
 
     return {

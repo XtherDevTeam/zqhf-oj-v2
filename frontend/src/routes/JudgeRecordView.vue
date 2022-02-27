@@ -1,7 +1,10 @@
 <template>
   <el-card shadow="hover" class="box-card">
     <div slot="header" class="clearfix">
-      <span>评测记录 {{ record_content['id'] }}</span>
+      <span>评测记录 {{ record_content['id'] }} </span>
+      <el-tag v-if="record_content['status'] === 'Accepted'" type="success">通过</el-tag>
+      <el-tag v-else-if="record_content['status'] === 'Wrong answer'" type="danger">未通过</el-tag>
+      <el-tag v-else type="warning">评测中</el-tag>
     </div>
     <span>题目编号 {{ record_content['problem'] }}</span><br>
     <div style="margin: 10px;"></div>
@@ -12,20 +15,27 @@
     <el-table :data="record_content['points']" style="width: 100%">
       <el-table-column type="expand">
         <template v-slot="props">
-          <el-form label-position="left" inline class="points-table-expand">
+          <el-form style="width: 90%;margin: 0 auto;" label-position="left" inline class="points-table-expand">
             <el-form-item label="状态">
               <span><el-tag>{{ props.row['status'] }}</el-tag></span>
             </el-form-item>
             <el-form-item label="返回值">
               <span>{{ props.row['return_code'] }}</span>
             </el-form-item>
-            <el-form-item label="标准错误(stderr)">
-              <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stderr'] }}</code></pre></span>
-            </el-form-item>
-            <el-form-item label="标准输出(stdout)">
-              <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stdout'] }}</code></pre></span>
-            </el-form-item>
           </el-form>
+
+          <div style="margin: 20px;"></div>
+
+          <div style="width: 90%;margin: 0 auto;">
+            <span>标准错误(stderr)</span><br>
+            <div style="margin: 10px;"></div>
+            <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stderr'] }}</code></pre></span>
+            <div style="margin: 10px;"></div>
+
+            <span>标准输出(stdout)</span><br>
+            <div style="margin: 10px;"></div>
+            <span class="markdown-body"><pre style="padding: 10px"><code>{{ props.row['stdout'] }}</code></pre></span>
+          </div>
         </template>
       </el-table-column>
       <el-table-column prop="status" label="状态"></el-table-column>
@@ -51,6 +61,21 @@ markdown.use(markdown_with_katex)
 
 export default {
   methods: {
+    update_status() {
+      axios.get('/api/v1/judge/get/' + this.$route.query['id']).then((response) => {
+        this.record_content = response.data['data'];
+        if (this.record_content == null || response.data['code'] !== 0) {
+          this.$message({
+            type: "error",
+            message: "评测记录内容拉取失败!"
+          });
+        } else {
+          if (this.record_content['status'] !== 'Judging...') {
+            clearInterval(this.interval_id)
+          }
+        }
+      });
+    },
     init() {
       console.log(this.user_info);
       axios.get("/api/v1/user/details", {
@@ -61,29 +86,20 @@ export default {
       }).catch(function (error) {
         console.log(error);
       });
-
-      axios.get('/api/v1/judge/get/' + this.$route.query['id']).then((response) => {
-        this.record_content = response.data['data'];
-        if (this.record_content == null) {
-          this.$message({
-            type: "error",
-            message: "评测记录内容拉取失败!"
-          });
-        } else {
-
-        }
-      });
     },
 
   },
   mounted() {
     this.init();
+    this.update_status();
+    this.interval_id = setInterval(this.update_status, 2000);
   },
   data() {
     return {
       user_info: "",
       logged_in: "",
-      record_content: {}
+      record_content: {},
+      interval_id: 0
     }
   }
 };

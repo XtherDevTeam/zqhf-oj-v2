@@ -8,6 +8,13 @@
         <el-table-column fixed prop="id" label="评测编号" width="128"></el-table-column>
         <el-table-column fixed prop="author" label="上传者UID" width="128"></el-table-column>
         <el-table-column fixed prop="problem" label="题目ID"></el-table-column>
+        <el-table-column fixed label="状态">
+          <template v-slot="scope">
+            <el-tag v-if="scope.row.status === 'Accepted'" type="success">通过</el-tag>
+            <el-tag v-else-if="scope.row.status === 'Wrong answer'" type="danger">未通过</el-tag>
+            <el-tag v-else type="warning">评测中</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column fixed prop="lang" label="使用语言"></el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">

@@ -6,7 +6,7 @@
       </el-input>
       <div style="margin: 10px auto;"></div>
       <span style="margin: 10px auto;">公告内容</span>
-      <editor style="margin: 10px auto;" v-model="create_bulletin_dialog_content" @init="editorInit" lang="html"
+      <editor style="margin: 10px auto;" v-model="create_bulletin_dialog_content" @init="editorInit" lang="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
       <span slot="footer" class="dialog-footer">
@@ -15,13 +15,13 @@
       </span>
     </el-dialog>
     <el-aside width="70%" style="padding: 20px;">
-      <el-card class="box-card">
+      <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
           <span>欢迎来到{{ app_name }}!</span>
         </div>
         <img src="../assets/head-image.png" style="width: 100%;"/>
       </el-card>
-      <el-card class="is-always-shadow el-card" style="height: 500px; margin: 10px auto;">
+      <el-card shadow="hover" style="height: 500px; margin: 10px auto;">
         <div slot="header" class="clearfix">
           <span>公告</span>
           <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
@@ -47,7 +47,7 @@
           </el-table-column>
         </el-table>
       </el-card>
-      <el-card class="is-always-shadow el-card" style="height: 500px; margin: 10px auto;">
+      <el-card shadow="hover" style="height: 500px; margin: 10px auto;">
         <div slot="header" class="clearfix">
           <span>Ranking · 前十</span>
         </div>
@@ -66,21 +66,21 @@
     </el-aside>
     <el-main>
       <div v-if="logged_in === true">
-        <el-card>
+        <el-card shadow="hover">
           <div slot="header" class="clearfix">
             <span>{{ user_info['data']['username'] }}</span>
           </div>
           <div class="text item">{{ user_info['data']['introduction'] }}</div>
           <div class="text item">已通过题目: {{ user_info['data']['ac_count'] }}</div>
         </el-card>
-        <el-card style="margin: 10px auto;">
+        <el-card shadow="hover" style="margin: 10px auto;">
           <div slot="header" class="clearfix">
             <span>一言(ひとこと)</span>
           </div>
           <div class="text item">{{ hitokoto['hitokoto'] }}</div>
           <div class="text item">-- 《{{ hitokoto['from'] }}》 {{ hitokoto['from_who'] }}</div>
         </el-card>
-        <el-card style="margin: 10px auto; height: 512px;">
+        <el-card shadow="hover" style="margin: 10px auto; height: 512px;">
           <div slot="header" class="clearfix">
             <span>查找题目</span>
           </div>
@@ -100,7 +100,7 @@
         </el-card>
       </div>
       <div v-else>
-        <el-card>
+        <el-card shadow="hover">
           <span>请先登录!</span>
         </el-card>
       </div>

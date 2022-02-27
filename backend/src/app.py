@@ -1,3 +1,4 @@
+import io
 import pickle
 import sqlite3
 
@@ -364,6 +365,82 @@ def problems_post_router():
         'code': 0,
         'text': '请求成功'
     }
+
+
+@app.route("/v1/problems/checkpoints/get-list/<int:ident>", methods=['GET'])
+def get_checkpoints_list_router(ident):
+    if backend.query_problem_by_id(ident) is not None:
+        return {
+            'code': 0,
+            'text': '请求成功!',
+            'data': backend.get_checkpoint_list(ident)
+        }
+    else:
+        return {
+            'code': 2,
+            'text': '题目不存在!'
+        }
+
+
+@app.route("/v1/problems/checkpoints/remove/<int:ident>/<checkpoint_name>", methods=['POST'])
+def remove_checkpoint_from_problem_router(ident, checkpoint_name):
+    if backend.query_problem_by_id(ident) is not None:
+        c_list = backend.get_checkpoint_list(ident)
+        if c_list.count(checkpoint_name):
+            if backend.remove_checkpoint_from_problem(ident, checkpoint_name):
+                return {
+                    'code': 0,
+                    'text': '请求成功!'
+                }
+            else:
+                return {
+                    'code': 2,
+                    'text': '将要删除的检查点文件不存在!'
+                }
+        else:
+            return {
+                'code': 2,
+                'text': '将要删除的检查点不存在!'
+            }
+    else:
+        return {
+            'code': 2,
+            'text': '题目不存在!'
+        }
+
+
+@app.route("/v1/problems/checkpoints/upload/<int:ident>/<checkpoint_name>/in", methods=['POST'])
+def upload_checkpoint_input_router(ident, checkpoint_name):
+    with io.BytesIO() as dst:
+        flask.request.files.get('file').save(dst)
+        dst.seek(0)
+        if backend.add_in_checkpoint_to_problem(ident, checkpoint_name, dst.read()):
+            return {
+                'code': 0,
+                'text': '请求成功!'
+            }
+        else:
+            return {
+                'code': 2,
+                'text': '题目不存在!'
+            }
+
+
+@app.route("/v1/problems/checkpoints/upload/<int:ident>/<checkpoint_name>/out", methods=['POST'])
+def upload_checkpoint_output_router(ident, checkpoint_name):
+    with io.BytesIO() as dst:
+        flask.request.files.get('file').save(dst)
+        dst.seek(0)
+        if backend.add_out_checkpoint_to_problem(ident, checkpoint_name, dst.read()):
+            return {
+                'code': 0,
+                'text': '请求成功!'
+            }
+        else:
+            return {
+                'code': 2,
+                'text': '题目不存在!'
+            }
 
 
 @app.route("/v1/search/problems/by_id/<int:content>", methods=['GET'])

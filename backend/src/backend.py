@@ -90,7 +90,7 @@ def change_user_password(user: int, password: str):
 
 
 def query_bulletins_by_size(start: int, count: int):
-    data = query_db("select time, name from oj_bulletins order by id limit ? offset ?", [count, start])
+    data = query_db("select time, name, id from oj_bulletins order by id limit ? offset ?", [count, start])
     return data
 
 
@@ -148,7 +148,7 @@ def remove_bulletin_by_name(name: str):
 
 def query_ranking(start: int, count: int):
     result = query_db(
-        "select username, id, ac_count from oj_users order by ac_count desc limit ? offset ?",
+        "select username, id, ac_count, introduction from oj_users order by ac_count desc limit ? offset ?",
         [count, start])
 
     return result
@@ -183,7 +183,8 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
     return None
 
 
-def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None, io_examples: list = None):
+def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None,
+                 io_examples: list = None):
     if tags is None:
         tags = []
     if io_examples is None:
@@ -197,11 +198,24 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
     return False
 
 
-def add_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data: str, output_data: str):
+def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data: str | bytes):
+    if type(input_data) == bytes:
+        input_data = input_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
-        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in') as file:
+        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in',
+                  'w+') as file:
             file.write(input_data)
-        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out') as file:
+        return True
+    else:
+        return False
+
+
+def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data: str | bytes):
+    if type(output_data) == bytes:
+        output_data = output_data.decode('utf-8')
+    if query_problem_by_id(pid) is not None:
+        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out',
+                  "w+") as file:
             file.write(output_data)
         return True
     else:
@@ -235,7 +249,7 @@ def get_checkpoint_list(pid: int):
     new_result = []
     for i in result:
         if i.endswith('.out'):
-            new_result.append(i[0: -3])
+            new_result.append(i[0: -4])
         else:
             pass
 

@@ -6,13 +6,13 @@
       <el-container>
         <el-aside width="50%">
           <span>输入(.in)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="html"
+          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输入(.out)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="html"
+          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-main>
@@ -25,19 +25,18 @@
         </el-button>
       </span>
     </el-dialog>
-
     <el-dialog width="50%" title="修改样例" :visible.sync="edit_example_dialog_visible">
       此处为输入输出样例，不是数据文件上传处！<br>
       <el-container>
         <el-aside width="50%">
           <span>输入(.in)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="html"
+          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输入(.out)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="html"
+          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-main>
@@ -50,9 +49,48 @@
         </el-button>
       </span>
     </el-dialog>
+    <el-dialog width="50%" title="修改数据点" :visible.sync="edit_checkpoint_dialog_visible">
+      <span>{{ edit_checkpoint_mode === "in" ? "修改输入(.in)" : "修改输出(.out)" }}</span><br>
+      <el-upload
+          name="file" drag
+          :action="edit_checkpoint_upload_url">
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip" slot="tip">上传一个.{{ edit_checkpoint_mode }}文件</div>
+      </el-upload>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="edit_checkpoint_dialog_visible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="refresh_checkpoint_list();edit_checkpoint_dialog_visible = false;">
+          确 定
+        </el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="上传数据点" :visible.sync="new_checkpoint_dialog_visible">
+      <span>上传数据点</span><br>
+      <el-upload name="file" drag :action="new_checkpoint_upload_url_input">
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">上传一个.in文件, 将文件拖到此处, 或<em>点击上传</em></div>
+      </el-upload>
+      <el-upload
+          name="file" drag
+          :action="new_checkpoint_upload_url_output">
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">上传一个.out文件, 将文件拖到此处, 或<em>点击上传</em></div>
+      </el-upload>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="new_checkpoint_dialog_visible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="refresh_checkpoint_list();new_checkpoint_dialog_visible = false;">
+          确 定
+        </el-button>
+      </span>
+    </el-dialog>
 
 
-    <el-card class="box-card">
+    <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>编辑题目</span>
       </div>
@@ -79,7 +117,7 @@
 
       <div style="margin: 20px auto;"></div>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="problem_description" @init="editorInit" lang="html" theme="chrome"
+      <editor style="margin: 10px auto;" v-model="problem_description" @init="editorInit" lang="markdown" theme="chrome"
               width="100%" height="256px"></editor>
 
       <el-table :data="problem_examples" style="width: 100%">
@@ -97,6 +135,24 @@
       <el-button type="primary" @click="submit_changes">提交更改</el-button>
 
       <div style="margin: 20px auto;"></div>
+
+      <el-table :data="problem_checkpoint_list" style="width: 100%">
+        <el-table-column fixed label="检查点名">
+          <template v-slot="scope">{{ scope.row }}</template>
+        </el-table-column>
+        <el-table-column fixed="right" label="操作">
+          <template v-slot="scope">
+            <el-button @click="edit_checkpoint_input_open(scope)" type="text" size="small">上传输入</el-button>
+            <el-button @click="edit_checkpoint_output_open(scope)" type="text" size="small">上传输出</el-button>
+            <el-button @click="remove_checkpoint(scope)" type="text" size="small">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div style="margin: 20px auto;"></div>
+      <el-input placeholder="" v-model="new_checkpoint_name" style="width: 256px;">
+        <template slot="prepend">名称</template>
+      </el-input>
+      <el-button type="primary" @click="upload_new_checkpoint">上传新测试点</el-button>
     </el-card>
   </div>
 </template>
@@ -132,6 +188,59 @@ export default {
           this.problem_examples = JSON.parse(response.data['data']['examples']);
         }
       });
+    },
+    refresh_checkpoint_list() {
+      this.new_checkpoint_upload_url_output = "";
+      this.new_checkpoint_upload_url_input = "";
+      this.edit_checkpoint_upload_url = "";
+      this.new_checkpoint_name = "";
+      axios.get('/api/v1/problems/checkpoints/get-list/' + this.$route.query['id']).then((response) => {
+        if (response.data['data'] == null) {
+          this.$message({
+            type: "error",
+            message: "题目测试点列表拉取失败!"
+          });
+        } else {
+          this.problem_checkpoint_list = response.data['data'];
+        }
+      });
+    },
+    edit_checkpoint_input_open(scope) {
+      this.edit_checkpoint_mode = "in";
+
+      this.edit_checkpoint_upload_url = '/api/v1/problems/checkpoints/upload/' +
+          this.$route.query['id'] + '/' + scope.row + '/' + this.edit_checkpoint_mode;
+
+      this.edit_checkpoint_dialog_visible = true;
+    },
+    edit_checkpoint_output_open(scope) {
+      this.edit_checkpoint_mode = "out";
+
+      this.edit_checkpoint_upload_url = '/api/v1/problems/checkpoints/upload/' +
+          this.$route.query['id'] + '/' + scope.row + '/' + this.edit_checkpoint_mode;
+
+      this.edit_checkpoint_dialog_visible = true;
+    },
+    upload_new_checkpoint() {
+      this.new_checkpoint_upload_url_input = '/api/v1/problems/checkpoints/upload/' +
+          this.$route.query['id'] + '/' + this.new_checkpoint_name + '/in';
+
+      this.new_checkpoint_upload_url_output = '/api/v1/problems/checkpoints/upload/' +
+          this.$route.query['id'] + '/' + this.new_checkpoint_name + '/out';
+
+      this.new_checkpoint_dialog_visible = true;
+    },
+    remove_checkpoint(scope) {
+      axios.post('/api/v1/problems/checkpoints/remove/' + this.$route.query['id'] + '/' + scope.row, {})
+          .then((response) => {
+            if (response.data['code'] !== 0) {
+              this.$message({
+                type: "error",
+                message: "[" + response['code'] + "] " + response.data['text'] + " 删除题目测试点失败"
+              });
+            }
+            this.refresh_checkpoint_list();
+          })
     },
     new_example_clicked() {
       this.problem_examples.push(this.new_example_content);
@@ -210,10 +319,19 @@ export default {
       problem_examples: [],
       problem_temp_tag_visible: false,
       problem_temp_tag_name: "",
+      problem_checkpoint_list: [],
       new_example_dialog_visible: false,
       new_example_content: {'in': '', 'out': ''},
       edit_example_index: -1,
       edit_example_dialog_visible: false,
+      edit_checkpoint_dialog_visible: false,
+      edit_checkpoint_mode: "in",
+      edit_checkpoint_name: "",
+      edit_checkpoint_upload_url: "",
+      new_checkpoint_dialog_visible: false,
+      new_checkpoint_upload_url_input: "",
+      new_checkpoint_upload_url_output: "",
+      new_checkpoint_name: ""
     }
   },
   components: {
@@ -221,6 +339,7 @@ export default {
   },
   mounted() {
     this.init();
+    this.refresh_checkpoint_list();
   }
 };
 </script>

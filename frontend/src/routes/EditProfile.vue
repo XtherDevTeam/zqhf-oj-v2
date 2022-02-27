@@ -1,5 +1,5 @@
 <template>
-  <el-card class="box-card">
+  <el-card shadow="hover" class="box-card">
     <div slot="header" class="clearfix">
       <span>编辑个人信息</span>
     </div>

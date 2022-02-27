@@ -65,5 +65,6 @@ create table oj_records
     author  integer not null,
     code    string  not null,
     lang    string  not null,
-    problem string  not null
+    problem string  not null,
+    points  string default '[]' not null
 );

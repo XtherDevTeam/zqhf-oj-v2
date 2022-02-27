@@ -1,10 +1,10 @@
 <template>
-  <el-card class="box-card">
+  <el-card shadow="hover" class="box-card">
     <div slot="header" class="clearfix">
       <span>{{ bulletin_content['name'] }}</span>
     </div>
     <span>上次修改: {{ bulletin_content['time'] }}</span>
-    <div id="markdownRenderedPlace" v-html="rendered_content"></div>
+    <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
   </el-card>
 </template>
 

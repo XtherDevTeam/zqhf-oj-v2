@@ -12,7 +12,8 @@
         <template slot="prepend">空间限制</template>
       </el-input>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="new_problem_description" @init="editorInit" lang="html" theme="chrome"
+      <editor style="margin: 10px auto;" v-model="new_problem_description" @init="editorInit" lang="markdown"
+              theme="chrome"
               width="100%" height="256px"></editor>
 
       <el-tag :key="tag" v-for="tag in new_problem_tags" closable :disable-transitions="false"
@@ -32,7 +33,7 @@
       </span>
     </el-dialog>
 
-    <el-card class="box-card">
+    <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>题库</span>
         <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
@@ -53,6 +54,17 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <div style="margin: 20px;"></div>
+      <div style="margin: 0 auto;width: 512px;">
+        <span style="font-size: 15px;">当前页号:</span>
+        <el-input-number v-model="page_number" @change="handlePageNumberChange" :min="0" :max="1048576"
+                         label="当前页号"></el-input-number>
+        <span style="font-size: 15px;"> 最大显示: </span>
+        <el-input-number v-model="problems_limit" @change="handlePageNumberChange" :min="1" :max="64"
+                         label="一页显示题目数"></el-input-number>
+      </div>
+      <div style="margin: 20px;"></div>
     </el-card>
   </div>
 </template>
@@ -64,6 +76,7 @@ import axios from "axios";
 export default {
   methods: {
     init() {
+      this.page_number = this.problems_start / this.problems_limit;
       console.log(this.user_info);
       axios
           .get("/api/v1/user/details", {
@@ -99,6 +112,10 @@ export default {
       this.new_problem_temp_tag_visible = false;
       this.new_problem_temp_tag_name = '';
     },
+    handlePageNumberChange() {
+      window.location = '/#/problems?from=' + (this.problems_limit * this.page_number) + '&limit=' + this.problems_limit;
+      window.location.reload();
+    },
     new_problem_tags_remove(tag) {
       this.new_problem_tags.splice(this.new_problem_tags.indexOf(tag), 1);
     },
@@ -117,7 +134,7 @@ export default {
       require('brace/snippets/javascript') //snippet
     },
     problem_click(toCheck) {
-
+      window.location = '/#/problems/view?id=' + toCheck.id;
     },
     problem_edit(toCheck) {
       window.location = '/#/problems/edit?id=' + toCheck.id;
@@ -166,8 +183,8 @@ export default {
       logged_in: "",
       app_name: this.$parent.$parent.$parent.app_name,
       problems_data: [],
-      problems_start: this.$route.query['from'] === undefined ? 0 : this.$route.query['from'],
-      problems_limit: this.$route.query['limit'] === undefined ? 32 : this.$route.query['limit'],
+      problems_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
+      problems_limit: this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']),
       new_problem_dialog_visible: false,
       new_problem_name: "",
       new_problem_description: "",
@@ -176,6 +193,7 @@ export default {
       new_problem_tags: [],
       new_problem_temp_tag_name: "",
       new_problem_temp_tag_visible: false,
+      page_number: 0,
     }
   }
   ,

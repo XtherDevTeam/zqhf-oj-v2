@@ -6,7 +6,7 @@
       </div>
       <div class="text item"><span>通过题目数: {{ show_user_info['data']['ac_count'] }}</span></div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
-      <div v-html="full_introduction_rendered"></div>
+      <div class="markdown-body" v-html="full_introduction_rendered"></div>
     </el-card>
   </div>
 </template>

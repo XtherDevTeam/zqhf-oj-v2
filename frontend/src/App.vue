@@ -11,23 +11,23 @@
             <img height="60px" src="./assets/logo-dark.png"/>
           </li>
           <el-menu-item index="1">
-            <a href="/#/">主页</a>
+            <el-link href="/#/">主页</el-link>
           </el-menu-item>
 
           <el-menu-item index="2">
-            <a href="/#/problems">题库</a>
+            <el-link href="/#/problems">题库</el-link>
           </el-menu-item>
 
           <el-submenu v-if="user_info['code'] === 0" index="2">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
-            <el-menu-item index="2-1"><a href="/#/profile">个人空间</a></el-menu-item>
-            <el-menu-item index="2-2"><a href="/#/profile/edit">修改个人资料</a></el-menu-item>
+            <el-menu-item index="2-1"><el-link href="/#/profile">个人空间</el-link></el-menu-item>
+            <el-menu-item index="2-2"><el-link href="/#/profile/edit">修改个人资料</el-link></el-menu-item>
             <el-menu-item index="2-3" @click="change_password_dialog_visible = true;">修改密码</el-menu-item>
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
           <el-menu-item v-else index="2">
-            <a href="/#/login">登录</a>
+            <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>
       </el-header>
@@ -48,7 +48,7 @@
         </div>
       </el-main>
       <el-footer class="oj-footer">
-        <h6>{{ app_name }} · Powered by <a href="//github.com/XtherDevTeam/zqhf-oj-v2">zqhf-oj-v2</a></h6>
+        <h6>{{ app_name }} · Powered by <el-link href="//github.com/XtherDevTeam/zqhf-oj-v2">zqhf-oj-v2</el-link></h6>
       </el-footer>
     </el-container>
   </div>
@@ -111,6 +111,7 @@ export default {
       change_password_dialog_visible: false,
       change_password_new_password: "",
       change_password_origin_password: "",
+      support_judge_backend: ["C", "C++", "C++14", "Python3", "Xscript"]
     };
   },
   mounted: function () {

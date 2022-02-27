@@ -1,7 +1,7 @@
 <template>
   <div style="width: 500px; margin: 0 auto;">
     <div id="EventShowArea"></div>
-    <el-card class="login-box">
+    <el-card shadow="hover" class="login-box">
       <div slot="header" class="clearfix">
         <span class="align-text">登陆</span>
       </div>

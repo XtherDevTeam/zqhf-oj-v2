@@ -6,6 +6,7 @@ import sqlite3
 from contextlib import closing
 import time
 import config
+import judge
 
 DATABASE = config.get("database-path")
 db = None
@@ -87,6 +88,15 @@ def change_user_attrs(user: int, name: str, introduction: str, full_introduction
 
 def change_user_password(user: int, password: str):
     set_user_attr_by_id(user, 'password', make_password_md5(password))
+
+
+def query_records_by_size(start: int, count: int):
+    data = query_db("select id, author, lang from oj_records order by id desc limit ? offset ?", [count, start])
+    return data
+
+
+def query_records_by_id(ident: int):
+    return query_db("select * from oj_records where id = ?", [ident], one=True)
 
 
 def query_bulletins_by_size(start: int, count: int):
@@ -275,3 +285,55 @@ def query_problem_by_name(name: str):
 
 def query_problem_by_size(start: int, limit: int):
     return query_db("select id, name, tags, author from oj_problems order by id limit ? offset ?", [limit, start])
+
+
+def get_judge_server_info():
+    return {
+        'address': config.get('judge-server-address'),
+        'support-languages': config.get('judge-sever-support-language'),
+        'support-language-exts': config.get('judge-server-language-exts')
+    }
+
+
+def submit_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
+    problem_content = query_problem_by_id(problem)
+    checkpoint_list = get_checkpoint_list(problem)
+    checkpoint_status = []
+    submit_time = timestamp
+    query_db("insert into oj_records (author, code, lang, problem, timestamp) VALUES (?, ?, ?, ?, ?)",
+             [author, code, lang, problem, submit_time])
+    jid = \
+        query_db(
+            "select id from oj_records where author = ? and code = ? and lang = ? and problem = ? and timestamp = ?",
+            [author, code, lang, problem, submit_time], one=True)['id']
+
+    env_vars = {
+        'source_file': 'temp.' + config.get('judge-server-language-exts')[lang],
+        'binary_file': 'temp.bin'
+    }
+
+    for i in checkpoint_list:
+        datas = ["", ""]
+        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
+                  "r+") as file:
+            datas[0] = file.read()
+        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
+                  "r+") as file:
+            datas[1] = file.read()
+        checkpoint_status.append(judge.submit(
+            judge_server_address=config.get('judge-server-address'),
+            judge_plugin=lang,
+            source_file=code,
+            data_input=datas[0],
+            data_output=datas[1],
+            time_limit=problem_content['timeout'],
+            mem_limit=problem_content['memory'],
+            env_variables=env_vars
+        ))
+        query_db("update oj_records set points = ? where id = ?", [json.dumps(checkpoint_status), jid])
+    return True
+
+
+def get_judge_jid(problem: int, author: int, timestamp: int):
+    return query_db("select id from oj_records where problem = ? and author = ? and timestamp = ?",
+                    [problem, author, timestamp], one=True)['id']

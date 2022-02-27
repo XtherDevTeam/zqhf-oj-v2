@@ -61,10 +61,11 @@ create table oj_bulletins
 
 create table oj_records
 (
-    id      integer primary key autoincrement,
-    author  integer not null,
-    code    string  not null,
-    lang    string  not null,
-    problem string  not null,
-    points  string default '[]' not null
+    id        integer primary key autoincrement,
+    author    integer not null,
+    code      string  not null,
+    lang      string  not null,
+    problem   integer not null,
+    points    string default '[]' not null,
+    timestamp integer not null
 );

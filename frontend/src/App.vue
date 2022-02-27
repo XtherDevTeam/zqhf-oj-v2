@@ -26,7 +26,7 @@
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
-          <el-menu-item v-else index="2">
+          <el-menu-item v-else index="3">
             <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>
@@ -110,8 +110,7 @@ export default {
       app_name: "肇庆华附在线评测系统",
       change_password_dialog_visible: false,
       change_password_new_password: "",
-      change_password_origin_password: "",
-      support_judge_backend: ["C", "C++", "C++14", "Python3", "Xscript"]
+      change_password_origin_password: ""
     };
   },
   mounted: function () {

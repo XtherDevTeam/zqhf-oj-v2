@@ -1,11 +1,14 @@
 import io
+import json
 import pickle
 import sqlite3
+import time
 
 import flask
-import config
-import backend
 from flask_cors import CORS
+
+import backend
+import config
 
 app = flask.Flask(__name__)
 app.secret_key = '__@zqhf-oj-v2-secret-code'
@@ -48,6 +51,37 @@ def teardown_request(exception):
 @app.route("/", methods=['GET'])
 def root_router():
     return {"code": 0, "text": "API服务状态正常!"}
+
+
+@app.route("/v1/judge/info", methods=['GET'])
+def judge_server_info_router():
+    return {"code": 0, "text": "请求成功!", "data": backend.get_judge_server_info()}
+
+
+@app.route("/v1/judge/get/<int:start>/<int:limit>", methods=['GET'])
+def judge_record_get_by_swap_router(start, limit):
+    return {
+        'code': 0,
+        'text': '操作成功!',
+        'data': backend.query_records_by_size(start, limit)
+    }
+
+
+@app.route("/v1/judge/get/<int:ident>", methods=['GET'])
+def judge_record_get_by_id_router(ident):
+    result = backend.query_records_by_id(ident)
+    result['points'] = json.loads(result['points'])
+    if result is None:
+        return {
+            'code': 2,
+            'text': '请求的评测编号不存在!'
+        }
+    else:
+        return {
+            'code': 0,
+            'text': '操作成功!',
+            'data': result
+        }
 
 
 @app.route("/v1/user/register/<username>/<password>", methods=['POST'])
@@ -227,6 +261,35 @@ def ranking_get_router(start, count):
         'code': 0,
         'text': '请求成功',
         'data': backend.query_ranking(start, count)
+    }
+
+
+@app.route("/v1/problems/<int:ident>/judge/submit", methods=['POST'])
+def judge_submit_router(ident):
+    if flask.session.get("user_id") is None:
+        return {"code": 7, "text": "用户未登录!"}
+
+    request = flask.request.get_json()
+    if request.get('code') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少代码文本参数'
+        }
+    if request.get('lang') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少代码语言参数'
+        }
+
+    timestamp = int(time.time() * 100)
+
+    backend.submit_judge(ident, flask.session['user_id'], request['code'],
+                         request['lang'], timestamp)
+
+    return {
+        'code': 0,
+        'text': '提交评测成功!',
+        'data': backend.get_judge_jid(ident, flask.session['user_id'], timestamp)
     }
 
 

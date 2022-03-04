@@ -44,7 +44,7 @@
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
         <el-table-column fixed prop="name" label="题目名"></el-table-column>
         <el-table-column fixed v-slot="scope" label="标签">
-          <el-tag v-for="this_tag in scope.row['tags']">{{ this_tag }}</el-tag>
+          <el-tag :key="tag" v-for="tag in scope.row.tags">{{ tag }}</el-tag>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">

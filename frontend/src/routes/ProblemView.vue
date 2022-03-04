@@ -9,7 +9,7 @@
       </div>
       <span>使用判题服务器: {{ judge_server_address }}</span>
       <div style="margin: 10px auto;"></div>
-      <span>支持语言: <el-tag style="margin: 0 5px;" v-for="i in support_judge_language">{{ i }}</el-tag></span>
+      <span>支持语言: <el-tag style="margin: 0 5px;" :key="i" v-for="i in support_judge_language">{{ i }}</el-tag></span>
       <div style="margin: 10px auto;"></div>
       <span><strong>题目介绍: </strong></span><br>
       <div style="margin: 10px auto;"></div>
@@ -19,7 +19,7 @@
 
       <span><strong>题目样例: </strong></span><br>
       <div style="margin: 10px auto;"></div>
-      <div v-for="example in problem_content['examples']">
+      <div :key="example" v-for="example in problem_content['examples']">
         <el-container>
           <el-aside width="50%">
             输入:<br>

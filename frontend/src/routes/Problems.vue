@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 90%;">
+  <div style="width: 90%;margin: 0 auto;">
     <el-dialog width="50%" title="创建题目" :visible.sync="new_problem_dialog_visible">
       <span>新增题目样例请创建题目后修改</span>
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_problem_name">
@@ -49,8 +49,12 @@
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
             <el-button @click="problem_click(scope.row)" type="text" size="small">查看</el-button>
-            <el-button @click="problem_edit(scope.row)" type="text" size="small">修改</el-button>
-            <el-button @click="problem_remove(scope.row)" type="text" size="small">删除</el-button>
+            <el-button v-if="check_general_permission(scope.row.author)" @click="problem_edit(scope.row)" type="text"
+                       size="small">修改
+            </el-button>
+            <el-button v-if="check_general_permission(scope.row.author)" @click="problem_remove(scope.row)" type="text"
+                       size="small">删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -174,6 +178,14 @@ export default {
           window.location.reload();
         }
       })
+    },
+    check_general_permission(compare) {
+      if (this.logged_in) {
+        return this.user_info['data']['other_message']['permission_level'] === 1 && this.user_info['data']['username'] === compare ||
+            this.user_info['data']['other_message']['permission_level'] === 2;
+      } else {
+        return false;
+      }
     }
   },
   components: {

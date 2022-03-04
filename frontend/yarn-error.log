@@ -1,8 +1,8 @@
 Arguments: 
-  D:\Program Files\nodejs\node.exe C:\Users\Jerry Chou\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js
+  D:\Program Files\nodejs\node.exe C:\Users\Jerry Chou\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js install
 
 PATH: 
-  C:\Program Files\Zulu\zulu-17\bin\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\libnvvp;C:\Program Files\Git\bin;C:\Program Files\Zulu\zulu-11-jre\bin\;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Git\cmd;D:\mingw\mingw64\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2022.1.0\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Users\Jerry Chou\Desktop\cudnn-windows-x86_64-8.3.1.22_cuda11.5-archive\bin;C:\Users\Jerry Chou\Desktop\cudnn-windows-x86_64-8.3.1.22_cuda11.5-archive\lib;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\Program Files\nodejs\;C:\Users\Jerry Chou\AppData\Local\Microsoft\WindowsApps;C:\Users\Jerry Chou\AppData\Local\Programs\Microsoft VS Code Insiders\bin;C:\Program Files\JetBrains\CLion 2021.3.2\bin;;C:\Users\Jerry Chou\AppData\Local\Programs\Python\Python310\Scripts\;C:\Users\Jerry Chou\AppData\Local\Programs\Python\Python310\;C:\Python27;;D:\Program Files\PyCharm 2021.3.2\bin;;C:\Users\Jerry Chou\AppData\Roaming\npm;C:\Users\Jerry Chou\Desktop\projects\zqhf-oj-reset\node_modules\.bin
+  C:\Program Files\Zulu\zulu-17\bin\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\libnvvp;C:\Program Files\Git\bin;C:\Program Files\Zulu\zulu-11-jre\bin\;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\VMware\VMware Workstation\bin\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Git\cmd;D:\mingw\mingw64\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2022.1.0\;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Users\Jerry Chou\Desktop\cudnn-windows-x86_64-8.3.1.22_cuda11.5-archive\bin;C:\Users\Jerry Chou\Desktop\cudnn-windows-x86_64-8.3.1.22_cuda11.5-archive\lib;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\Program Files\nodejs\;C:\Users\Jerry Chou\AppData\Local\Microsoft\WindowsApps;C:\Users\Jerry Chou\AppData\Local\Programs\Microsoft VS Code Insiders\bin;C:\Program Files\JetBrains\CLion 2021.3.2\bin;;C:\Users\Jerry Chou\AppData\Local\Programs\Python\Python310\Scripts\;C:\Users\Jerry Chou\AppData\Local\Programs\Python\Python310\;C:\Python27;;D:\Program Files\PyCharm 2021.3.2\bin;;C:\Users\Jerry Chou\AppData\Roaming\npm
 
 Yarn version: 
   1.22.17
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: ENOENT: no such file or directory, copyfile 'C:\Users\Jerry Chou\AppData\Local\Yarn\Cache\v6\npm-inherits-2.0.1-b17d08d326b4423e568eff719f91b0b1cbdf69f1-integrity\node_modules\inherits\inherits.js' -> 'C:\Users\Jerry Chou\Desktop\projects\zqhf-oj-reset\frontend\node_modules\assert\node_modules\inherits\inherits.js'
+  Error: ENOENT: no such file or directory, copyfile 'C:\Users\Jerry Chou\AppData\Local\Yarn\Cache\v6\npm-brace-expansion-1.1.7-3effc3c50e000531fb720eaff80f0ae8ef23cf59\node_modules\brace-expansion\index.js' -> 'C:\Users\Jerry Chou\Desktop\projects\zqhf-oj-reset\frontend\node_modules\rimraf\node_modules\brace-expansion\index.js'
 
 npm manifest: 
   {
@@ -30,8 +30,15 @@ npm manifest:
       "axios": "^0.26.0",
       "brace": "^0.11.1",
       "element-ui": "^2.15.6",
+      "inherits": "^2.0.4",
+      "is-buffer": "^2.0.5",
+      "kind-of": "^6.0.3",
       "markdown-it": "^12.3.2",
       "markdown-it-katex": "^2.0.3",
+      "mavon-editor": "^2.10.4",
+      "mime-db": "^1.52.0",
+      "minimatch": "^5.0.1",
+      "pify": "^5.0.0",
       "vue": "^2.6.14",
       "vue-router": "^3.5.3",
       "vue-template-compiler": "^2.6.14",

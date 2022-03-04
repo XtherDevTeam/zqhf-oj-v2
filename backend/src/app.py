@@ -28,7 +28,7 @@ def require_admin_permission():
     if not is_logged_in():
         return {'code': 7, 'text': '用户未登录!'}
     # is not administrator or super-administrator
-    if pickle.loads(get_login_details()['other_message'])['permission_level'] < 1:
+    if get_login_details()['other_message']['permission_level'] < 1:
         return {'code': 1, 'text': '权限不足!'}
     return True
 
@@ -128,7 +128,7 @@ def user_info_change_router():
         if request.get('introduction') is None:
             return {"code": 5, "text": "缺少用户简介!"}
         if request.get('full_introduction') is None:
-            return {"code": 5, "text": "缺少用户长简介!"}
+            return {"code": 5, "text": "缺少用户长介绍!"}
         backend.change_user_attrs(flask.session.get('user_id'), request.get('username'),
                                   request.get('introduction'), request.get('full_introduction'))
         return {"code": 0, "text": "操作成功!"}
@@ -145,7 +145,6 @@ def user_detail_router():
             if flask.session.get('user_id') is None:
                 return {"code": 7, "text": "用户未登录!"}
             result = backend.query_user_by_id(flask.session['user_id'])
-            result['other_message'] = pickle.loads(result['other_message'])
             del result['password']
             return {
                 'code': 0,
@@ -156,7 +155,6 @@ def user_detail_router():
             result = backend.query_user_by_id(int(ident))
             if result is None:
                 return {"code": 2, "text": "用户不存在!"}
-            result['other_message'] = pickle.loads(result['other_message'])
             result['other_message'] = {
                 'permission_level': result['other_message']['permission_level']
             }
@@ -179,6 +177,58 @@ def user_detail_router():
             'text': '请求成功',
             'data': result
         }
+
+
+@app.route("/v1/problem_lists/get/<int:start>/<int:limit>", methods=['GET'])
+def problem_lists_get_by_swap_router(start, limit):
+    return {
+        'code': 0,
+        'text': '操作成功!',
+        'data': backend.query_problem_list_by_size(start, limit)
+    }
+
+
+@app.route("/v1/problem_lists/get/<int:ident>", methods=['GET'])
+def problem_lists_get_by_id_router(ident):
+    result = backend.query_problem_list_by_id(ident)
+    if result is None:
+        return {
+            'code': 2,
+            'text': '请求的题单编号不存在!'
+        }
+    else:
+        return {
+            'code': 0,
+            'text': '操作成功!',
+            'data': result
+        }
+
+
+@app.route("/v1/problem_lists/post", methods=['POST'])
+def problem_lists_post_router():
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    data = flask.request.get_json()
+    if backend.create_problem_list(flask.session.get('user_id'), data['name'], data['description'], []):
+        return {'code': 0, 'text': '请求成功!'}
+    else:
+        return {'code': 5, 'text': '具有相同名称的题单已存在!'}
+
+
+@app.route("/v1/problem_lists/edit/<int:pid>", methods=['POST'])
+def problem_lists_edit_router(pid: int):
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    data = flask.request.get_json()
+    if backend.edit_problem_list(flask.session.get('user_id'), pid, data['name'], data['description'],
+                                 data['problems']):
+        return {'code': 0, 'text': '请求成功!'}
+    else:
+        return {'code': 3, 'text': '将要修改的题单不存在!'}
 
 
 @app.route("/v1/bulletins/get/<int:start>/<int:count>", methods=['GET'])
@@ -276,7 +326,7 @@ def judge_submit_router(ident):
     jid = backend.create_judge(ident, flask.session['user_id'], request['code'],
                                request['lang'], timestamp)
 
-    th = threading.Thread(target=backend.submit_judge,
+    th = threading.Thread(target=backend.submit_judge_main,
                           args=(jid, flask.session['user_id'], ident, request['code'], request['lang'], timestamp))
     th.start()
     time.sleep(0.1)
@@ -534,6 +584,33 @@ def search_problems_tags_router(content):
         'code': 0,
         'text': '请求成功',
         'data': backend.search_problems('by_tags', content)
+    }
+
+
+@app.route("/v1/search/problem_lists/by_name/<content>", methods=['GET'])
+def search_problem_lists_by_name(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problem_list_by_name(content)
+    }
+
+
+@app.route("/v1/search/problem_lists/by_description/<content>", methods=['GET'])
+def search_problem_lists_by_description(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problem_list_by_description(content)
+    }
+
+
+@app.route("/v1/search/problem_lists/by_problem/<int:content>", methods=['GET'])
+def search_problem_lists_by_problem(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problem_list_by_problem(content)
     }
 
 

@@ -5,6 +5,8 @@
       <el-tag v-if="record_content['status'] === 'Accepted'" type="success">通过</el-tag>
       <el-tag v-else-if="record_content['status'] === 'Wrong answer'" type="danger">未通过</el-tag>
       <el-tag v-else type="warning">评测中</el-tag>
+      <br>
+      <span>测试得分 {{ record_content['score'] }}</span>
     </div>
     <span>题目编号 {{ record_content['problem'] }}</span><br>
     <div style="margin: 10px;"></div>
@@ -45,7 +47,8 @@
     <span>提交代码: </span>
     <div style="margin: 10px;"></div>
     <div class="markdown-body">
-      <pre><code>{{ record_content['code'] }}</code></pre>
+      <pre v-if="user_info['data']['id'] === record_content['author']"><code>{{ record_content['code'] }}</code></pre>
+      <pre v-else><code>您无权限查看他人代码!</code></pre>
     </div>
   </el-card>
 </template>
@@ -96,7 +99,7 @@ export default {
   },
   data() {
     return {
-      user_info: "",
+      user_info: {},
       logged_in: "",
       record_content: {},
       interval_id: 0

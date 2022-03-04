@@ -46,9 +46,10 @@ create table oj_fileserver
 create table oj_problem_lists
 (
     id          integer primary key autoincrement,
-    name        string not null,
-    description blob   not null,
-    problems    string not null
+    author      integer not null,
+    name        string  not null,
+    description blob    not null,
+    problems    string  not null
 );
 
 create table oj_bulletins
@@ -66,7 +67,8 @@ create table oj_records
     code      string  not null,
     lang      string  not null,
     problem   integer not null,
-    points    string default '[]' not null,
+    points    string  default '[]' not null,
     timestamp integer not null,
-    status    string  not null
+    status    string  not null,
+    score     integer default 0 not null
 );

@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 90%;">
+  <div style="width: 90%;margin: 0 auto;">
     <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>评测记录</span>
@@ -7,7 +7,8 @@
       <el-table :data="records_data" style="width: 100%">
         <el-table-column fixed prop="id" label="评测编号" width="128"></el-table-column>
         <el-table-column fixed prop="author" label="上传者UID" width="128"></el-table-column>
-        <el-table-column fixed prop="problem" label="题目ID"></el-table-column>
+        <el-table-column fixed prop="problem" label="题目ID" width="128"></el-table-column>
+        <el-table-column fixed prop="score" label="得分" width="128"></el-table-column>
         <el-table-column fixed label="状态">
           <template v-slot="scope">
             <el-tag v-if="scope.row.status === 'Accepted'" type="success">通过</el-tag>

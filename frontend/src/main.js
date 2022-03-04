@@ -4,6 +4,7 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App.vue'
 import LoginPage from './routes/LoginPage'
+import RegisterPage from './routes/RegisterPage'
 import Home from './routes/Home.vue'
 import NotFound from './routes/NotFound'
 import ProfilePage from "./routes/Profile"
@@ -15,10 +16,16 @@ import ProblemViewPage from "./routes/ProblemView";
 import ProblemEditPage from "./routes/ProblemEdit";
 import JudgeRecordViewPage from "./routes/JudgeRecordView";
 import RecordsPage from "./routes/Records";
+import ProblemListsPage from "./routes/ProblemLists";
+import ProblemListEditPage from "./routes/ProblemListEdit";
+import ProblemListViewPage from "./routes/ProblemListView";
 
 
 const routes = [
     {path: '/', component: Home},
+    {path: '/lists', component: ProblemListsPage},
+    {path: '/lists/edit', component: ProblemListEditPage},
+    {path: '/lists/view', component: ProblemListViewPage},
     {path: '/problems', component: ProblemsPage},
     {path: '/problems/edit', component: ProblemEditPage},
     {path: '/problems/view', component: ProblemViewPage},
@@ -29,6 +36,7 @@ const routes = [
     {path: '/records', component: RecordsPage},
     {path: '/records/view', component: JudgeRecordViewPage},
     {path: '/login', component: LoginPage},
+    {path: '/register', component: RegisterPage},
     {path: '*', component: NotFound},
 ]
 

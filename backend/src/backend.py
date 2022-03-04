@@ -55,7 +55,8 @@ def register_user(user: str, password: str, permission_level: int = 1):
         [user, make_password_md5(password), "", "", 0, pickle.dumps({
             "images_own": [],
             "files_own": [],
-            "permission_level": permission_level  # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
+            "permission_level": permission_level,  # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
+            "ac_problems": []
         })]
     )
     db.commit()
@@ -66,11 +67,15 @@ def query_user_by_name(user: str):
 
 
 def query_user_by_id(user: int):
-    return query_db("select * from oj_users where id = ?", [user], True)
+    data = query_db("select * from oj_users where id = ?", [user], True)
+    data['other_message'] = pickle.loads(data['other_message'])
+    return data
 
 
 def delete_user_by_name(user: str):
-    return query_db("delete from oj_users where username = ?", [user], True)
+    data = query_db("select * from oj_users where username = ?", [user], True)
+    data['other_message'] = pickle.loads(data['other_message'])
+    return data
 
 
 def delete_user_by_id(user: int):
@@ -96,7 +101,7 @@ def change_user_password(user: int, password: str):
 
 
 def query_records_by_size(start: int, count: int):
-    data = query_db("select id, author, lang, problem, status from oj_records order by id desc limit ? offset ?",
+    data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
                     [count, start])
     return data
 
@@ -173,13 +178,15 @@ def query_ranking(start: int, count: int):
 def search_problems(way: str, content: str):
     result = []
     if way == "by_id":
-        result = query_db("select * from oj_problems where id = ?", [content])
+        result = query_db("select id,name,description,tags from oj_problems where id = ?", [content])
     elif way == "by_author":
-        result = query_db("select * from oj_problems where author like ?", ["%" + content + "%"])
+        result = query_db("select id,name,description,tags from oj_problems where author like ?", ["%" + content + "%"])
     elif way == "by_description":
-        result = query_db("select * from oj_problems where description like ?", ["%" + json.dumps(content)[1:-1] + "%"])
+        result = query_db("select id,name,description,tags from oj_problems where description like ?",
+                          ["%" + json.dumps(content)[1:-1] + "%"])
     elif way == "by_tags":
-        result = query_db("select * from oj_problems where tags like ?", ["%" + json.dumps(content)[1:-1] + "%"])
+        result = query_db("select id,name,description,tags from oj_problems where tags like ?",
+                          ["%" + json.dumps(content)[1:-1] + "%"])
     return result
 
 
@@ -303,7 +310,8 @@ def get_judge_server_info():
 
 def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
     query_db(
-        "insert into oj_records (author, code, lang, problem, timestamp, status) VALUES (?, ?, ?, ?, ?, 'Judging...')",
+        "insert into oj_records (author, code, lang, problem, timestamp, status, score) VALUES "
+        "(?, ?, ?, ?, ?, 'Judging...', 0)",
         [author, code, lang, problem, timestamp])
     jid = \
         query_db(
@@ -312,10 +320,11 @@ def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int
     return jid
 
 
-def submit_judge(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):
+def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):
     problem_content = query_problem_by_id(problem)
     checkpoint_list = get_checkpoint_list(problem)
     checkpoint_status = []
+    score = 0
     full_ac = True
 
     env_vars = {
@@ -343,11 +352,18 @@ def submit_judge(jid: int, author: int, problem: int, code: str, lang: str, time
         ))
         if checkpoint_status[-1]['status'] != 'Accepted':
             full_ac = False
-        query_db("update oj_records set points = ? where id = ?", [json.dumps(checkpoint_status), jid])
+        else:
+            score = score + 100 * (1 / len(checkpoint_list))
+        query_db("update oj_records set points = ?, score = ? where id = ?",
+                 [json.dumps(checkpoint_status), score, jid])
 
     if full_ac:
-        ac_count = query_user_by_id(author)['ac_count'] + 1
-        set_user_attr_by_id(author, 'ac_count', ac_count)
+        other_message = query_user_by_id(author)['other_message']
+        if not other_message['ac_problems'].count(problem):
+            ac_count = query_user_by_id(author)['ac_count'] + 1
+            other_message['ac_problems'].append(problem)
+            set_user_attr_by_id(author, 'ac_count', ac_count)
+            set_user_attr_by_id(author, 'other_message', pickle.dumps(other_message))
         query_db("update oj_records set status = 'Accepted' where id = ?", [jid])
     else:
         query_db("update oj_records set status = 'Wrong answer' where id = ?", [jid])
@@ -358,3 +374,83 @@ def submit_judge(jid: int, author: int, problem: int, code: str, lang: str, time
 def get_judge_jid(problem: int, author: int, timestamp: int):
     return query_db("select id from oj_records where problem = ? and author = ? and timestamp = ?",
                     [problem, author, timestamp], one=True)['id']
+
+
+def query_problem_list_by_name(name: str):
+    data = query_db("select * from oj_problem_lists where name = ?", [name], one=True)
+    if data is None:
+        return data
+    data['author'] = query_user_by_id(data['author'])
+    data['problems'] = json.loads(data['problems'])
+    return data
+
+
+def query_problem_list_by_id(ident: int):
+    data = query_db("select * from oj_problem_lists where id = ?", [ident], one=True)
+    if data is None:
+        return data
+    data['author'] = query_user_by_id(data['author'])
+    data['problems'] = json.loads(data['problems'])
+    for i in range(len(data['problems'])):
+        data['problems'][i] = query_problem_by_id(data['problems'][i])
+
+    return data
+
+
+def remove_problem_list_by_id(ident: int):
+    data = query_db("delete from oj_problem_lists where id = ?", [ident], one=True)
+    return data
+
+
+def query_problem_list_by_size(start: int, limit: int):
+    data = query_db("select id, author, name from oj_problem_lists order by id limit ? offset ?", [limit, start])
+    for i in data:
+        i['author'] = query_user_by_id(i['author'])
+
+    return data
+
+
+def search_problem_list_by_problem(pid: int):
+    data = query_db("select id, author, name from oj_problem_lists where problems like ? order by id",
+                    [f'%{str(pid)}%'])
+    for i in data:
+        i['author'] = query_user_by_id(i['author'])
+
+    return data
+
+
+def search_problem_list_by_description(words: str):
+    data = query_db("select id, author, name from oj_problem_lists where description like ? order by id",
+                    [f'%{words}%'])
+    for i in data:
+        i['author'] = query_user_by_id(i['author'])
+
+    return data
+
+
+def search_problem_list_by_name(words: str):
+    data = query_db("select id, author, name from oj_problem_lists where name like ? order by id",
+                    [f'%{words}%'])
+    for i in data:
+        i['author'] = query_user_by_id(i['author'])
+
+    return data
+
+
+def create_problem_list(author: int, name: str, description: str, problems: list):
+    if query_problem_list_by_name(name) is not None:
+        return False
+
+    query_db("insert into oj_problem_lists (author, name, description, problems) values (?,?,?,?)",
+             [author, name, description, json.dumps(problems)])
+    return True
+
+
+def edit_problem_list(author: int, ident: int, name: str, description: str, problems: list):
+    if query_problem_list_by_name(name) is None:
+        return False
+
+    query_db("update oj_problem_lists set name = ?, author = ?, description = ?, problems = ? where id = ?",
+             [name, author, description, json.dumps(problems), ident])
+
+    return True

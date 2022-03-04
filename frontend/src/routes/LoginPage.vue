@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 500px; margin: 0 auto;">
+  <div style="width: 500px; margin: 0 auto;text-align: center;">
     <div id="EventShowArea"></div>
     <el-card shadow="hover" class="login-box">
       <div slot="header" class="clearfix">
@@ -13,10 +13,9 @@
           show-password
       ></el-input>
       <div style="margin: 20px 0"></div>
-      <el-button type="primary" @click="handleLoginEvent()">登录
-      </el-button
-      >
-      <br/>
+      <el-button type="primary" @click="handleLoginEvent()">登录</el-button>
+      <div style="margin: 20px 0"></div>
+      <span>或者...<el-link href="/#/register">注册账号</el-link>?</span>
     </el-card>
   </div>
 </template>
@@ -36,7 +35,7 @@ export default {
         if (response.data["code"] !== 0) {
           let Message = Vue.extend({
             template:
-                '<el-alert id="EventShowArea" title="登陆失败!" type="error" description="代码' +
+                '<el-alert id="EventShowArea" style="text-align: left;width: 100%;" title="登陆失败!" type="error" description="代码' +
                 response.data["code"] +
                 ":" +
                 response.data["text"] +
@@ -87,9 +86,5 @@ a {
 
 .clearfix:after {
   clear: both;
-}
-
-.login-box {
-  width: 480px;
 }
 </style>

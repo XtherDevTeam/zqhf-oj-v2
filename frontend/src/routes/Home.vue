@@ -196,7 +196,7 @@ export default {
     bulletins_delete(toCheck) {
       axios.post('/api/v1/bulletins/delete/' + toCheck.id).then((response) => {
         if (response.data['code'] === 0) {
-          window.location.reload();
+          this.init();
         } else {
           this.$message({
             type: "error",
@@ -211,7 +211,7 @@ export default {
         content: this.create_bulletin_dialog_content
       }).then((response) => {
         if (response.data['code'] === 0) {
-          window.location.reload();
+          this.init();
         } else {
           this.$message({
             type: "error",

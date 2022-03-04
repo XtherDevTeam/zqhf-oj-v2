@@ -1,7 +1,7 @@
 <template>
   <div style="width: 90%;margin: 0 auto;">
-    <el-dialog width="50%" title="创建题目" :visible.sync="new_problem_list_dialog_visible">
-      <span>新增题目样例请创建题目后修改</span>
+    <el-dialog width="50%" title="创建题单" :visible.sync="new_problem_list_dialog_visible">
+      <span>新建题单之后编辑题单以新增题目</span>
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_problem_list_name">
         <template slot="prepend">标题</template>
       </el-input>
@@ -23,6 +23,15 @@
                    style="float: right; padding: 3px 0" type="text" @click="new_problem_list_dialog_visible = true;">
           新建题单
         </el-button>
+      </div>
+      <div style="width: 100%">
+        <el-input placeholder="请输入内容" v-model="search_problem_list_content" class="input-with-select">
+          <el-select style="width: 150px;" v-model="search_problem_list_mode" slot="prepend" placeholder="查找方式">
+            <el-option label="通过描述查找" value="by_description"></el-option>
+            <el-option label="通过标题查找" value="by_name"></el-option>
+          </el-select>
+          <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
+        </el-input>
       </div>
       <el-table :data="lists_data" style="width: 100%">
         <el-table-column fixed prop="id" label="题单编号" width="128"></el-table-column>
@@ -119,7 +128,7 @@ export default {
             type: "success",
             message: "题单创建成功!"
           });
-          window.location.reload();
+          this.init();
         } else {
           this.$message({
             type: "error",
@@ -140,7 +149,7 @@ export default {
             message: '删除题单失败: ' + response.data['text']
           });
         } else {
-          window.location.reload();
+          this.init();
         }
       })
     },
@@ -150,6 +159,23 @@ export default {
             this.user_info['data']['other_message']['permission_level'] === 2;
       } else {
         return false;
+      }
+    },
+    on_search_event() {
+      if (this.search_problem_list_content === "") {
+        this.init();
+      } else {
+        axios.get('/api/v1/search/problem_lists/' + this.search_problem_list_mode + '/' + this.search_problem_list_content)
+            .then((response) => {
+              if (response.data['code'] === 0) {
+                this.lists_data = response.data['data'];
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: '搜索题目失败: ' + response.data['text']
+                });
+              }
+            })
       }
     }
   },
@@ -167,7 +193,9 @@ export default {
       page_number: 0,
       new_problem_list_dialog_visible: false,
       new_problem_list_name: "",
-      new_problem_list_description: ""
+      new_problem_list_description: "",
+      search_problem_list_mode: "",
+      search_problem_list_content: "",
     }
   }
   ,

@@ -447,7 +447,7 @@ def create_problem_list(author: int, name: str, description: str, problems: list
 
 
 def edit_problem_list(author: int, ident: int, name: str, description: str, problems: list):
-    if query_problem_list_by_name(name) is None:
+    if query_problem_list_by_id(ident) is None:
         return False
 
     query_db("update oj_problem_lists set name = ?, author = ?, description = ?, problems = ? where id = ?",

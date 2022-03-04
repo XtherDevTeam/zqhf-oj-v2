@@ -153,7 +153,7 @@ export default {
             message: '删除题目失败: ' + response.data['text']
           });
         } else {
-          window.location.reload();
+          this.init();
         }
       })
     },
@@ -175,7 +175,7 @@ export default {
             message: '新增题目失败: ' + response.data['text']
           });
         } else {
-          window.location.reload();
+          this.init();
         }
       })
     },

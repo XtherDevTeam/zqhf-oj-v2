@@ -22,8 +22,8 @@ module.exports = (options = {}) => ({
     },
     {
       test: /\.js$/,
-      use: ['babel-loader'],
-      exclude: /node_modules/
+      loader: 'babel-loader',
+      include: [resolve('src'), resolve('test'), resolve('/node_modules/vue-ionicons/dist/ionicons-mixin.js')]
     },
     {
       test: /\.css$/,
@@ -52,7 +52,7 @@ module.exports = (options = {}) => ({
     alias: {
       '~': resolve(__dirname, 'src'),
       '@': resolve(__dirname, 'src/assets'),
-      'vue$': 'vue/dist/vue.esm.js' 
+      'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.png', '.jpg']
   },

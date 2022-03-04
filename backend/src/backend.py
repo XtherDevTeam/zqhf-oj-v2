@@ -221,7 +221,7 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
     return False
 
 
-def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data: str | bytes):
+def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data):
     if type(input_data) == bytes:
         input_data = input_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
@@ -233,7 +233,7 @@ def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data: str
         return False
 
 
-def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data: str | bytes):
+def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data):
     if type(output_data) == bytes:
         output_data = output_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:

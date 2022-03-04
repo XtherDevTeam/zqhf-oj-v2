@@ -1,6 +1,6 @@
 import json
 
-config_file_path = "src/config.json"
+config_file_path = "config.json"
 
 
 def get(key):

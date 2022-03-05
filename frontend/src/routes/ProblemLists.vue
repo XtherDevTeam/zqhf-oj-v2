@@ -123,11 +123,12 @@ export default {
         description: this.new_problem_list_description,
         problems: [],
       }).then((response) => {
-        if (response['code'] === 0) {
+        if (response.data['code'] === 0) {
           this.$message({
             type: "success",
             message: "题单创建成功!"
           });
+          this.new_problem_list_dialog_visible = false;
           this.init();
         } else {
           this.$message({

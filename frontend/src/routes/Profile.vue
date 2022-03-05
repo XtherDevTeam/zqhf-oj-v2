@@ -15,11 +15,13 @@
 <script>
 import axios from "axios";
 
+import markdownItHighlight from 'markdown-it-highlight';
 
 const markdown = require('markdown-it')(),
     markdown_with_katex = require('markdown-it-katex');
 
-markdown.use(markdown_with_katex)
+markdown.use(markdownItHighlight);
+markdown.use(markdown_with_katex);
 
 export default {
   methods: {

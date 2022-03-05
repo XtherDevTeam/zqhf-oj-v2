@@ -175,6 +175,7 @@ export default {
             message: '新增题目失败: ' + response.data['text']
           });
         } else {
+          this.new_problem_dialog_visible = false;
           this.init();
         }
       })

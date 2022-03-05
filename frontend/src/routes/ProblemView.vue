@@ -62,11 +62,13 @@
 import axios from "axios";
 import Vue from "_vue@2.6.14@vue";
 
+import markdownItHighlight from 'markdown-it-highlight';
+
 const markdown = require('markdown-it')(),
     markdown_with_katex = require('markdown-it-katex');
 
-markdown.use(markdown_with_katex)
-
+markdown.use(markdownItHighlight);
+markdown.use(markdown_with_katex);
 
 export default {
   methods: {

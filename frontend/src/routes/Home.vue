@@ -226,6 +226,9 @@ export default {
     profile_click(toCheck) {
       window.location = '/#/profile?id=' + toCheck.id;
     },
+    problem_click(toCheck) {
+      window.location = '/#/problems/view?id=' + toCheck.id;
+    },
     editorInit() {
       require('brace/ext/language_tools') //language extension prerequisite...
       require('brace/mode/html')

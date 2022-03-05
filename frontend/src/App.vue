@@ -64,6 +64,7 @@
 
 <script>
 import axios from "axios";
+import 'markdown-it-highlight/dist/index.css';
 
 export default {
   methods: {

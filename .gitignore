@@ -1,3 +1,4 @@
 *.pyc
 *.lock
 *.db
+backend/database.db

@@ -48,7 +48,7 @@ def check_login(user: str, password: str):
     return user_item['password'] == make_password_md5(password)
 
 
-def register_user(user: str, password: str, permission_level: int = 1):
+def register_user(user: str, password: str, permission_level: int = 0):
     query_db(
         '''insert into oj_users (username, password, introduction, full_introduction, ac_count, other_message) values 
         (?, ?, ?, ?, ?, ?)''',

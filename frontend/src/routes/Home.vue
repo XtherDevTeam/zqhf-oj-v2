@@ -21,7 +21,7 @@
         </div>
         <img src="../assets/head-image.png" style="width: 100%;"/>
       </el-card>
-      <el-card shadow="hover" style="height: 500px; margin: 10px auto;">
+      <el-card shadow="hover" style="margin: 10px auto;">
         <div slot="header" class="clearfix">
           <span>公告</span>
           <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
@@ -47,11 +47,11 @@
           </el-table-column>
         </el-table>
       </el-card>
-      <el-card shadow="hover" style="height: 500px; margin: 10px auto;">
+      <el-card shadow="hover" style="margin: 10px auto;">
         <div slot="header" class="clearfix">
           <span>Ranking · 前十</span>
         </div>
-        <el-table :data="ranking_top10" style="width: 100%">
+        <el-table :data="ranking_top10" style="width: 100%;">
           <el-table-column fixed prop="id" label="User ID" width="128"></el-table-column>
           <el-table-column fixed prop="ac_count" label="通过题目数量" width="128"></el-table-column>
           <el-table-column fixed prop="username" label="用户名"></el-table-column>
@@ -77,8 +77,8 @@
           <div slot="header" class="clearfix">
             <span>一言(ひとこと)</span>
           </div>
-          <div class="text item">{{ hitokoto['hitokoto'] }}</div>
-          <div class="text item">-- 《{{ hitokoto['from'] }}》 {{ hitokoto['from_who'] }}</div>
+          <span>{{ hitokoto['hitokoto'] }}</span><br>
+          <span>-- 《{{ hitokoto['from'] }}》 {{ hitokoto['from_who'] }}</span>
         </el-card>
         <el-card shadow="hover" style="margin: 10px auto; height: 512px;">
           <div slot="header" class="clearfix">
@@ -93,7 +93,7 @@
             </el-select>
             <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
           </el-input>
-          <el-table :data="search_result" style="width: 100%">
+          <el-table :data="search_result" style="width: 100%;height: auto;">
             <el-table-column prop="id" label="题号"></el-table-column>
             <el-table-column prop="name" label="名称"></el-table-column>
           </el-table>

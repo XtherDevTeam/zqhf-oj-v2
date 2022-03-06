@@ -8,7 +8,7 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">题单介绍</span>
-    <editor style="margin: 10px auto;" v-model="problem_list_description" @init="editorInit" lang="markdown"
+    <editor style="margin: 10px auto;" :code="problem_list_description" language="markdown"
             theme="chrome"
             width="100%" height="256px"></editor>
     <div style="margin: 10px auto;"></div>
@@ -35,6 +35,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 export default {
   methods: {
@@ -62,14 +63,7 @@ export default {
         }
       });
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     submit_changes() {
       let problems_list = [];
       for (let i = 0; i < this.problem_list_content.length; i++) {
@@ -126,7 +120,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

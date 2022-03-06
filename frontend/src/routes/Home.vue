@@ -6,7 +6,7 @@
       </el-input>
       <div style="margin: 10px auto;"></div>
       <span style="margin: 10px auto;">公告内容</span>
-      <editor style="margin: 10px auto;" v-model="create_bulletin_dialog_content" @init="editorInit" lang="markdown"
+      <editor style="margin: 10px auto;" :code="create_bulletin_dialog_content" language="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
       <span slot="footer" class="dialog-footer">
@@ -110,6 +110,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 export default {
   methods: {
@@ -229,17 +230,10 @@ export default {
     problem_click(toCheck) {
       window.location = '/#/problems/view?id=' + toCheck.id;
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

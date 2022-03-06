@@ -40,6 +40,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 
 export default {
@@ -87,7 +88,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   data() {
     return {

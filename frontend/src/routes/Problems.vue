@@ -12,7 +12,7 @@
         <template slot="prepend">空间限制</template>
       </el-input>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="new_problem_description" @init="editorInit" lang="markdown"
+      <editor style="margin: 10px auto;" :code="new_problem_description" language="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
 
@@ -75,6 +75,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 
 export default {
@@ -131,14 +132,7 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     problem_click(toCheck) {
       window.location = '/#/problems/view?id=' + toCheck.id;
     },
@@ -190,7 +184,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   data() {
     return {

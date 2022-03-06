@@ -49,7 +49,7 @@
       </el-select>
       <el-button type="primary" @click="submit_judge">提交评测</el-button>
 
-      <editor style="margin: 10px auto;" v-model="judge_answer" @init="editorInit" lang="c++" theme="chrome"
+      <editor style="margin: 10px auto;" :code="judge_answer" lang="c++" theme="chrome"
               width="100%" height="256px"></editor>
     </el-card>
     <el-card shadow="hover" class="box-card" v-else>
@@ -60,6 +60,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 import Vue from "_vue@2.6.14@vue";
 
 import markdownItHighlight from 'markdown-it-highlight';
@@ -72,14 +73,7 @@ markdown.use(markdown_with_katex);
 
 export default {
   methods: {
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     init() {
       console.log(this.user_info);
       axios.get("/api/v1/user/details", {
@@ -128,7 +122,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

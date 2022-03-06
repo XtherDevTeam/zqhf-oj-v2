@@ -10,7 +10,7 @@
       <template slot="prepend">介绍</template>
     </el-input>
     <span style="margin: 10px auto;">长介绍(将显示在个人主页)</span>
-    <editor style="margin: 10px auto;" v-model="full_introduction" @init="editorInit" lang="html" theme="chrome"
+    <editor style="margin: 10px auto;" :code="full_introduction" language="markdown" theme="chrome"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>
@@ -18,6 +18,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 import 'mavon-editor/dist/css/index.css'
 
 export default {
@@ -36,14 +37,7 @@ export default {
         console.log(error);
       });
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     submit_changes() {
       axios.post('/api/v1/user/change_info', {
         'username': this.username,
@@ -72,7 +66,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

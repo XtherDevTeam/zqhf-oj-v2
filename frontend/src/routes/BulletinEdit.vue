@@ -8,7 +8,7 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">公告内容</span>
-    <editor style="margin: 10px auto;" v-model="bulletin_content" @init="editorInit" lang="markdown" theme="chrome"
+    <editor style="margin: 10px auto;" :code="bulletin_content" language="markdown" theme="chrome"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>
@@ -16,6 +16,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 export default {
   methods: {
@@ -42,14 +43,7 @@ export default {
         }
       });
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     submit_changes() {
       axios.post('/api/v1/bulletins/edit/' + this.$route.query['id'], {
         'name': this.bulletin_name,
@@ -76,7 +70,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

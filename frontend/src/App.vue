@@ -7,9 +7,7 @@
             class="el-menu-demo"
             mode="horizontal"
         >
-          <li tabindex="0" class="el-menu-item" style="cursor: auto">
-            <img height="60px" src="./assets/logo-dark.png"/>
-          </li>
+          <li style="float: left;" height="56px" role="menuitem"><img height="56px" src="./assets/logo-dark.png"/></li>
           <el-menu-item index="1">
             <el-link href="/#/">主页</el-link>
           </el-menu-item>
@@ -28,8 +26,12 @@
 
           <el-submenu v-if="user_info['code'] === 0" index="5">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
-            <el-menu-item index="2-1"><el-link href="/#/profile">个人空间</el-link></el-menu-item>
-            <el-menu-item index="2-2"><el-link href="/#/profile/edit">修改个人资料</el-link></el-menu-item>
+            <el-menu-item index="2-1">
+              <el-link href="/#/profile">个人空间</el-link>
+            </el-menu-item>
+            <el-menu-item index="2-2">
+              <el-link href="/#/profile/edit">修改个人资料</el-link>
+            </el-menu-item>
             <el-menu-item index="2-3" @click="change_password_dialog_visible = true;">修改密码</el-menu-item>
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
@@ -56,7 +58,9 @@
         </div>
       </el-main>
       <el-footer class="oj-footer">
-        <h6>{{ app_name }} · Powered by <el-link href="//github.com/XtherDevTeam/zqhf-oj-v2">zqhf-oj-v2</el-link></h6>
+        <h6>{{ app_name }} · Powered by
+          <el-link href="//github.com/XtherDevTeam/zqhf-oj-v2">zqhf-oj-v2</el-link>
+        </h6>
       </el-footer>
     </el-container>
   </div>
@@ -64,6 +68,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "./components/editor.vue";
 import 'markdown-it-highlight/dist/index.css';
 
 export default {
@@ -124,7 +129,7 @@ export default {
   },
   mounted: function () {
     this.init();
-  },
+  }
 };
 </script>
 

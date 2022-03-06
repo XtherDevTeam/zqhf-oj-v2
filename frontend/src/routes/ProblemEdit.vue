@@ -6,13 +6,13 @@
       <el-container>
         <el-aside width="50%">
           <span>输入(.in)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="markdown"
+          <editor style="margin: 10px auto;" :code="new_example_content['in']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输入(.out)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="markdown"
+          <editor style="margin: 10px auto;" :code="new_example_content['out']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-main>
@@ -30,13 +30,13 @@
       <el-container>
         <el-aside width="50%">
           <span>输入(.in)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['in']" @init="editorInit" lang="markdown"
+          <editor style="margin: 10px auto;" :code="new_example_content['in']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输入(.out)</span>
-          <editor style="margin: 10px auto;" v-model="new_example_content['out']" @init="editorInit" lang="markdown"
+          <editor style="margin: 10px auto;" :code="new_example_content['out']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
         </el-main>
@@ -117,7 +117,7 @@
 
       <div style="margin: 20px auto;"></div>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="problem_description" @init="editorInit" lang="markdown" theme="chrome"
+      <editor style="margin: 10px auto;" :code="problem_description" language="markdown" theme="chrome"
               width="100%" height="256px"></editor>
 
       <el-table :data="problem_examples" style="width: 100%">
@@ -159,6 +159,7 @@
 
 <script>
 import axios from "axios";
+import MonacoEditor from "../components/editor.vue";
 
 export default {
   methods: {
@@ -258,14 +259,7 @@ export default {
       this.new_example_content = this.problem_examples[this.edit_example_index];
       this.edit_example_dialog_visible = true;
     },
-    editorInit() {
-      require('brace/ext/language_tools') //language extension prerequisite...
-      require('brace/mode/html')
-      require('brace/mode/javascript')    //language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') //snippet
-    },
+
     submit_changes() {
       axios.post('/api/v1/problems/edit/' + this.$route.query['id'], {
         name: this.problem_name,
@@ -335,7 +329,7 @@ export default {
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: MonacoEditor,
   },
   mounted() {
     this.init();

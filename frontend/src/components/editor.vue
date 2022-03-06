@@ -45,17 +45,28 @@ export default {
           language: this.language,
           automaticLayout: true,
         });
+        this.monacoEditor.onDidChangeModelContent((e) => {
+          console.info("触发事件");
+          this.$emit('changed', this.monacoEditor.getValue());
+        });
       });
-    },
-    getVal() {
-      return this.monacoEditor.getValue();
     }
   },
   watch: {
-    code(val) {
-      this.monacoEditor.setValue(val);
+    language(val) {
+      this.monacoEditor.dispose();
+      monaco.editor.setModelLanguage(this.monacoEditor.getModel(), val);
     },
+    code(val) {
+      if (this.monacoEditor.getValue() !== val) {
+        this.monacoEditor.setValue(val);
+      }
+    }
   },
+  model: {
+    prop: ['code'],
+    event: ['changed']
+  }
 };
 </script>
 

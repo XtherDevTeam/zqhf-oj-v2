@@ -6,7 +6,7 @@
         <template slot="prepend">标题</template>
       </el-input>
       <span style="margin: 20px auto;">题单介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" :code="new_problem_list_description" language="markdown"
+      <editor style="margin: 10px auto;" v-model="new_problem_list_description" language="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
 

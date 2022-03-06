@@ -8,7 +8,7 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">公告内容</span>
-    <editor style="margin: 10px auto;" :code="bulletin_content" language="markdown" theme="chrome"
+    <editor style="margin: 10px auto;" v-model="bulletin_content" language="markdown" theme="chrome"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>

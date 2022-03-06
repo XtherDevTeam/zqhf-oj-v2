@@ -304,7 +304,8 @@ def get_judge_server_info():
     return {
         'address': config.get('judge-server-address'),
         'support-languages': config.get('judge-sever-support-language'),
-        'support-language-exts': config.get('judge-server-language-exts')
+        'support-language-exts': config.get('judge-server-language-exts'),
+        'support-language-highlight-mode': config.get('judge-server-language-highlight-mode')
     }
 
 

@@ -17,5 +17,12 @@
     "C++14": "cpp",
     "Python3": "py",
     "Xscript": "xs0"
+  },
+  "judge-server-language-highlight-mode": {
+    "C": "c",
+    "C++": "cpp",
+    "C++14": "cpp",
+    "Python3": "python",
+    "Xscript": "dart"
   }
 }

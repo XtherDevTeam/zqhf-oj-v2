@@ -12,11 +12,11 @@
         <template slot="prepend">空间限制</template>
       </el-input>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" :code="new_problem_description" language="markdown"
+      <editor style="margin: 10px auto;" v-model="new_problem_description" language="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
 
-      <el-tag :key="tag" v-for="tag in new_problem_tags" closable :disable-transitions="false"
+      <el-tag :key="tag" v-for="tag in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"
               @close="new_problem_tags_remove(tag)">
         {{ tag }}
       </el-tag>
@@ -44,7 +44,7 @@
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
         <el-table-column fixed prop="name" label="题目名"></el-table-column>
         <el-table-column fixed v-slot="scope" label="标签">
-          <el-tag :key="tag" v-for="tag in scope.row.tags">{{ tag }}</el-tag>
+          <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">

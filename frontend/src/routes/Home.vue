@@ -6,7 +6,7 @@
       </el-input>
       <div style="margin: 10px auto;"></div>
       <span style="margin: 10px auto;">公告内容</span>
-      <editor style="margin: 10px auto;" :code="create_bulletin_dialog_content" language="markdown"
+      <editor style="margin: 10px auto;" v-model="create_bulletin_dialog_content" language="markdown"
               theme="chrome"
               width="100%" height="256px"></editor>
       <span slot="footer" class="dialog-footer">

@@ -39,17 +39,12 @@
       <div slot="header" class="clearfix">
         <span>提交答案</span><br>
       </div>
-      <el-select v-model="judge_lang" placeholder="选择提交语言">
-        <el-option
-            v-for="item in support_judge_language"
-            :key="item"
-            :label="item"
-            :value="item">
-        </el-option>
+      <el-select v-model="judge_lang" placeholder="选择提交语言" @change="switch_language">
+        <el-option v-for="item in support_judge_language" :key="item" :label="item" :value="item"></el-option>
       </el-select>
       <el-button type="primary" @click="submit_judge">提交评测</el-button>
 
-      <editor style="margin: 10px auto;" :code="judge_answer" lang="c++" theme="chrome"
+      <editor style="margin: 10px auto;" v-model="judge_answer" :language="editor_highlight_mode"
               width="100%" height="256px"></editor>
     </el-card>
     <el-card shadow="hover" class="box-card" v-else>
@@ -61,7 +56,6 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "../components/editor.vue";
-import Vue from "_vue@2.6.14@vue";
 
 import markdownItHighlight from 'markdown-it-highlight';
 
@@ -73,7 +67,14 @@ markdown.use(markdown_with_katex);
 
 export default {
   methods: {
-
+    switch_language(item) {
+      console.log(this.support_judge_language.indexOf(item));
+      this.editor_highlight_mode = this.support_judge_language_highlight_mode[item];
+      this.$message({
+        type: "success",
+        message: "this.editor_highlight_mode switch to " + this.editor_highlight_mode
+      });
+    },
     init() {
       console.log(this.user_info);
       axios.get("/api/v1/user/details", {
@@ -98,9 +99,9 @@ export default {
           this.rendered_content = markdown.render(this.problem_content['description']);
         }
       });
-
       axios.get('/api/v1/judge/info').then((response) => {
         this.support_judge_language = response.data['data']['support-languages'];
+        this.support_judge_language_highlight_mode = response.data['data']['support-language-highlight-mode'];
         this.judge_server_address = response.data['data']['address']
       });
     },
@@ -134,6 +135,8 @@ export default {
       problem_content: "",
       rendered_content: "",
       support_judge_language: [],
+      support_judge_language_highlight_mode: [],
+      editor_highlight_mode: "cpp",
       judge_server_address: "",
       judge_answer: "",
       judge_lang: "",

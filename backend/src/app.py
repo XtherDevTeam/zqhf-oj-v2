@@ -613,5 +613,23 @@ def search_problem_lists_by_problem(content):
     }
 
 
-if __name__ == "main":
+conten@app.route("/v1/search/problem_lists/by_description/<content>", methods=['GET'])
+def search_problem_lists_by_description(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problem_list_by_description(content)
+    }
+
+
+@app.route("/v1/search/problem_lists/by_problem/<int:content>", methods=['GET'])
+def search_problem_lists_by_problem(content):
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.search_problem_list_by_problem(content)
+    }
+
+
+if __name__ == "__main__":
     app.run(host=config.get("api-server-host"), port=config.get("api-server-port"))

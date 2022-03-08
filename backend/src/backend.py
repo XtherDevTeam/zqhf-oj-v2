@@ -96,7 +96,7 @@ def change_user_attrs(user: int, name: str, introduction: str, full_introduction
     set_user_attr_by_id(user, 'introduction', introduction)
     set_user_attr_by_id(user, 'full_introduction', full_introduction)
     if old_user_name != name:
-        query_db("update oj_problems set author = ? where author = ?", name, old_user_name)
+        query_db("update oj_problems set author = ? where author = ?", [name, old_user_name], one=True)
 
 
 def change_user_password(user: int, password: str):

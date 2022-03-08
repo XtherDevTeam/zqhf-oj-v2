@@ -46,7 +46,6 @@ export default {
           automaticLayout: true,
         });
         this.monacoEditor.onDidChangeModelContent((e) => {
-          console.info("触发事件");
           this.$emit('changed', this.monacoEditor.getValue());
         });
       });
@@ -54,7 +53,6 @@ export default {
   },
   watch: {
     language(val) {
-      this.monacoEditor.dispose();
       monaco.editor.setModelLanguage(this.monacoEditor.getModel(), val);
     },
     code(val) {

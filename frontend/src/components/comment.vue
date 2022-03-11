@@ -1,6 +1,6 @@
 <template>
   <div class="oj_comments_show_area">
-    <el-card shadow="hover" class="oj_comments_post">
+    <el-card shadow="hover" class="oj_comments_post" v-if="logged_in">
       <div slot="header" class="clearfix">
         <span>发表评论</span>
       </div>

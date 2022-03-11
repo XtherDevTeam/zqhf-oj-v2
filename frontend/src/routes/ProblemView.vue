@@ -50,12 +50,14 @@
     <el-card shadow="hover" class="box-card" v-else>
       <span>登录后才能提交评测!</span><br>
     </el-card>
+    <comment style="margin: 10px auto;" class="box-card" :area_id="'problem:'+this.problem_content['id']"></comment>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import MonacoEditor from "../components/editor.vue";
+import Comment from "../components/comment.vue";
 
 import markdownItHighlight from 'markdown-it-highlight';
 
@@ -124,6 +126,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    comment: Comment
   },
   mounted() {
     this.init();

@@ -2,3 +2,4 @@
 *.lock
 *.db
 backend/database.db
+.idea

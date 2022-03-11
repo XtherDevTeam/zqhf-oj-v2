@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/zqhf-oj-reset.iml" filepath="$PROJECT_DIR$/.idea/zqhf-oj-reset.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/.idea/.idea.iml" filepath="$PROJECT_DIR$/.idea/.idea/.idea.iml" />
+      <module fileurl="file://$PROJECT_DIR$/backend/.idea/backend.iml" filepath="$PROJECT_DIR$/backend/.idea/backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/docs/.idea/docs.iml" filepath="$PROJECT_DIR$/docs/.idea/docs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/frontend/.idea/frontend.iml" filepath="$PROJECT_DIR$/frontend/.idea/frontend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/judge/.idea/judge.iml" filepath="$PROJECT_DIR$/judge/.idea/judge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scripts/.idea/scripts.iml" filepath="$PROJECT_DIR$/scripts/.idea/scripts.iml" />
     </modules>
   </component>
 </project>

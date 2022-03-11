@@ -32,6 +32,16 @@ def require_admin_permission():
     return True
 
 
+def require_user_permission():
+    if not is_logged_in():
+        return {'code': 7, 'text': '用户未登录!'}
+
+    if get_login_details()['other_message']['permission_level'] < 0:
+        return {'code': 1, 'text': '用户已被封禁!'}
+
+    return True
+
+
 @app.before_request
 def before_request():
     backend.db = backend.connect_db()
@@ -305,8 +315,9 @@ def ranking_get_router(start, count):
 
 @app.route("/v1/problems/<int:ident>/judge/submit", methods=['POST'])
 def judge_submit_router(ident):
-    if flask.session.get("user_id") is None:
-        return {"code": 7, "text": "用户未登录!"}
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
 
     request = flask.request.get_json()
     if request.get('code') is None:
@@ -611,6 +622,55 @@ def search_problem_lists_by_problem(content):
         'text': '请求成功',
         'data': backend.search_problem_list_by_problem(content)
     }
+
+
+@app.route("/v1/comments/create/<area_name>", methods=['POST'])
+def create_comment_area(area_name):
+    require_user = require_admin_permission()
+    if require_user is not True:
+        return require_user
+
+    return backend.create_comment_area(area_name)
+
+
+@app.route("/v1/comments/get/<area_name>/<int:start>/<int:count>", methods=['GET'])
+def get_comments_by_area(area_name, start, count):
+    return backend.get_comments_by_size(area_name, start, count)
+
+
+@app.route("/v1/comments/post/<area_name>", methods=['POST'])
+def post_comment_to_area(area_name):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    req_data = flask.request.get_json()
+    if req_data.get('text') is None:
+        return {'code': 5, 'text': 'API缺少text参数'}
+
+    return backend.insert_comment(area_name, get_login_details()['id'], req_data['text'])
+
+
+@app.route("/v1/comments/remove/<area_name>/<int:comment_index>", methods=['POST'])
+def remove_comment_from_area(area_name, comment_index):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    return backend.delete_comment(area_name, get_login_details()['id'], comment_index)
+
+
+@app.route("/v1/comments/reply/<area_name>/<int:index>", methods=['POST'])
+def reply_comment_to_area(area_name, index):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    req_data = flask.request.get_json()
+    if req_data.get('text') is None:
+        return {'code': 5, 'text': 'API缺少text参数'}
+
+    return backend.reply_comment(area_name, index, get_login_details()['id'], req_data['text'])
 
 
 if __name__ == "__main__":

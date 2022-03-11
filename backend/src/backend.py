@@ -48,7 +48,7 @@ def check_login(user: str, password: str):
     return user_item['password'] == make_password_md5(password)
 
 
-def register_user(user: str, password: str, permission_level: int = 0):
+def register_user(user: str, password: str, permission_level: int = 2):
     query_db(
         '''insert into oj_users (username, password, introduction, full_introduction, ac_count, other_message) values 
         (?, ?, ?, ?, ?, ?)''',
@@ -69,6 +69,13 @@ def query_user_by_name(user: str):
 def query_user_by_id(user: int):
     data = query_db("select * from oj_users where id = ?", [user], True)
     data['other_message'] = pickle.loads(data['other_message'])
+    return data
+
+
+def query_user_by_id_simple(user: int):
+    data = query_db("select * from oj_users where id = ?", [user], True)
+    data['other_message'] = pickle.loads(data['other_message'])
+    del data['password']
     return data
 
 
@@ -206,6 +213,9 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
 
     last = query_db("select id from oj_problems where name = ?", [name], one=True)
     make_checkpoint_dir(last['id'])
+
+    create_comment_area('problem:' + str(last['id']))
+
     return None
 
 
@@ -286,12 +296,16 @@ def delete_problem(pid: int):
     if query_problem_by_id(pid) is not None:
         query_db("delete from oj_problems where id = ?", [pid])
         remove_checkpoint_dir(pid)
+        delete_comment_area('problem:' + str(pid))
         return True
     else:
         return False
 
 
 def query_problem_by_id(ident: int):
+    if query_comments_by_require('problem:' + str(ident)) is None:
+        create_comment_area('problem:' + str(ident))
+
     return query_db("select * from oj_problems where id = ?", [ident], one=True)
 
 
@@ -358,6 +372,9 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
             full_ac = False
         else:
             score = score + 100 * (1 / len(checkpoint_list))
+
+        score = round(score, 2)
+
         query_db("update oj_records set points = ?, score = ? where id = ?",
                  [json.dumps(checkpoint_status), score, jid])
 
@@ -384,7 +401,7 @@ def query_problem_list_by_name(name: str):
     data = query_db("select * from oj_problem_lists where name = ?", [name], one=True)
     if data is None:
         return data
-    data['author'] = query_user_by_id(data['author'])
+    data['author'] = query_user_by_id_simple(data['author'])
     data['problems'] = json.loads(data['problems'])
     return data
 
@@ -393,23 +410,27 @@ def query_problem_list_by_id(ident: int):
     data = query_db("select * from oj_problem_lists where id = ?", [ident], one=True)
     if data is None:
         return data
-    data['author'] = query_user_by_id(data['author'])
+    data['author'] = query_user_by_id_simple(data['author'])
     data['problems'] = json.loads(data['problems'])
     for i in range(len(data['problems'])):
         data['problems'][i] = query_problem_by_id(data['problems'][i])
+
+    if query_comments_by_require('problem_list:' + str(ident)) is None:
+        create_comment_area('problem_list:' + str(ident))
 
     return data
 
 
 def remove_problem_list_by_id(ident: int):
     data = query_db("delete from oj_problem_lists where id = ?", [ident], one=True)
+    delete_comment_area('problem_list:' + str(ident))
     return data
 
 
 def query_problem_list_by_size(start: int, limit: int):
     data = query_db("select id, author, name from oj_problem_lists order by id limit ? offset ?", [limit, start])
     for i in data:
-        i['author'] = query_user_by_id(i['author'])
+        i['author'] = query_user_by_id_simple(i['author'])
 
     return data
 
@@ -418,7 +439,7 @@ def search_problem_list_by_problem(pid: int):
     data = query_db("select id, author, name from oj_problem_lists where problems like ? order by id",
                     [f'%{str(pid)}%'])
     for i in data:
-        i['author'] = query_user_by_id(i['author'])
+        i['author'] = query_user_by_id_simple(i['author'])
 
     return data
 
@@ -427,7 +448,7 @@ def search_problem_list_by_description(words: str):
     data = query_db("select id, author, name from oj_problem_lists where description like ? order by id",
                     [f'%{words}%'])
     for i in data:
-        i['author'] = query_user_by_id(i['author'])
+        i['author'] = query_user_by_id_simple(i['author'])
 
     return data
 
@@ -436,7 +457,7 @@ def search_problem_list_by_name(words: str):
     data = query_db("select id, author, name from oj_problem_lists where name like ? order by id",
                     [f'%{words}%'])
     for i in data:
-        i['author'] = query_user_by_id(i['author'])
+        i['author'] = query_user_by_id_simple(i['author'])
 
     return data
 
@@ -447,6 +468,10 @@ def create_problem_list(author: int, name: str, description: str, problems: list
 
     query_db("insert into oj_problem_lists (author, name, description, problems) values (?,?,?,?)",
              [author, name, description, json.dumps(problems)])
+
+    list_id = query_db("select id from oj_problem_lists where name=?", name, one=True)['id']
+    create_comment_area('problem_list:' + str(list_id))
+
     return True
 
 
@@ -458,3 +483,92 @@ def edit_problem_list(author: int, ident: int, name: str, description: str, prob
              [name, author, description, json.dumps(problems), ident])
 
     return True
+
+
+def create_comment_area(create_by: str):
+    query_db("insert into oj_comments (require_by, comments) values (?, ?)",
+             [create_by, json.dumps([])])
+
+    return {'code': 0, 'text': '操作成功'}
+
+
+def delete_comment_area(require_by: str):
+    query_db("delete from oj_comments where require_by = ?", [require_by])
+
+
+def query_comments_by_require(require_by: str):
+    comments = query_db("select * from oj_comments where require_by = ?", [require_by], one=True)
+    if comments is None:
+        return None
+    comments['comments'] = json.loads(comments['comments'])
+    return comments
+
+
+def insert_comment(require_by: str, author: id, text: str):
+    comments = query_comments_by_require(require_by)
+    if comments is None:
+        return {'code': 4, 'text': '请求的评论区不存在!'}
+
+    comments['comments'].append({
+        'author': author,
+        'text': text,
+        'reply': []
+    })
+    query_db("update oj_comments set comments = ? where require_by = ?",
+             [json.dumps(comments['comments']), comments['require_by']])
+    return {'code': 0, 'text': '操作成功'}
+
+
+def get_comments_by_size(require_by: str, start: int, count: int):
+    try:
+        data = query_comments_by_require(require_by)['comments']
+        data = data[start: start + count]
+        for i in range(len(data)):
+            data[i]['author'] = query_user_by_id_simple(data[i]['author'])
+            data[i]['index'] = i
+            for j in range(len(data[i]['reply'])):
+                data[i]['reply'][j]['author'] = query_user_by_id_simple(data[i]['reply'][j]['author'])
+
+        return {'code': 0, 'text': '操作成功!', 'data': data}
+    except Exception as e:
+        print(e)
+        return {'code': 4, 'text': '请求的评论区不存在!'}
+
+
+def delete_comment(require_by: str, author: int, index: int):
+    data = query_comments_by_require(require_by)
+    if data is not None:
+        data = data['comments']
+        if index >= len(data):
+            return {'code': 2, 'text': '请求的评论不存在'}
+        # is author of this comment or it's super-administrator.
+        if data[index]['author'] == author or query_user_by_id(author)['other_message']['permission_level'] == 2:
+            del data[index]
+            query_db("update oj_comments set comments = ? where require_by = ?",
+                     [json.dumps(data), require_by])
+            return {'code': 0, 'text': '操作成功!'}
+        else:
+            return {'code': 1, 'text': '无法删除评论, 无法删除他人用户的评论!'}
+    else:
+        return {'code': 2, 'text': '请求的评论区不存在'}
+
+
+def reply_comment(require_by: str, index_of_comment: int, author: int, text: str):
+    comments = query_comments_by_require(require_by)
+    if comments is None:
+        return {'code': 4, 'text': '请求的评论区不存在!'}
+
+    comments['comments'] = json.loads(comments['comments'])
+    if len(comments['comments']) >= index_of_comment:
+        return {'code': 4, 'text': '请求的评论不存在!'}
+
+    comments['comments']['reply'].append({
+        'author': author,
+        'text': text
+    })
+
+    comments['comments'] = json.dumps(comments['comments'])
+
+    query_db('update oj_comments set comments=? where require_by=?', [comments['comments'], comments['author']])
+
+    return {'code': 0, 'text': '操作成功'}

@@ -11,7 +11,7 @@
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
-          <span>输入(.out)</span>
+          <span>输出(.out)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['out']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>
@@ -35,7 +35,7 @@
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
-          <span>输入(.out)</span>
+          <span>输出(.out)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['out']" language="markdown"
                   theme="chrome"
                   width="100%" height="256px"></editor>

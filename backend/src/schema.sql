@@ -12,6 +12,8 @@ drop table if exists oj_bulletins;
 
 drop table if exists oj_records;
 
+drop table if exists oj_comments;
+
 create table oj_problems
 (
     id          integer primary key autoincrement,
@@ -71,4 +73,11 @@ create table oj_records
     timestamp integer not null,
     status    string  not null,
     score     integer default 0 not null
+);
+
+create table oj_comments
+(
+    id         integer primary key autoincrement,
+    require_by string not null,
+    comments   string not null -- content is a JSON structure
 );

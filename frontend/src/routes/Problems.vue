@@ -120,7 +120,7 @@ export default {
     handlePageNumberChange() {
       window.location = '/#/problems?from=' + (this.problems_limit * this.page_number) + '&limit=' + this.problems_limit;
       this.problems_start = this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']);
-      this.problems_limit = this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']);
+      this.problems_limit = this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']);
       this.init();
     },
     new_problem_tags_remove(tag) {
@@ -193,7 +193,7 @@ export default {
       app_name: this.$parent.$parent.$parent.app_name,
       problems_data: [],
       problems_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
-      problems_limit: this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']),
+      problems_limit: this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']),
       new_problem_dialog_visible: false,
       new_problem_name: "",
       new_problem_description: "",

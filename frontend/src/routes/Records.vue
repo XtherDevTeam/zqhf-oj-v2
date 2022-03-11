@@ -80,7 +80,7 @@ export default {
     handlePageNumberChange() {
       window.location = '/#/records?from=' + (this.records_limit * this.page_number) + '&limit=' + this.records_limit;
       this.records_start = this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']);
-      this.records_limit = this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']);
+      this.records_limit = this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']);
       this.init();
     },
     problem_click(toCheck) {
@@ -97,7 +97,7 @@ export default {
       app_name: this.$parent.$parent.$parent.app_name,
       records_data: [],
       records_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
-      records_limit: this.$route.query['limit'] === undefined ? 32 : parseInt(this.$route.query['limit']),
+      records_limit: this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']),
       page_number: 0,
     }
   }

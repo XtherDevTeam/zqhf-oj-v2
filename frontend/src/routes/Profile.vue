@@ -19,7 +19,7 @@ import MonacoEditor from "../components/editor.vue";
 import markdownItHighlight from 'markdown-it-highlight';
 
 const markdown = require('markdown-it')(),
-    markdown_with_katex = require('markdown-it-katex');
+    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
 
 markdown.use(markdownItHighlight);
 markdown.use(markdown_with_katex);

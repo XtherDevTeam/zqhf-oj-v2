@@ -138,12 +138,6 @@ export default {
   font-family: Helvetica, sans-serif;
 }
 
-.katex .vlist {
-  display: table-cell;
-  position: relative;
-  vertical-align: unset;
-}
-
 .ui.main-container {
   width: 933px;
   margin: 0 auto;

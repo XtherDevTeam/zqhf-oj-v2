@@ -55,6 +55,7 @@ def register_user(user: str, password: str, permission_level: int = 2):
         [user, make_password_md5(password), "", "", 0, pickle.dumps({
             "images_own": [],
             "files_own": [],
+            "articles_own": [],
             "permission_level": permission_level,  # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
             "ac_problems": []
         })]
@@ -220,7 +221,7 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
 
 
 def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None,
-                 io_examples: list = None):
+                 io_examples: list = None, special_judge_code: str = ""):
     if tags is None:
         tags = []
     if io_examples is None:
@@ -230,7 +231,15 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
         query_db("update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?"
                  " where id = ?",
                  [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, pid])
+        if special_judge_code != "" and special_judge_code is not None:
+            query_db("update oj_problems set special_judge = true, special_judge_code = ? where id = ?",
+                     [special_judge_code, pid])
+        else:
+            query_db("update oj_problems set special_judge = false where id = ?",
+                     [pid])
+
         return True
+
     return False
 
 
@@ -368,12 +377,30 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
             mem_limit=problem_content['memory'],
             env_variables=env_vars
         ))
-        if checkpoint_status[-1]['status'] != 'Accepted':
-            full_ac = False
+        if not problem_content['special_judge']:
+            if checkpoint_status[-1]['status'] != 'Accepted':
+                full_ac = False
+            else:
+                score = score + int(round(100 * (1 / len(checkpoint_list)), 0))
         else:
-            score = score + 100 * (1 / len(checkpoint_list))
+            judge_result = judge.submit(
+                judge_server_address=config.get('judge-server-address'),
+                judge_plugin='C++14',
+                source_file=problem_content['special_judge_code'],
+                data_input=checkpoint_status[-1]['stdout'],
+                data_output='100',
+                time_limit=1000,
+                mem_limit=104857600,
+                env_variables={
+                    'source_file': 'temp.cpp',
+                    'binary_file': 'temp.bin'
+                }
+            )
+            checkpoint_status[-1]['status'] = judge_result['status']
+            if checkpoint_status[-1]['status'] != 'Accepted':
+                full_ac = False
 
-        score = round(score, 2)
+            score += int(judge_result['stdout'])
 
         query_db("update oj_records set points = ?, score = ? where id = ?",
                  [json.dumps(checkpoint_status), score, jid])

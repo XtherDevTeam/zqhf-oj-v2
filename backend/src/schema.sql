@@ -14,16 +14,21 @@ drop table if exists oj_records;
 
 drop table if exists oj_comments;
 
+drop table if exists oj_articles;
+
 create table oj_problems
 (
-    id          integer primary key autoincrement,
-    name        string not null,
-    description string,
-    examples    string,
-    author      string not null,
-    tags        string not null,
-    timeout     int    not null default 1000,
-    memory      int    not null default 65536
+    id                 integer primary key autoincrement,
+    name               string not null,
+    description        string,
+    examples           string,
+    author             string not null,
+    tags               string not null,
+    timeout            int    not null default 1000,
+    memory             int    not null default 65536,
+    special_judge      boolean         default false,
+    special_judge_code string          default '',
+    solution           string          default '[]'
 );
 
 create table oj_users
@@ -80,4 +85,13 @@ create table oj_comments
     id         integer primary key autoincrement,
     require_by string not null,
     comments   string not null -- content is a JSON structure
+);
+
+create table oj_articles
+(
+    id      integer primary key autoincrement,
+    author  string not null,
+    name    string not null,
+    text    string not null,
+    visible boolean default TRUE
 );

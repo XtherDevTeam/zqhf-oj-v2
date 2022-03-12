@@ -425,7 +425,8 @@ def problem_edit_router(ident: int):
                             name=request['name'],
                             description=request['description'], tags=request['tags'],
                             io_examples=request['examples'], timeout=request['timeout'],
-                            memory_limit=request['memory_limit']):
+                            memory_limit=request['memory_limit'],
+                            special_judge_code=request.get('special_judge_code')):
         return {
             'code': 0,
             'text': '操作成功!'

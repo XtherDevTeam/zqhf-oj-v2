@@ -9,7 +9,7 @@
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">题单介绍</span>
     <editor style="margin: 10px auto;" v-model="problem_list_description" language="markdown"
-            theme="chrome"
+
             width="100%" height="256px"></editor>
     <div style="margin: 10px auto;"></div>
 

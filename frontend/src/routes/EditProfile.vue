@@ -10,7 +10,7 @@
       <template slot="prepend">介绍</template>
     </el-input>
     <span style="margin: 10px auto;">长介绍(将显示在个人主页)</span>
-    <editor style="margin: 10px auto;" v-model="full_introduction" language="markdown" theme="chrome"
+    <editor style="margin: 10px auto;" v-model="full_introduction" language="markdown"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>

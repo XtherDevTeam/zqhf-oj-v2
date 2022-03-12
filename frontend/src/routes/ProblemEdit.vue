@@ -7,13 +7,13 @@
         <el-aside width="50%">
           <span>输入(.in)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['in']" language="markdown"
-                  theme="chrome"
+
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输出(.out)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['out']" language="markdown"
-                  theme="chrome"
+
                   width="100%" height="256px"></editor>
         </el-main>
       </el-container>
@@ -31,13 +31,13 @@
         <el-aside width="50%">
           <span>输入(.in)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['in']" language="markdown"
-                  theme="chrome"
+
                   width="100%" height="256px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输出(.out)</span>
           <editor style="margin: 10px auto;" v-model="new_example_content['out']" language="markdown"
-                  theme="chrome"
+
                   width="100%" height="256px"></editor>
         </el-main>
       </el-container>
@@ -117,7 +117,11 @@
 
       <div style="margin: 20px auto;"></div>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="problem_description" language="markdown" theme="chrome"
+      <editor style="margin: 10px auto;" v-model="problem_description" language="markdown"
+              width="100%" height="256px"></editor>
+
+      <span style="margin: 10px auto;">Special Judge 配置(请使用C++代码编写)</span>
+      <editor style="margin: 10px auto;" v-model="problem_special_judge_code" language="cpp"
               width="100%" height="256px"></editor>
 
       <el-table :data="problem_examples" style="width: 100%">
@@ -183,6 +187,7 @@ export default {
         } else {
           this.problem_name = response.data['data']['name'];
           this.problem_description = response.data['data']['description'];
+          this.problem_special_judge_code = response.data['data']['special_judge_code'];
           this.problem_timeout = response.data['data']['timeout'];
           this.problem_memory_limit = response.data['data']['memory'];
           this.problem_tags = JSON.parse(response.data['data']['tags']);
@@ -267,7 +272,8 @@ export default {
         timeout: parseInt(this.problem_timeout),
         memory_limit: parseInt(this.problem_memory_limit),
         tags: this.problem_tags,
-        examples: this.problem_examples
+        examples: this.problem_examples,
+        special_judge_code: this.problem_special_judge_code
       }).then((response) => {
         if (response.data['code'] !== 0) {
           this.$message({
@@ -311,6 +317,7 @@ export default {
       problem_description: "",
       problem_tags: [],
       problem_examples: [],
+      problem_special_judge_code: "",
       problem_temp_tag_visible: false,
       problem_temp_tag_name: "",
       problem_checkpoint_list: [],

@@ -13,7 +13,7 @@
       </el-input>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
       <editor style="margin: 10px auto;" v-model="new_problem_description" language="markdown"
-              theme="chrome"
+
               width="100%" height="256px"></editor>
 
       <el-tag :key="tag" v-for="tag in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"

@@ -214,7 +214,10 @@ def get_user_image_router(uid):
 
     data = backend.query_user_by_id(uid)['user_image']
     if data is None:
-        data = bytes()
+        with open(config.get('uploads-path') + '/default-user-image.png', 'rb+') as file:
+            response = flask.make_response(file.read())
+            response.headers['Content-Type'] = 'image/png'
+            return response
 
     response = flask.make_response(data)
     response.headers['Content-Type'] = 'image/jpeg'

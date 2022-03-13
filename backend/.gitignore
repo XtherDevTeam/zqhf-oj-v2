@@ -1,3 +1,4 @@
 src/static
 temp
+!default-user-image.png
 *.db

@@ -77,13 +77,12 @@ def query_user_by_id_simple(user: int):
     data = query_db("select * from oj_users where id = ?", [user], True)
     data['other_message'] = pickle.loads(data['other_message'])
     del data['password']
+    del data['user_image']
     return data
 
 
 def delete_user_by_name(user: str):
-    data = query_db("select * from oj_users where username = ?", [user], True)
-    data['other_message'] = pickle.loads(data['other_message'])
-    return data
+    return query_db("delete from oj_users where username = ?", [user], True)
 
 
 def delete_user_by_id(user: int):
@@ -534,7 +533,7 @@ def query_comments_by_require(require_by: str):
 def insert_comment(require_by: str, author: id, text: str):
     comments = query_comments_by_require(require_by)
     if comments is None:
-        return {'code': 4, 'text': '请求的评论区不存在!'}
+        return {'code': 4, 'text': '请求的评论区不存在'}
 
     comments['comments'].append({
         'author': author,
@@ -556,10 +555,10 @@ def get_comments_by_size(require_by: str, start: int, count: int):
             for j in range(len(data[i]['reply'])):
                 data[i]['reply'][j]['author'] = query_user_by_id_simple(data[i]['reply'][j]['author'])
 
-        return {'code': 0, 'text': '操作成功!', 'data': data}
+        return {'code': 0, 'text': '操作成功', 'data': data}
     except Exception as e:
         print(e)
-        return {'code': 4, 'text': '请求的评论区不存在!'}
+        return {'code': 4, 'text': '请求的评论区不存在'}
 
 
 def delete_comment(require_by: str, author: int, index: int):
@@ -573,9 +572,9 @@ def delete_comment(require_by: str, author: int, index: int):
             del data[index]
             query_db("update oj_comments set comments = ? where require_by = ?",
                      [json.dumps(data), require_by])
-            return {'code': 0, 'text': '操作成功!'}
+            return {'code': 0, 'text': '操作成功'}
         else:
-            return {'code': 1, 'text': '无法删除评论, 无法删除他人用户的评论!'}
+            return {'code': 1, 'text': '无法删除评论, 无法删除他人用户的评论'}
     else:
         return {'code': 2, 'text': '请求的评论区不存在'}
 
@@ -583,11 +582,11 @@ def delete_comment(require_by: str, author: int, index: int):
 def reply_comment(require_by: str, index_of_comment: int, author: int, text: str):
     comments = query_comments_by_require(require_by)
     if comments is None:
-        return {'code': 4, 'text': '请求的评论区不存在!'}
+        return {'code': 4, 'text': '请求的评论区不存在'}
 
     comments['comments'] = json.loads(comments['comments'])
     if len(comments['comments']) >= index_of_comment:
-        return {'code': 4, 'text': '请求的评论不存在!'}
+        return {'code': 4, 'text': '请求的评论不存在'}
 
     comments['comments']['reply'].append({
         'author': author,
@@ -596,6 +595,109 @@ def reply_comment(require_by: str, index_of_comment: int, author: int, text: str
 
     comments['comments'] = json.dumps(comments['comments'])
 
-    query_db('update oj_comments set comments=? where require_by=?', [comments['comments'], comments['author']])
+    query_db('update oj_comments set comments = ? where require_by = ?', [comments['comments'], comments['author']])
 
     return {'code': 0, 'text': '操作成功'}
+
+
+def query_articles_by_size(start: int, count: int):
+    data = query_db("select id, author, name from oj_articles where visible = true order by id desc limit  ? offset ?",
+                    [count, start])
+    for i in range(len(data)):
+        data[i]['author'] = query_user_by_id_simple(data[i]['author'])
+
+    return data
+
+
+def query_article_by_id(ident: int, require: int):
+    data = query_db("select * from oj_articles where id = ?", [ident], one=True)
+    if data is None:
+        return {
+            'code': 2,
+            'text': '文章不存在'
+        }
+    data['author'] = query_user_by_id_simple(data['author'])
+    if data['author']['id'] != require and not data['visible']:
+        return {
+            'code': 1,
+            'text': '权限不足'
+        }
+
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': data
+    }
+
+
+def remove_article(ident: int, require: int):
+    data = query_db("select author, visible from oj_articles where id = ?", [ident], one=True)
+    if data is None:
+        return {
+            'code': 2,
+            'text': '文章不存在'
+        }
+
+    if data['author'] == require or query_user_by_id_simple(require)['other_message']['permission_level'] == 2:
+        query_db("delete from oj_articles where id = ?", [ident])
+        return {
+            'code': 0,
+            'text': '请求成功'
+        }
+    else:
+        return {
+            'code': 1,
+            'text': '权限不足'
+        }
+
+
+def create_article(name: str, text: str, author: int, visible: bool):
+    query_db("insert into oj_articles (author, name, text, visible) values (?, ?, ?, ?)",
+             [author, name, text, visible])
+
+    create_comment_area(
+        'article:' + str(query_db("select id from oj_articles order by id desc limit 1", one=True)['id']))
+
+
+def edit_article(ident: int, name: str, text: str, author: int, visible: bool):
+    data = query_db("select author, visible from oj_articles where id = ?", [ident], one=True)
+    if data is None:
+        return {
+            'code': 2,
+            'text': '文章不存在'
+        }
+    else:
+        if data['author'] != author:
+            return {
+                'code': 1,
+                'text': '无法对不是自己的文章进行编辑'
+            }
+        else:
+            query_db("update oj_articles set name = ?, text = ?, visible = ?, author = ? where id = ?",
+                     [name, text, visible, author, ident])
+            return {
+                'code': 0,
+                'text': '请求成功!'
+            }
+
+
+def search_articles(word, way: str):
+    data = []
+    if way == 'by_text':
+        data = query_db("select id, author, name from oj_articles where text like ? and visible = 1",
+                        [f"%{word}%"])
+    elif way == 'by_name':
+        data = query_db("select id, author, name from oj_articles where name like ? and visible = 1",
+                        [f"%{word}%"])
+    elif way == 'by_author':
+        data = query_db(
+            "select id, author, name from oj_articles where author = %d and visible = 1" % int(word))
+
+    for i in range(len(data)):
+        data[i]['author'] = query_user_by_id_simple(data[i]['author'])
+
+
+def query_articles_by_uid(uid: int):
+    data = query_db("select id, author, name, visible from oj_articles where author = %d" % uid)
+
+    return {'code': 0, 'text': '请求成功', 'data': data}

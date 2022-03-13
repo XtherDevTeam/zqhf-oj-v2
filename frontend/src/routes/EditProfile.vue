@@ -13,6 +13,14 @@
     <editor style="margin: 10px auto;" v-model="full_introduction" language="markdown"
             width="100%" height="256px"></editor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
+    <div style="margin: 10px auto;"></div>
+    <el-upload class="avatar-uploader" action="/api/v1/user/image/upload"
+               :show-file-list="false"
+               :on-success="uploadImageSuccess"
+               :before-upload="beforeImageUpload">
+      <i class="el-icon-plus avatar-uploader-icon"></i>
+      <div slot="tip" class="el-upload__tip">上传用户头像(仅jpeg格式)</div>
+    </el-upload>
   </el-card>
 </template>
 
@@ -53,6 +61,22 @@ export default {
           window.location = '/#/';
         }
       })
+    },
+    beforeImageUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
+    uploadImageSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+      window.location = '/#/profile';
     }
   },
   data() {
@@ -75,5 +99,24 @@ export default {
 </script>
 
 <style scoped>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
 
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+}
 </style>

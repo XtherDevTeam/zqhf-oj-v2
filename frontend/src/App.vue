@@ -17,14 +17,18 @@
           </el-menu-item>
 
           <el-menu-item index="3">
-            <el-link href="/#/records">评测记录</el-link>
-          </el-menu-item>
-
-          <el-menu-item index="4">
             <el-link href="/#/lists">题单列表</el-link>
           </el-menu-item>
 
-          <el-submenu v-if="user_info['code'] === 0" index="5">
+          <el-menu-item index="4">
+            <el-link href="/#/records">评测记录</el-link>
+          </el-menu-item>
+
+          <el-menu-item index="5">
+            <el-link href="/#/articles">文章列表</el-link>
+          </el-menu-item>
+
+          <el-submenu v-if="user_info['code'] === 0" index="6">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
             <el-menu-item index="2-1">
               <el-link href="/#/profile">个人空间</el-link>
@@ -36,7 +40,7 @@
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
-          <el-menu-item v-else index="5">
+          <el-menu-item v-else index="6">
             <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>

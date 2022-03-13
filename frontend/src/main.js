@@ -19,10 +19,14 @@ import RecordsPage from "./routes/Records";
 import ProblemListsPage from "./routes/ProblemLists";
 import ProblemListEditPage from "./routes/ProblemListEdit";
 import ProblemListViewPage from "./routes/ProblemListView";
+import ArticlesPage from "~/routes/Articles";
+import ArticleViewPage from "~/routes/ArticleView";
 
 
 const routes = [
     {path: '/', component: Home},
+    {path: '/articles', component: ArticlesPage},
+    {path: '/articles/view', component: ArticleViewPage},
     {path: '/lists', component: ProblemListsPage},
     {path: '/lists/edit', component: ProblemListEditPage},
     {path: '/lists/view', component: ProblemListViewPage},

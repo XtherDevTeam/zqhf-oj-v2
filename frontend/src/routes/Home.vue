@@ -54,7 +54,12 @@
         <el-table :data="ranking_top10" style="width: 100%;">
           <el-table-column fixed prop="id" label="User ID" width="128"></el-table-column>
           <el-table-column fixed prop="ac_count" label="通过题目数量" width="128"></el-table-column>
-          <el-table-column fixed prop="username" label="用户名"></el-table-column>
+          <el-table-column fixed label="用户名">
+            <template v-slot="scope">
+              <el-avatar :size="25" :src="'/api/v1/user/image/get/' + scope.row.id"></el-avatar>
+              <span style="margin: 2px 4px;position: absolute;">{{ scope.row.username }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="introduction" label="一句话介绍"></el-table-column>
           <el-table-column fixed="right" label="操作" width="100">
             <template v-slot="scope">
@@ -177,7 +182,7 @@ export default {
               params: {},
             })
             .then((response) => {
-              if (response.data['code'] == 0) {
+              if (response.data['code'] === 0) {
                 this.search_result = response.data['data'];
               } else {
                 this.$message({
@@ -212,6 +217,7 @@ export default {
         content: this.create_bulletin_dialog_content
       }).then((response) => {
         if (response.data['code'] === 0) {
+          this.create_bulletin_dialog_visible = false;
           this.init();
         } else {
           this.$message({

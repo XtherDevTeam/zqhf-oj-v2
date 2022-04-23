@@ -10,10 +10,10 @@
               width="100%" height="256px"></editor>
 
       <el-switch
-            v-model="new_article_visible"
-            active-text="对所有人可见"
-            inactive-text="仅自己可见">
-        </el-switch>
+          v-model="new_article_visible"
+          active-text="对所有人可见"
+          inactive-text="仅自己可见">
+      </el-switch>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="new_article_dialog_visible = false">取 消</el-button>
@@ -29,6 +29,9 @@
           新建文章
         </el-button>
       </div>
+      <el-radio v-model="show_article_mode" label="all" @change="init()">展示全部</el-radio>
+      <el-radio v-model="show_article_mode" label="mine" @change="init()">仅展示自己</el-radio>
+      <div style="height: 20px;"></div>
       <div style="width: 100%">
         <el-input placeholder="请输入内容" v-model="search_article_content" class="input-with-select">
           <el-select style="width: 150px;" v-model="search_article_mode" slot="prepend" placeholder="查找方式">
@@ -96,7 +99,7 @@ export default {
           .catch(function (error) {
             console.log(error);
           });
-      axios.get("/api/v1/articles/get/" + this.records_start + "/" + this.records_limit).then((response) => {
+      axios.get("/api/v1/articles/get/" + (this.show_article_mode === "all" ? "" : "my/") + this.records_start + "/" + this.records_limit).then((response) => {
         if (response.data['code'] !== 0) {
           this.$message({
             type: 'error',
@@ -165,6 +168,7 @@ export default {
       if (this.search_article_content === "") {
         this.init();
       } else {
+        this.show_article_mode = "all";
         axios.get('/api/v1/search/articles/' + this.search_article_mode + '/' + this.search_article_content)
             .then((response) => {
               if (response.data['code'] === 0) {
@@ -197,6 +201,7 @@ export default {
       new_article_visible: true,
       search_article_mode: "",
       search_article_content: "",
+      show_article_mode: "all",
     }
   }
   ,

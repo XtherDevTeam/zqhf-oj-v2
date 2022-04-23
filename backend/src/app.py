@@ -663,7 +663,7 @@ def search_problem_lists_by_problem(content):
 
 @app.route("/v1/search/articles/<way>/<content>", methods=['GET'])
 def search_article(way, content):
-    return backend.search_articles(content, way)
+    return {'code': 0, 'data': backend.search_articles(content, way), 'text': '请求成功!'}
 
 
 @app.route("/v1/comments/create/<area_name>", methods=['POST'])
@@ -736,6 +736,18 @@ def get_articles_by_size(start, count):
         'code': 0,
         'text': '请求成功',
         'data': backend.query_articles_by_size(start, count)
+    }
+
+
+@app.route("/v1/articles/get/my/<int:start>/<int:count>", methods=['GET'])
+def get_my_articles_by_size(start, count):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+    return {
+        'code': 0,
+        'text': '请求成功',
+        'data': backend.query_articles_by_size_uid(get_login_details()['id'], start, count)
     }
 
 

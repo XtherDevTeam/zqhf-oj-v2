@@ -90,7 +90,7 @@ create table oj_comments
 create table oj_articles
 (
     id      integer primary key autoincrement,
-    author  string not null,
+    author  integer not null,
     name    string not null,
     text    string not null,
     visible boolean default TRUE

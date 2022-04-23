@@ -696,8 +696,19 @@ def search_articles(word, way: str):
     for i in range(len(data)):
         data[i]['author'] = query_user_by_id_simple(data[i]['author'])
 
+    return data
+
 
 def query_articles_by_uid(uid: int):
     data = query_db("select id, author, name, visible from oj_articles where author = %d" % uid)
 
     return {'code': 0, 'text': '请求成功', 'data': data}
+
+
+def query_articles_by_size_uid(uid: int, start: int, count: int):
+    data = query_db("select id, author, name from oj_articles where author = ? order by id desc limit  ? offset ?",
+                    [uid, count, start])
+    for i in range(len(data)):
+        data[i]['author'] = query_user_by_id_simple(data[i]['author'])
+
+    return data

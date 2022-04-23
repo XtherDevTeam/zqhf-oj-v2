@@ -3,8 +3,10 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <el-col :span="20">
-          <el-avatar :size="40" :src="'/api/v1/user/image/get/' + show_user_info['data']['id']"></el-avatar>
-          <span style="margin: 5px 10px; position: fixed;font-size: 24px;">{{ show_user_info['data']['username'] }}</span>
+          <el-container >
+            <el-aside width="40px"><el-avatar :size="40" :src="'/api/v1/user/image/get/' + show_user_info['data']['id']"></el-avatar></el-aside>
+            <el-main style="padding: 10px;"><div style="font-size: 24px; display: inline-block;">{{ show_user_info['data']['username'] }}</div></el-main>
+          </el-container>
         </el-col>
       </div>
       <div class="text item"><span>通过题目数: {{ show_user_info['data']['ac_count'] }}</span></div>

@@ -768,7 +768,7 @@ def edit_article(ident):
 
     req_data = flask.request.get_json()
 
-    if req_data.get('name') is None or req_data.get('text') is None or req_data('visible') is None:
+    if req_data.get('name') is None or req_data.get('text') is None or req_data.get('visible') is None:
         return {'code': 5, 'text': 'API调用格式错误'}
 
     return backend.edit_article(ident, req_data['name'], req_data['text'], get_login_details()['id'],

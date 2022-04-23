@@ -21,12 +21,14 @@ import ProblemListEditPage from "./routes/ProblemListEdit";
 import ProblemListViewPage from "./routes/ProblemListView";
 import ArticlesPage from "~/routes/Articles";
 import ArticleViewPage from "~/routes/ArticleView";
+import ArticleEditPage from "~/routes/ArticleEdit";
 
 
 const routes = [
     {path: '/', component: Home},
     {path: '/articles', component: ArticlesPage},
     {path: '/articles/view', component: ArticleViewPage},
+    {path: '/articles/edit', component: ArticleEditPage},
     {path: '/lists', component: ProblemListsPage},
     {path: '/lists/edit', component: ProblemListEditPage},
     {path: '/lists/view', component: ProblemListViewPage},

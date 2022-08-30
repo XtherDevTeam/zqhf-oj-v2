@@ -10,6 +10,7 @@ import pickle
 import time
 
 app = flask.Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
 
 def getPluginDetails(name: str):

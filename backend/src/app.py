@@ -11,6 +11,7 @@ import config
 
 app = flask.Flask(__name__)
 app.secret_key = '__@zqhf-oj-v2-secret-code'
+app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
 CORS(app, resources=r'/*')
 

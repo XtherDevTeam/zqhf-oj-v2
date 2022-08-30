@@ -1,8 +1,0 @@
-import "io/io.xs0";
-
-const main = function () {
-  var a = io.input();
-  io.print(a);
-};
-
-main();

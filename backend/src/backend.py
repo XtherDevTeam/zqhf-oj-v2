@@ -246,7 +246,7 @@ def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data):
     if type(input_data) == bytes:
         input_data = input_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
-        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid))
+        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid), exist_ok=True)
         with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in',
                   'w+') as file:
             file.write(input_data)
@@ -259,7 +259,7 @@ def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data):
     if type(output_data) == bytes:
         output_data = output_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
-        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid))
+        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid), exist_ok=True)
         with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out',
                   "w+") as file:
             file.write(output_data)

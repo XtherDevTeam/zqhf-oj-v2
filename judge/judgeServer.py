@@ -130,5 +130,17 @@ def submit_():
         'return_code': str(result_data[3])
     }, data['output'])
 
+@app.route('/judge_api/ide_submit', methods=['POST'])
+def submit_1():
+    data = flask.request.json
+    result_data = execute_plugin(data['plugin'], data['source_file'], data['input'], data['env_variables'],
+                                 data['time_limit'], data['mem_limit'])
+    return checker({
+        'status': result_data[0],
+        'stdout': str(result_data[1]),
+        'stderr': str(result_data[2]),
+        'return_code': str(result_data[3])
+    }, data['output'])
+
 if __name__ == '__main__':
     app.run(host=config.host, port=config.port)

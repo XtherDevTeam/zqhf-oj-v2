@@ -22,7 +22,7 @@ import ProblemListViewPage from "./routes/ProblemListView";
 import ArticlesPage from "~/routes/Articles";
 import ArticleViewPage from "~/routes/ArticleView";
 import ArticleEditPage from "~/routes/ArticleEdit";
-
+import OnlineIDE from "~/routes/OnlineIDE";
 
 const routes = [
     {path: '/', component: Home},
@@ -43,6 +43,7 @@ const routes = [
     {path: '/records/view', component: JudgeRecordViewPage},
     {path: '/login', component: LoginPage},
     {path: '/register', component: RegisterPage},
+    {path: '/ide', component: OnlineIDE},
     {path: '*', component: NotFound},
 ]
 

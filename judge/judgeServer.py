@@ -20,6 +20,8 @@ def getPluginDetails(name: str):
 
 def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, time_out: int = 1000,
                    memlimit: int = 1024):
+    while os.access('./tmp/stdin.log', os.F_OK):
+        time.sleep(0.1)
     with open('./tmp/' + env['source_file'], 'w+') as file:
         file.write(source_file)
 
@@ -35,9 +37,7 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     fp = Popen(fork['compile_command'], shell=True, cwd=os.getcwd() + '/tmp', stdin=PIPE, stdout=PIPE, stderr=PIPE)
     fp.stdout.flush()
     fp.stderr.flush()
-    print('waiting for compile')
     fp.wait()
-    print('compile success')
     if fp.returncode != 0:
         stat = 'CE'
         print(fp.returncode)
@@ -70,6 +70,9 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     pipe_stderr.close()
     pipe_stdout.close()
     pipe_stdin.close()
+    os.remove('./tmp/stdin.log')
+    os.remove('./tmp/stdout.log')
+    os.remove('./tmp/stderr.log')
     # print('finish task with output ', ret_stdout)
     return [stat, ret_stdout, ret_stderr, fp.returncode]
 
@@ -100,6 +103,11 @@ def checker(result, expectedOutput):
             if (result['stdout'][i] != expectedOutput[i]):
                 result['status'] = 'Wrong Answer at character ' + str(i)
                 return result
+
+    if len(result['stdout']) > 1024:
+        result['stdout'] = result['stdout'][0:1024] + "\n[Excessive output]\n"
+    if len(result['stderr']) > 1024:
+        result['stderr'] = result['stderr'][0:1024] + "\n[Excessive output]\n"
 
     result['status'] = 'Accepted'
     # print(result)

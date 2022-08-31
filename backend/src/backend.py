@@ -211,11 +211,6 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
         " values (?, ?, ?, ?, ?, ?, ?)",
         [name, description, json.dumps(io_examples), author, json.dumps(tags), timeout, memory_limit])
 
-    last = query_db("select id from oj_problems where name = ?", [name], one=True)
-    make_checkpoint_dir(last['id'])
-
-    create_comment_area('problem:' + str(last['id']))
-
     return None
 
 
@@ -291,7 +286,11 @@ def remove_checkpoint_dir(pid: int):
 
 
 def get_checkpoint_list(pid: int):
-    result = os.listdir(config.get('uploads-path') + "/problems_data/" + str(pid))
+    try:
+        result = os.listdir(config.get('uploads-path') + "/problems_data/" + str(pid))
+    except:
+        make_checkpoint_dir(pid)
+        return []
     new_result = []
     for i in result:
         if i.endswith('.out'):
@@ -362,12 +361,18 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
 
     for i in checkpoint_list:
         datas = ["", ""]
-        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.in',
-                  "r+") as file:
-            datas[0] = file.read()
-        with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
-                  "r+") as file:
-            datas[1] = file.read()
+        try:
+            with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.in',
+                    "r+") as file:
+                datas[0] = file.read()
+        except Exception:
+            pass
+        try:
+            with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
+                    "r+") as file:
+                datas[1] = file.read()
+        except Exception:
+            pass
         checkpoint_status.append(judge.submit(
             judge_server_address=config.get('judge-server-address'),
             judge_plugin=lang,

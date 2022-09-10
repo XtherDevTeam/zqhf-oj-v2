@@ -14,7 +14,7 @@
     <div style="margin: 10px auto;"></div>
     <span>输出</span>
     <editor style="margin: 10px auto;" v-model="stdout" :language="editor_highlight_mode"
-        width="100%" height="128px"></editor>
+        :readonly="true" width="100%" height="128px"></editor>
     <el-select v-model="judge_lang" placeholder="选择语言" @change="switch_language">
       <el-option v-for="item in support_judge_language" :key="item" :label="item" :value="item"></el-option>
     </el-select>
@@ -85,7 +85,12 @@ export default {
         };
       axios.post('/judge_api/ide_submit', param).then((response) => {
         this.judging = false;
-        this.stdout = 'Stderr>\n' + response.data['stderr'] + '\n\nStdout>\n' + response.data['stdout'] + '\n';
+        if(response.data['status'].startsWith('Wrong Answer')) {
+          this.stdout = `Status: OK\n\n`;
+        } else {
+          this.stdout = `Status: ${response.data['status']}\n\n`;
+        }
+        this.stdout += 'Stderr>\n' + response.data['stderr'] + '\n\nStdout>\n' + response.data['stdout'] + '\n';
       });
     }
   },

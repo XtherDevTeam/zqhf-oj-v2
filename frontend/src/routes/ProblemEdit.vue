@@ -281,7 +281,7 @@ export default {
             message: "[" + response['code'] + "] " + response.data['text'] + " 上传题目失败"
           });
         } else {
-          window.location = '/#/problems';
+          this.$router.back();
         }
       })
     },

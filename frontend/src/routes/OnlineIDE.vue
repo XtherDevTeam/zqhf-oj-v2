@@ -6,7 +6,7 @@
     <div style="margin: 10px auto;"></div>
     <span>代码</span>
     <editor style="margin: 10px auto;" v-model="judge_answer" :language="editor_highlight_mode"
-        width="100%" height="256px"></editor>
+        width="100%" height="256px" @change="auto_save()"></editor>
     <div style="margin: 10px auto;"></div>
     <span>输入</span>
     <editor style="margin: 10px auto;" v-model="stdin" :language="editor_highlight_mode"
@@ -31,7 +31,6 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "../components/editor.vue";
-import Comment from "../components/comment.vue";
 
 import markdownItHighlight from 'markdown-it-highlight';
 
@@ -44,30 +43,35 @@ markdown.use(markdown_with_katex);
 export default {
   methods: {
     switch_language(item) {
-      console.log(this.support_judge_language.indexOf(item));
+      
       this.editor_highlight_mode = this.support_judge_language_highlight_mode[item];
       this.$message({
         type: "success",
         message: "this.editor_highlight_mode switch to " + this.editor_highlight_mode
       });
     },
+    auto_save() {
+      window.localStorage.setItem("zqhf-oj-v2.code-auto-save.online-ide", this.judge_answer);
+    },
     init() {
-      console.log(this.user_info);
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
       }).catch(function (error) {
-        console.log(error);
+        
       });
       axios.get('/api/v1/judge/info').then((response) => {
         this.support_judge_language = response.data['data']['support-languages'];
         this.support_judge_language_highlight_mode = response.data['data']['support-language-highlight-mode'];
         this.support_judge_language_exts = response.data['data']['support-language-exts'];
         this.judge_server_address = response.data['data']['address'];
-        console.log(this.support_judge_language_exts);
+        
       });
+      if (window.localStorage.getItem("zqhf-oj-v2.code-auto-save.online-ide") !== null) {
+        this.judge_answer = window.localStorage.getItem("zqhf-oj-v2.code-auto-save.online-ide");
+      }
     },
     submit() {
       this.judging = true;

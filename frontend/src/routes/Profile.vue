@@ -32,7 +32,7 @@ markdown.use(markdown_with_katex);
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios
           .get("/api/v1/user/details", {
             params: {},
@@ -60,7 +60,7 @@ export default {
             }
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
     }
   },

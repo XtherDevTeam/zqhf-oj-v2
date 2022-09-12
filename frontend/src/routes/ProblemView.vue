@@ -47,7 +47,7 @@
       <el-button type="primary" @click="submit_judge">提交评测</el-button>
 
       <editor style="margin: 10px auto;" v-model="judge_answer" :language="editor_highlight_mode"
-              width="100%" height="256px"></editor>
+              width="100%" height="256px" @change="auto_save()"></editor>
     </el-card>
     <el-card shadow="hover" class="box-card" v-else>
       <span>登录后才能提交评测!</span><br>
@@ -72,7 +72,7 @@ markdown.use(markdown_with_katex);
 export default {
   methods: {
     switch_language(item) {
-      console.log(this.support_judge_language.indexOf(item));
+      
       this.editor_highlight_mode = this.support_judge_language_highlight_mode[item];
       this.$message({
         type: "success",
@@ -80,14 +80,13 @@ export default {
       });
     },
     init() {
-      console.log(this.user_info);
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
       }).catch(function (error) {
-        console.log(error);
+        
       });
 
       axios.get('/api/v1/problems/get/' + this.$route.query['id']).then((response) => {
@@ -108,6 +107,14 @@ export default {
         this.support_judge_language_highlight_mode = response.data['data']['support-language-highlight-mode'];
         this.judge_server_address = response.data['data']['address']
       });
+
+      if (window.localStorage.getItem("zqhf-oj-v2.code-auto-save.problem-" + this.$route.query['id']) !== null) {
+        this.judge_answer = window.localStorage.getItem("zqhf-oj-v2.code-auto-save.problem-" + this.$route.query['id']);
+      }
+    },
+    auto_save() {
+      
+      window.localStorage.setItem("zqhf-oj-v2.code-auto-save.problem-" + this.$route.query['id'], this.judge_answer);
     },
     submit_judge() {
       axios.post('/api/v1/problems/' + this.$route.query['id'] + '/judge/submit', {

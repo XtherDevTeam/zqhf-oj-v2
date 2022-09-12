@@ -34,7 +34,7 @@ markdown.use(markdownItHighlight);
 export default {
   methods: {
     init() {
-      console.log(this.area_id.indexOf("undefined") === -1);
+      
       if (this.area_id.indexOf("undefined") === -1) {
         axios
             .get("/api/v1/comments/get/" + this.area_id + '/' + this.comments_start + '/' + this.comments_limit, {
@@ -54,7 +54,7 @@ export default {
               }
             })
             .catch(function (error) {
-              console.log(error);
+              
             });
       }
       axios
@@ -66,7 +66,7 @@ export default {
             this.logged_in = response.data['code'] === 0;
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
     },
     post_comment() {

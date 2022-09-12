@@ -82,7 +82,7 @@ export default {
   methods: {
     init() {
       this.page_number = this.problems_start / this.problems_limit;
-      console.log(this.user_info);
+      
       axios
           .get("/api/v1/user/details", {
             params: {},
@@ -92,7 +92,7 @@ export default {
             this.logged_in = response.data['code'] === 0;
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
       axios.get("/api/v1/problems/get/" + this.problems_start + "/" + this.problems_limit).then((response) => {
         if (response.data['code'] !== 0) {
@@ -103,7 +103,7 @@ export default {
         } else {
           this.problems_data = response.data['data'];
           for (let problemsDataKey in this.problems_data) {
-            console.log(this.problems_data[problemsDataKey]);
+            
             this.problems_data[problemsDataKey]['tags'] = JSON.parse(this.problems_data[problemsDataKey]['tags']);
           }
         }

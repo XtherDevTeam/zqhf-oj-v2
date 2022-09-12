@@ -23,14 +23,14 @@ import MonacoEditor from "../components/editor.vue";
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
       }).catch(function (error) {
-        console.log(error);
+        
       });
 
       axios.get('/api/v1/articles/get/' + this.$route.query['id']).then((response) => {

@@ -46,7 +46,7 @@ export default {
           automaticLayout: true,
         });
         this.monacoEditor.onDidChangeModelContent((e) => {
-          this.$emit('changed', this.monacoEditor.getValue());
+          this.$emit('change', this.monacoEditor.getValue());
         });
       });
     }
@@ -58,12 +58,13 @@ export default {
     code(val) {
       if (this.monacoEditor.getValue() !== val) {
         this.monacoEditor.setValue(val);
+        this.$emit("change", this.monacoEditor.getValue());
       }
     }
   },
   model: {
     prop: ['code'],
-    event: ['changed']
+    event: ['change']
   }
 };
 </script>

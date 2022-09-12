@@ -83,12 +83,12 @@ export default {
   methods: {
     event_logout() {
       axios.get("/api/v1/user/logout").then((response) => {
-        console.log(response)
+        
         window.location.reload();
       });
     },
     init() {
-      console.log(this.user_info);
+      
       axios
           .get("/api/v1/user/details", {
             params: {},
@@ -98,7 +98,7 @@ export default {
             this.logged_in = response.data['code'] === 0;
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
     },
     event_change_password() {
@@ -119,7 +119,7 @@ export default {
             }
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
     }
   },

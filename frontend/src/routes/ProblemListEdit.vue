@@ -40,14 +40,14 @@ import MonacoEditor from "../components/editor.vue";
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
       }).catch(function (error) {
-        console.log(error);
+        
       });
 
       axios.get('/api/v1/problem_lists/get/' + this.$route.query['id']).then((response) => {
@@ -69,7 +69,7 @@ export default {
       for (let i = 0; i < this.problem_list_content.length; i++) {
         problems_list.push(this.problem_list_content[i]['id']);
       }
-      console.log(problems_list, "fuck!");
+      
       axios.post('/api/v1/problem_lists/edit/' + this.$route.query['id'], {
         name: this.problem_list_name,
         description: this.problem_list_description,

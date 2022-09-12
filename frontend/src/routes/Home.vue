@@ -120,14 +120,14 @@ import MonacoEditor from "../components/editor.vue";
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
       }).catch(function (error) {
-        console.log(error);
+        
       });
       axios.get("/api/v1/bulletins/get/0/10", {
         params: {},
@@ -141,7 +141,7 @@ export default {
           this.bulletins = response.data['data'];
         }
       }).catch(function (error) {
-        console.log(error);
+        
       });
       axios.get("/api/v1/ranking/get", {
         params: {},
@@ -155,14 +155,14 @@ export default {
           this.ranking_top10 = response.data['data'];
         }
       }).catch(function (error) {
-        console.log(error);
+        
       });
       axios.get("//v1.hitokoto.cn/?c=a", {
         params: {},
       }).then((response) => {
         this.hitokoto = response.data;
       }).catch(function (error) {
-        console.log(error);
+        
       });
     },
     on_search_event() {
@@ -192,7 +192,7 @@ export default {
               }
             })
             .catch(function (error) {
-              console.log(error);
+              
             });
       }
     },
@@ -243,7 +243,7 @@ export default {
   },
   mounted() {
     this.init();
-    console.log(this.$parent);
+    
   },
   data() {
     return {

@@ -10,7 +10,7 @@ import MonacoEditor from "../components/editor.vue";
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios
           .get("/api/v1/user/details", {
             params: {},
@@ -20,7 +20,7 @@ export default {
             this.logged_in = response.data['code'] === 0;
           })
           .catch(function (error) {
-            console.log(error);
+            
           });
     },
 

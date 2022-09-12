@@ -32,7 +32,7 @@ import 'mavon-editor/dist/css/index.css'
 export default {
   methods: {
     init() {
-      console.log(this.user_info);
+      
       axios.get("/api/v1/user/details", {
         params: {},
       }).then((response) => {
@@ -42,7 +42,7 @@ export default {
         this.introduction = response.data['data']['introduction'];
         this.full_introduction = response.data['data']['full_introduction'];
       }).catch(function (error) {
-        console.log(error);
+        
       });
     },
 

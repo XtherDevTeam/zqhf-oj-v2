@@ -14,6 +14,28 @@ import _judger
 app = flask.Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
+def cmdline2arglist(cmdline: str):
+    res = []
+    temp = ""
+    in_str = False
+    for i in cmdline:
+        if in_str:
+            if i == '"' or i == '\'':
+                in_str = False
+            else:
+                temp += i
+        elif i == '"' or i == '\'':
+            instr = True
+        elif res == ' ':
+            if temp != "":
+                res.append(temp)
+                temp = ""
+    
+    if temp != "":
+        res.append(temp)
+    
+    return res
+            
 
 def getPluginDetails(name: str):
     with open(config.plugins_dir + '/' + name + '.json', 'r+') as file:
@@ -50,7 +72,7 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     task_id = uuid.uuid4()
     pipe_stdin = f'./tmp/{task_id}-stdin.log'
     pipe_stdout = f'./tmp/{task_id}-stdout.log'
-    pipe_stderr = f'./tmp/{task_id}-log'
+    pipe_stderr = f'./tmp/{task_id}-stderr.log'
     
     with open(pipe_stdin, 'w+') as file:
         file.write(input)
@@ -61,16 +83,18 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     with open(pipe_stderr, 'w+') as file:
         pass
     
+    # .split()
+    arglist = cmdline2arglist(fork['exec_command'])
     
     result = _judger.run(max_cpu_time=time_out,
                 max_real_time=2*time_out, 
                 max_memory=memlimit,
                 max_stack=_judger.UNLIMITED,
-                exe_path=fork['exec_command'],
+                exe_path=arglist[0],
                 input_path=pipe_stdin,
                 output_path=pipe_stdout,
                 error_path=pipe_stderr,
-                args=[],
+                args=arglist[1:],
                 env=[],
                 log_path="/tmp/judger_log.log",
                 seccomp_rule_name=None,

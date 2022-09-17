@@ -16,7 +16,8 @@ lock = threading.Lock()
 
 def connect_db():
     global db
-    db = sqlite3.connect(DATABASE, check_same_thread=False, isolation_level=None)
+    db = sqlite3.connect(DATABASE, check_same_thread=False,
+                         isolation_level=None)
     return db
 
 
@@ -56,7 +57,8 @@ def register_user(user: str, password: str, permission_level: int = 2):
             "images_own": [],
             "files_own": [],
             "articles_own": [],
-            "permission_level": permission_level,  # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
+            # 0 is user, 1 is admin, 2 is super admin, -1 is banned user
+            "permission_level": permission_level,
             "ac_problems": []
         })]
     )
@@ -103,7 +105,8 @@ def change_user_attrs(user: int, name: str, introduction: str, full_introduction
     set_user_attr_by_id(user, 'introduction', introduction)
     set_user_attr_by_id(user, 'full_introduction', full_introduction)
     if old_user_name != name:
-        query_db("update oj_problems set author = ? where author = ?", [name, old_user_name], one=True)
+        query_db("update oj_problems set author = ? where author = ?",
+                 [name, old_user_name], one=True)
 
 
 def change_user_password(user: int, password: str):
@@ -121,7 +124,8 @@ def query_records_by_id(ident: int):
 
 
 def query_bulletins_by_size(start: int, count: int):
-    data = query_db("select time, name, id from oj_bulletins order by id limit ? offset ?", [count, start])
+    data = query_db(
+        "select time, name, id from oj_bulletins order by id limit ? offset ?", [count, start])
     return data
 
 
@@ -139,7 +143,8 @@ def create_bulletin(name: str, content: str):
 
     cur_time = time.time()
     cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(cur_time))
-    query_db("insert into oj_bulletins (name, time, content) values (?, ?, ?)", [name, cur_time, content])
+    query_db("insert into oj_bulletins (name, time, content) values (?, ?, ?)", [
+             name, cur_time, content])
     return True
 
 
@@ -188,9 +193,11 @@ def query_ranking(start: int, count: int):
 def search_problems(way: str, content: str):
     result = []
     if way == "by_id":
-        result = query_db("select id,name,description,tags from oj_problems where id = ?", [content])
+        result = query_db(
+            "select id,name,description,tags from oj_problems where id = ?", [content])
     elif way == "by_author":
-        result = query_db("select id,name,description,tags from oj_problems where author like ?", ["%" + content + "%"])
+        result = query_db("select id,name,description,tags from oj_problems where author like ?", [
+                          "%" + content + "%"])
     elif way == "by_description":
         result = query_db("select id,name,description,tags from oj_problems where description like ?",
                           ["%" + json.dumps(content)[1:-1] + "%"])
@@ -241,7 +248,8 @@ def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data):
     if type(input_data) == bytes:
         input_data = input_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
-        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid), exist_ok=True)
+        os.makedirs(config.get('uploads-path') +
+                    "/problems_data/" + str(pid), exist_ok=True)
         with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in',
                   'w+') as file:
             file.write(input_data)
@@ -254,7 +262,8 @@ def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data):
     if type(output_data) == bytes:
         output_data = output_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
-        os.makedirs(config.get('uploads-path') + "/problems_data/" + str(pid), exist_ok=True)
+        os.makedirs(config.get('uploads-path') +
+                    "/problems_data/" + str(pid), exist_ok=True)
         with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out',
                   "w+") as file:
             file.write(output_data)
@@ -265,12 +274,14 @@ def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data):
 
 def remove_checkpoint_from_problem(pid: int, checkpoint_name: str):
     if os.access(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in', os.F_OK):
-        os.remove(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in')
+        os.remove(config.get('uploads-path') + "/problems_data/" +
+                  str(pid) + "/" + checkpoint_name + '.in')
     else:
         return False
 
     if os.access(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out', os.F_OK):
-        os.remove(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out')
+        os.remove(config.get('uploads-path') + "/problems_data/" +
+                  str(pid) + "/" + checkpoint_name + '.out')
     else:
         return False
 
@@ -287,7 +298,8 @@ def remove_checkpoint_dir(pid: int):
 
 def get_checkpoint_list(pid: int):
     try:
-        result = os.listdir(config.get('uploads-path') + "/problems_data/" + str(pid))
+        result = os.listdir(config.get('uploads-path') +
+                            "/problems_data/" + str(pid))
     except:
         make_checkpoint_dir(pid)
         return []
@@ -327,12 +339,10 @@ def query_problem_by_size(start: int, limit: int):
 
 
 def get_judge_server_info():
-    return {
-        'address': config.get('judge-server-address'),
-        'support-languages': config.get('judge-sever-support-language'),
-        'support-language-exts': config.get('judge-server-language-exts'),
-        'support-language-highlight-mode': config.get('judge-server-language-highlight-mode')
-    }
+    data = json.loads(requests.get(
+        f"http://${config.get('judge-server-address')}/info"))
+    data['address'] = config.get('judge-server-address')
+    return data
 
 
 def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
@@ -345,6 +355,16 @@ def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int
             "select id from oj_records where author = ? and code = ? and lang = ? and problem = ? and timestamp = ?",
             [author, code, lang, problem, timestamp], one=True)['id']
     return jid
+
+
+def submit_judge_free(data: json):
+    return judge.submit(config.get('judge-server-address'),
+                        data['plugin'],
+                        data['source_file'],
+                        data['input'],
+                        data['env_variables'],
+                        data['time_limit'],
+                        data['mem_limit'])
 
 
 def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):
@@ -363,13 +383,13 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
         datas = ["", ""]
         try:
             with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.in',
-                    "r+") as file:
+                      "r+") as file:
                 datas[0] = file.read()
         except Exception:
             pass
         try:
             with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
-                    "r+") as file:
+                      "r+") as file:
                 datas[1] = file.read()
         except Exception:
             pass
@@ -417,10 +437,13 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
             ac_count = query_user_by_id(author)['ac_count'] + 1
             other_message['ac_problems'].append(problem)
             set_user_attr_by_id(author, 'ac_count', ac_count)
-            set_user_attr_by_id(author, 'other_message', pickle.dumps(other_message))
-        query_db("update oj_records set status = 'Accepted' where id = ?", [jid])
+            set_user_attr_by_id(author, 'other_message',
+                                pickle.dumps(other_message))
+        query_db(
+            "update oj_records set status = 'Accepted' where id = ?", [jid])
     else:
-        query_db("update oj_records set status = 'Wrong answer' where id = ?", [jid])
+        query_db(
+            "update oj_records set status = 'Wrong answer' where id = ?", [jid])
 
     return True
 
@@ -431,7 +454,8 @@ def get_judge_jid(problem: int, author: int, timestamp: int):
 
 
 def query_problem_list_by_name(name: str):
-    data = query_db("select * from oj_problem_lists where name = ?", [name], one=True)
+    data = query_db(
+        "select * from oj_problem_lists where name = ?", [name], one=True)
     if data is None:
         return data
     data['author'] = query_user_by_id_simple(data['author'])
@@ -440,7 +464,8 @@ def query_problem_list_by_name(name: str):
 
 
 def query_problem_list_by_id(ident: int):
-    data = query_db("select * from oj_problem_lists where id = ?", [ident], one=True)
+    data = query_db(
+        "select * from oj_problem_lists where id = ?", [ident], one=True)
     if data is None:
         return data
     data['author'] = query_user_by_id_simple(data['author'])
@@ -455,13 +480,15 @@ def query_problem_list_by_id(ident: int):
 
 
 def remove_problem_list_by_id(ident: int):
-    data = query_db("delete from oj_problem_lists where id = ?", [ident], one=True)
+    data = query_db("delete from oj_problem_lists where id = ?", [
+                    ident], one=True)
     delete_comment_area('problem_list:' + str(ident))
     return data
 
 
 def query_problem_list_by_size(start: int, limit: int):
-    data = query_db("select id, author, name from oj_problem_lists order by id limit ? offset ?", [limit, start])
+    data = query_db(
+        "select id, author, name from oj_problem_lists order by id limit ? offset ?", [limit, start])
     for i in data:
         i['author'] = query_user_by_id_simple(i['author'])
 
@@ -502,7 +529,8 @@ def create_problem_list(author: int, name: str, description: str, problems: list
     query_db("insert into oj_problem_lists (author, name, description, problems) values (?,?,?,?)",
              [author, name, description, json.dumps(problems)])
 
-    list_id = query_db("select id from oj_problem_lists where name=?", name, one=True)['id']
+    list_id = query_db(
+        "select id from oj_problem_lists where name=?", name, one=True)['id']
     create_comment_area('problem_list:' + str(list_id))
 
     return True
@@ -530,7 +558,8 @@ def delete_comment_area(require_by: str):
 
 
 def query_comments_by_require(require_by: str):
-    comments = query_db("select * from oj_comments where require_by = ?", [require_by], one=True)
+    comments = query_db(
+        "select * from oj_comments where require_by = ?", [require_by], one=True)
     if comments is None:
         return None
     comments['comments'] = json.loads(comments['comments'])
@@ -560,7 +589,8 @@ def get_comments_by_size(require_by: str, start: int, count: int):
             data[i]['author'] = query_user_by_id_simple(data[i]['author'])
             data[i]['index'] = i
             for j in range(len(data[i]['reply'])):
-                data[i]['reply'][j]['author'] = query_user_by_id_simple(data[i]['reply'][j]['author'])
+                data[i]['reply'][j]['author'] = query_user_by_id_simple(
+                    data[i]['reply'][j]['author'])
 
         return {'code': 0, 'text': '操作成功', 'data': data}
     except Exception as e:
@@ -602,7 +632,8 @@ def reply_comment(require_by: str, index_of_comment: int, author: int, text: str
 
     comments['comments'] = json.dumps(comments['comments'])
 
-    query_db('update oj_comments set comments = ? where require_by = ?', [comments['comments'], comments['author']])
+    query_db('update oj_comments set comments = ? where require_by = ?', [
+             comments['comments'], comments['author']])
 
     return {'code': 0, 'text': '操作成功'}
 
@@ -617,7 +648,8 @@ def query_articles_by_size(start: int, count: int):
 
 
 def query_article_by_id(ident: int, require: int):
-    data = query_db("select * from oj_articles where id = ?", [ident], one=True)
+    data = query_db("select * from oj_articles where id = ?",
+                    [ident], one=True)
     if data is None:
         return {
             'code': 2,
@@ -638,7 +670,8 @@ def query_article_by_id(ident: int, require: int):
 
 
 def remove_article(ident: int, require: int):
-    data = query_db("select author, visible from oj_articles where id = ?", [ident], one=True)
+    data = query_db("select author, visible from oj_articles where id = ?", [
+                    ident], one=True)
     if data is None:
         return {
             'code': 2,
@@ -667,7 +700,8 @@ def create_article(name: str, text: str, author: int, visible: bool):
 
 
 def edit_article(ident: int, name: str, text: str, author: int, visible: bool):
-    data = query_db("select author, visible from oj_articles where id = ?", [ident], one=True)
+    data = query_db("select author, visible from oj_articles where id = ?", [
+                    ident], one=True)
     if data is None:
         return {
             'code': 2,
@@ -707,7 +741,8 @@ def search_articles(word, way: str):
 
 
 def query_articles_by_uid(uid: int):
-    data = query_db("select id, author, name, visible from oj_articles where author = %d" % uid)
+    data = query_db(
+        "select id, author, name, visible from oj_articles where author = %d" % uid)
 
     return {'code': 0, 'text': '请求成功', 'data': data}
 

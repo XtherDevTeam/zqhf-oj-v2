@@ -87,7 +87,7 @@ export default {
           'time_limit': 2000,
           'mem_limit': 1048576,
         };
-      axios.post('/judge_api/ide_submit', param).then((response) => {
+      axios.post('/api/v1/judge/ide_submit', param).then((response) => {
         this.judging = false;
         if(response.data['status'].startsWith('Wrong Answer')) {
           this.stdout = `Status: OK\n\n`;

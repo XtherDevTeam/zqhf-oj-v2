@@ -133,7 +133,7 @@ def checker(result, expectedOutput):
 
 
 @app.route('/submit')
-def submit_():
+def submit_0():
     pickleData = io.BytesIO(bytes())
     flask.request.files.get('data').save(pickleData)
     pickleData.seek(0)
@@ -159,6 +159,10 @@ def submit_1():
         'stderr': str(result_data[2]),
         'return_code': str(result_data[3])
     }, data['output'])
+    
+@app.route('/info', methods=['GET'])
+def info():
+    return config.judge_server_conf
 
 if __name__ == '__main__':
     app.run(host=config.host, port=config.port)

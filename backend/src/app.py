@@ -58,6 +58,16 @@ def judge_server_info_router():
     return {"code": 0, "text": "请求成功!", "data": backend.get_judge_server_info()}
 
 
+@app.route("/v1/judge/ide_submit", methods=['GET'])
+def judge_server_api_router():
+    if flask.session.get('user_id') is not None:
+        data = flask.request.json
+
+        return {"code": 0, "text": "请求成功!", "data": backend.submit_judge_free(data)}
+    else:
+        return {"code": 7, "text": "用户未登录!"}
+
+
 @app.route("/v1/judge/get/<int:start>/<int:limit>", methods=['GET'])
 def judge_record_get_by_swap_router(start, limit):
     return {
@@ -113,7 +123,8 @@ def change_password_router():
             return {"code": 5, "text": "缺少参数: 新密码!"}
         if backend.check_login(backend.query_user_by_id(flask.session.get('user_id'))['username'],
                                request.get('old_password')):
-            backend.change_user_password(flask.session.get('user_id'), request.get('new_password'))
+            backend.change_user_password(flask.session.get(
+                'user_id'), request.get('new_password'))
             return {"code": 0, "text": "修改成功!"}
         else:
             return {"code": 6, "text": "用户名或密码错误!"}
@@ -201,7 +212,8 @@ def post_user_image_router():
     data = io.BytesIO(bytes())
     flask.request.files.get('file').save(data)
     data.seek(0)
-    backend.set_user_attr_by_id(get_login_details()['id'], 'user_image', data.read())
+    backend.set_user_attr_by_id(
+        get_login_details()['id'], 'user_image', data.read())
     return {
         'code': 0,
         'text': '请求成功'
@@ -727,7 +739,8 @@ def post_article():
     if req_data.get('name') is None or req_data.get('text') is None or req_data.get('visible') is None:
         return {'code': 5, 'text': 'API调用格式错误'}
 
-    backend.create_article(req_data['name'], req_data['text'], get_login_details()['id'], req_data['visible'])
+    backend.create_article(req_data['name'], req_data['text'], get_login_details()[
+                           'id'], req_data['visible'])
     return {'code': 0, 'text': '请求成功'}
 
 
@@ -786,4 +799,5 @@ def delete_article(ident):
 
 
 if __name__ == "__main__":
-    app.run(host=config.get("api-server-host"), port=config.get("api-server-port"))
+    app.run(host=config.get("api-server-host"),
+            port=config.get("api-server-port"))

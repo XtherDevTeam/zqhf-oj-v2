@@ -98,7 +98,7 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
                 input_path=pipe_stdin,
                 output_path=pipe_stdout,
                 error_path=pipe_stderr,
-                args=arglist[1:],
+                args=arglist,
                 env=[],
                 log_path="/tmp/judger_log.log",
                 seccomp_rule_name=None,

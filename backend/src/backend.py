@@ -8,6 +8,7 @@ from contextlib import closing
 import time
 import config
 import judge
+import requests
 
 DATABASE = config.get("database-path")
 db = None
@@ -340,7 +341,7 @@ def query_problem_by_size(start: int, limit: int):
 
 def get_judge_server_info():
     data = json.loads(requests.get(
-        f"http://${config.get('judge-server-address')}/info"))
+        f"http://{config.get('judge-server-address')}/info"))
     data['address'] = config.get('judge-server-address')
     return data
 

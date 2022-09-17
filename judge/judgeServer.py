@@ -48,9 +48,9 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
         return [stat, ret_stdout, ret_stderr, fp.returncode]
     
     task_id = uuid.uuid4()
-    pipe_stdin = f'./tmp/${task_id}-stdin.log'
-    pipe_stdout = f'./tmp/${task_id}-stdout.log'
-    pipe_stderr = f'./tmp/${task_id}-log'
+    pipe_stdin = f'./tmp/{task_id}-stdin.log'
+    pipe_stdout = f'./tmp/{task_id}-stdout.log'
+    pipe_stderr = f'./tmp/{task_id}-log'
     
     with open(pipe_stdin, 'w+') as file:
         file.write(input)
@@ -93,9 +93,9 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     with open(pipe_stderr, 'r') as file:
         pipe_stderr = file.read()
     
-    os.remove(f'./tmp/${task_id}-stdin.log')
-    os.remove(f'./tmp/${task_id}-stdout.log')
-    os.remove(f'./tmp/${task_id}-stderr.log')
+    os.remove(f'./tmp/{task_id}-stdin.log')
+    os.remove(f'./tmp/{task_id}-stdout.log')
+    os.remove(f'./tmp/{task_id}-stderr.log')
     return [stat, ret_stdout, ret_stderr, result['signal']]
 
 

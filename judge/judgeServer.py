@@ -1,5 +1,6 @@
 #!/bin/python3
 from subprocess import Popen, PIPE
+import uuid
 
 import config
 import flask
@@ -8,6 +9,7 @@ import json
 import os
 import pickle
 import time
+import _judger
 
 app = flask.Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
@@ -39,50 +41,66 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     fp.stderr.flush()
     fp.wait()
     if fp.returncode != 0:
-        stat = 'CE'
-        print(fp.returncode)
+        stat = 'Compile Error'
         ret_stdout += fp.stdout.read().decode('utf-8')
         ret_stderr += fp.stderr.read().decode('utf-8')
         fp.stdout.flush()
         return [stat, ret_stdout, ret_stderr, fp.returncode]
-    print('waiting for execute: ' + str(time_out) + 'ms')
-    with open('./tmp/stdin.log', 'w+') as file:
+    
+    task_id = uuid.uuid4()
+    pipe_stdin = f'./tmp/${task_id}-stdin.log'
+    pipe_stdout = f'./tmp/${task_id}-stdout.log'
+    pipe_stderr = f'./tmp/${task_id}-log'
+    
+    with open(pipe_stdin, 'w+') as file:
         file.write(input)
-    pipe_stdin = open('./tmp/stdin.log', 'r+')
-    pipe_stdout = open('./tmp/stdout.log', 'w+')
-    pipe_stderr = open('./tmp/stderr.log', 'w+')
-    print('executing: ', fork['compile_command'], fork['exec_command'], 'memlimit', memlimit)
-    fp = Popen('ulimit -m ' + str(memlimit) + ';ulimit -v ' + str(memlimit) + ';' + fork['exec_command'], shell=True,
-               cwd=os.getcwd() + '/tmp', stdin=pipe_stdin.fileno(), stdout=pipe_stdout.fileno(),
-               stderr=pipe_stderr.fileno())
-    time.sleep(time_out / 1000)
-    fp.poll()
-    fp.kill()
-    print('task killed')
-    if fp.returncode == None:
-        stat = 'TLE'
-    else:
+    
+    
+    result = _judger.run(max_cpu_time=time_out,
+                max_real_time=2*time_out, 
+                max_memory=memlimit,
+                max_stack=_judger.UNLIMITED,
+                exe_path=fork['exec_command'],
+                input_path=pipe_stdin,
+                output_path=pipe_stdout,
+                error_path=pipe_stderr,
+                args=[],
+                env=[],
+                log_path="/tmp/judger_log.log",
+                seccomp_rule_name=None,
+                uid=0,
+                gid=0,
+                max_output_size=_judger.UNLIMITED,
+                max_process_number=1)
+    
+    # 向前兼容
+    if result['result'] == _judger.RESULT_SUCCESS:
         stat = 'OK'
-    pipe_stdout.seek(0)
-    pipe_stderr.seek(0)
-    ret_stdout += pipe_stdout.read()
-    ret_stderr += pipe_stderr.read()
-    pipe_stderr.close()
-    pipe_stdout.close()
-    pipe_stdin.close()
-    os.remove('./tmp/stdin.log')
-    os.remove('./tmp/stdout.log')
-    os.remove('./tmp/stderr.log')
-    # print('finish task with output ', ret_stdout)
-    return [stat, ret_stdout, ret_stderr, fp.returncode]
+    elif result['result'] == _judger.RESULT_CPU_TIME_LIMIT_EXCEEDED:
+        stat = 'Time Limit Exceeded'
+    elif result['result'] == _judger.RESULT_REAL_TIME_LIMIT_EXCEEDED:
+        stat = 'Time Limit Exceeded'
+    elif result['result'] == _judger.RESULT_MEMORY_LIMIT_EXCEEDED:
+        stat = 'Memory Limit Exceeded'
+    elif result['result'] == _judger.RESULT_RUNTIME_ERROR:
+        stat = 'Runtime Error'
+    elif result['result'] == _judger.RESULT_SYSTEM_ERROR:
+        stat = 'System Error'
+    
+    with open(pipe_stdout, 'r') as file:
+        pipe_stdout = file.read()
+        
+    with open(pipe_stderr, 'r') as file:
+        pipe_stderr = file.read()
+    
+    os.remove(f'./tmp/${task_id}-stdin.log')
+    os.remove(f'./tmp/${task_id}-stdout.log')
+    os.remove(f'./tmp/${task_id}-stderr.log')
+    return [stat, ret_stdout, ret_stderr, result['signal']]
 
 
 def checker(result, expectedOutput):
-    if (result['status'] == 'CE'):
-        result['status'] = 'Compile Error'
-        return result
-    elif (result['return_code'] == None or result['return_code'] != '0'):
-        result['status'] = 'Runtime Error'
+    if (result['status'] != 'OK'):
         return result
 
     if result['stdout'] != "":
@@ -130,7 +148,7 @@ def submit_():
         'return_code': str(result_data[3])
     }, data['output'])
 
-@app.route('/judge_api/ide_submit', methods=['POST'])
+@app.route('/ide_submit', methods=['POST'])
 def submit_1():
     data = flask.request.json
     result_data = execute_plugin(data['plugin'], data['source_file'], data['input'], data['env_variables'],

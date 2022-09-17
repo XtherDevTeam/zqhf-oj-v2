@@ -26,7 +26,7 @@ def cmdline2arglist(cmdline: str):
                 temp += i
         elif i == '"' or i == '\'':
             instr = True
-        elif res == ' ':
+        elif i == ' ':
             if temp != "":
                 res.append(temp)
                 temp = ""
@@ -96,6 +96,7 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     
     # .split()
     arglist = cmdline2arglist(fork['exec_command'])
+    print(arglist)
     
     result = _judger.run(max_cpu_time=time_out,
                 max_real_time=2*time_out, 

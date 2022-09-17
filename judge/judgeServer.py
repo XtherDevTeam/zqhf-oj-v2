@@ -73,9 +73,9 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
         return [stat, ret_stdout, ret_stderr, fp.returncode]
     
     task_id = uuid.uuid4()
-    pipe_stdin = os.path.realpath(f'./tmp/{task_id}-stdin.log')
-    pipe_stdout = os.path.realpath(f'./tmp/{task_id}-stdout.log')
-    pipe_stderr = os.path.realpath(f'./tmp/{task_id}-stderr.log')
+    pipe_stdin = f'./tmp/{task_id}-stdin.log'
+    pipe_stdout = f'./tmp/{task_id}-stdout.log'
+    pipe_stderr = f'./tmp/{task_id}-stderr.log'
     
     with open(pipe_stdin, 'w+') as file:
         file.write(input)

@@ -1,0 +1,8 @@
+{
+    "name": "C++17-O2",
+        "file-type": "text/x-c++src",
+    "file-ext": "cpp",
+        "descriptions": "G++ Compiler with C++14",
+    "compile_command": "g++ -std=c++17 -O2 $source_file -o $binary_file",
+        "exec_command": "./$binary_file"
+}

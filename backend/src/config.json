@@ -10,20 +10,23 @@
     "C++",
     "C++14",
     "Python3",
-    "Xscript"
+    "Xscript",
+    "C++17-O2"
   ],
   "judge-server-language-exts": {
     "C": "c",
     "C++": "cpp",
     "C++14": "cpp",
     "Python3": "py",
-    "Xscript": "xs0"
+    "Xscript": "xs0",
+    "C++17-O2": "cpp"
   },
   "judge-server-language-highlight-mode": {
     "C": "c",
     "C++": "cpp",
     "C++14": "cpp",
     "Python3": "python",
-    "Xscript": "dart"
+    "Xscript": "dart",
+    "C++17-O2": "cpp"
   }
 }

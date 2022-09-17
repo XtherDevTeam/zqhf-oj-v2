@@ -4,5 +4,5 @@
     "file-ext": "py",
     "descriptions": "Execute Python3 script",
     "compile_command": "",
-    "exec_command": "python3 $source_file"
+    "exec_command": "/usr/bin/python3 $source_file"
 }

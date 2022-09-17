@@ -47,21 +47,32 @@ def getPluginDetails(name: str):
 
 def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, time_out: int = 1000,
                    memlimit: int = 1024):
-    while os.access('./tmp/stdin.log', os.F_OK):
-        time.sleep(0.1)
-    with open('./tmp/' + env['source_file'], 'w+') as file:
+    
+    fork = getPluginDetails(use_plugin)
+    
+    task_id = uuid.uuid4()
+    
+    pipe_stdin = f'/tmp/{task_id}-stdin.log'
+    pipe_stdout = f'/tmp/{task_id}-stdout.log'
+    pipe_stderr = f'/tmp/{task_id}-stderr.log'
+    
+    source_fp = f'/tmp/{task_id}-source.{fork["file-ext"]}'
+    binary_fp = f'/tmp/{task_id}-test.o'
+    
+        
+    with open(source_fp, 'w+') as file:
         file.write(source_file)
 
-    fork = getPluginDetails(use_plugin)
-    for i in env:
-        fork['compile_command'] = fork['compile_command'].replace('$' + i, env[i])
-    for i in env:
-        fork['exec_command'] = fork['exec_command'].replace('$' + i, env[i])
+    fork['compile_command'] = fork['compile_command'].replace('$source_file', source_fp)
+    fork['compile_command'] = fork['compile_command'].replace('$binary_file', binary_fp)
+    fork['exec_command'] = fork['exec_command'].replace('$source_file', source_fp)
+    fork['exec_command'] = fork['exec_command'].replace('$binary_file', binary_fp)
+    
     ret_stdout = ''
     ret_stderr = ''
 
     stat = ''
-    fp = Popen(fork['compile_command'], shell=True, cwd=os.getcwd() + '/tmp', stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    fp = Popen(fork['compile_command'], shell=True, cwd=os.getcwd(), stdin=PIPE, stdout=PIPE, stderr=PIPE)
     fp.stdout.flush()
     fp.stderr.flush()
     fp.wait()
@@ -72,10 +83,7 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
         fp.stdout.flush()
         return [stat, ret_stdout, ret_stderr, fp.returncode]
     
-    task_id = uuid.uuid4()
-    pipe_stdin = f'./tmp/{task_id}-stdin.log'
-    pipe_stdout = f'./tmp/{task_id}-stdout.log'
-    pipe_stderr = f'./tmp/{task_id}-stderr.log'
+    print(pipe_stdin, pipe_stdout, pipe_stderr)
     
     with open(pipe_stdin, 'w+') as file:
         file.write(input)
@@ -87,18 +95,17 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
         pass
     
     # .split()
-    arglist = ["-c"]
-    arglist += cmdline2arglist(fork['exec_command'])
+    arglist = cmdline2arglist(fork['exec_command'])
     
     result = _judger.run(max_cpu_time=time_out,
                 max_real_time=2*time_out, 
-                max_memory=memlimit,
+                max_memory=memlimit * 1024,
                 max_stack=_judger.UNLIMITED,
-                exe_path='/bin/sh',
+                exe_path=arglist[0],
                 input_path=pipe_stdin,
                 output_path=pipe_stdout,
                 error_path=pipe_stderr,
-                args=arglist,
+                args=arglist[1:],
                 env=[],
                 log_path="/tmp/judger_log.log",
                 seccomp_rule_name=None,
@@ -122,14 +129,18 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
         stat = 'System Error'
     
     with open(pipe_stdout, 'r') as file:
-        pipe_stdout = file.read()
+        ret_stdout = file.read()
         
     with open(pipe_stderr, 'r') as file:
-        pipe_stderr = file.read()
+        ret_stderr = file.read()
+    
+    print(pipe_stdin, pipe_stdout, pipe_stderr)
     
     os.remove(pipe_stdin)
     os.remove(pipe_stdout)
     os.remove(pipe_stderr)
+    os.remove(source_fp)
+    os.remove(binary_fp)
     return [stat, ret_stdout, ret_stderr, result['signal']]
 
 

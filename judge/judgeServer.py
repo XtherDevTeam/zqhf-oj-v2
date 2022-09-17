@@ -54,6 +54,12 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     
     with open(pipe_stdin, 'w+') as file:
         file.write(input)
+        
+    with open(pipe_stdout, 'w+') as file:
+        pass
+        
+    with open(pipe_stderr, 'w+') as file:
+        pass
     
     
     result = _judger.run(max_cpu_time=time_out,

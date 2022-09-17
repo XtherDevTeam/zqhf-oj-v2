@@ -58,7 +58,7 @@ def judge_server_info_router():
     return {"code": 0, "text": "请求成功!", "data": backend.get_judge_server_info()}
 
 
-@app.route("/v1/judge/ide_submit", methods=['GET'])
+@app.route("/v1/judge/ide_submit", methods=['POST'])
 def judge_server_api_router():
     if flask.session.get('user_id') is not None:
         data = flask.request.json

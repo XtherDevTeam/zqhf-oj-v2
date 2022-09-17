@@ -63,9 +63,9 @@ export default {
         
       });
       axios.get('/api/v1/judge/info').then((response) => {
-        this.support_judge_language = response.data['data']['support-languages'];
-        this.support_judge_language_highlight_mode = response.data['data']['support-language-highlight-mode'];
-        this.support_judge_language_exts = response.data['data']['support-language-exts'];
+        this.support_judge_language = response.data['data']['judge-sever-support-language'];
+        this.support_judge_language_highlight_mode = response.data['data']['judge-server-language-highlight-mode'];
+        this.support_judge_language_exts = response.data['data']['judge-server-language-exts'];
         this.judge_server_address = response.data['data']['address'];
         
       });

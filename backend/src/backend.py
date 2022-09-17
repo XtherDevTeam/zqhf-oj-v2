@@ -341,7 +341,7 @@ def query_problem_by_size(start: int, limit: int):
 
 def get_judge_server_info():
     data = json.loads(requests.get(
-        f"http://{config.get('judge-server-address')}/info"))
+        f"http://{config.get('judge-server-address')}/info").content)
     data['address'] = config.get('judge-server-address')
     return data
 
@@ -359,13 +359,14 @@ def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int
 
 
 def submit_judge_free(data: json):
-    return judge.submit(config.get('judge-server-address'),
-                        data['plugin'],
-                        data['source_file'],
-                        data['input'],
-                        data['env_variables'],
-                        data['time_limit'],
-                        data['mem_limit'])
+    return judge.submit(judge_server_address=config.get('judge-server-address'),
+                        judge_plugin=data['plugin'],
+                        source_file=data['source_file'],
+                        data_input=data['input'],
+                        data_output='',
+                        env_variables=data['env_variables'],
+                        time_limit=data['time_limit'],
+                        mem_limit=data['mem_limit'])
 
 
 def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):

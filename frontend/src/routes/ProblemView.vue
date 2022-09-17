@@ -11,7 +11,9 @@
       <div style="margin: 10px auto;"></div>
       <span><i class="el-icon-s-platform"></i> 判题服务器: {{ judge_server_address }}</span>
       <div style="margin: 10px auto;"></div>
-      <span><i class="el-icon-s-tools"></i> 支持语言: <el-tag style="margin: 0 5px;" :key="i" v-for="i in support_judge_language">{{ i }}</el-tag></span>
+      <span><i class="el-icon-s-tools"></i> 支持语言: 
+        <el-tag style="margin: 0 5px;" :key="i" v-for="i in support_judge_language">{{ i }}</el-tag>
+      </span>
       <div style="margin: 10px auto;"></div>
       <span><strong>题目介绍: </strong></span><br>
       <div style="margin: 10px auto;"></div>
@@ -103,8 +105,9 @@ export default {
         }
       });
       axios.get('/api/v1/judge/info').then((response) => {
-        this.support_judge_language = response.data['data']['support-languages'];
-        this.support_judge_language_highlight_mode = response.data['data']['support-language-highlight-mode'];
+        this.support_judge_language = response.data['data']['judge-sever-support-language'];
+        this.support_judge_language_highlight_mode = response.data['data']['judge-server-language-highlight-mode'];
+        this.support_judge_language_exts = response.data['data']['judge-server-language-exts'];
         this.judge_server_address = response.data['data']['address']
       });
 

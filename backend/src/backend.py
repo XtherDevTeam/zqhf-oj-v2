@@ -376,10 +376,7 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
     score = 0
     full_ac = True
 
-    env_vars = {
-        'source_file': 'temp.' + config.get('judge-server-language-exts')[lang],
-        'binary_file': 'temp.bin'
-    }
+    env_vars = {}
 
     for i in checkpoint_list:
         datas = ["", ""]

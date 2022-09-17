@@ -136,11 +136,15 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     
     print(pipe_stdin, pipe_stdout, pipe_stderr)
     
-    os.remove(pipe_stdin)
-    os.remove(pipe_stdout)
-    os.remove(pipe_stderr)
-    os.remove(source_fp)
-    os.remove(binary_fp)
+    try:
+        os.remove(pipe_stdin)
+        os.remove(pipe_stdout)
+        os.remove(pipe_stderr)
+        os.remove(source_fp)
+        os.remove(binary_fp)
+    except:
+        pass
+    
     return [stat, ret_stdout, ret_stderr, result['signal']]
 
 

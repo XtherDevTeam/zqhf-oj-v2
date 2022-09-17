@@ -89,12 +89,12 @@ export default {
         };
       axios.post('/api/v1/judge/ide_submit', param).then((response) => {
         this.judging = false;
-        if(response.data['status'].startsWith('Wrong Answer')) {
+        if(response.data['data']['status'].startsWith('Wrong Answer')) {
           this.stdout = `Status: OK\n\n`;
         } else {
-          this.stdout = `Status: ${response.data['status']}\n\n`;
+          this.stdout = `Status: ${response.data['data']['status']}\n\n`;
         }
-        this.stdout += 'Stderr>\n' + response.data['stderr'] + '\n\nStdout>\n' + response.data['stdout'] + '\n';
+        this.stdout += 'Stderr>\n' + response.data['data']['stderr'] + '\n\nStdout>\n' + response.data['data']['stdout'] + '\n';
       });
     }
   },

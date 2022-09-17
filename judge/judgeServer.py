@@ -30,11 +30,14 @@ def cmdline2arglist(cmdline: str):
             if temp != "":
                 res.append(temp)
                 temp = ""
+        else:
+            temp += i
     
     if temp != "":
         res.append(temp)
     
     return res
+
             
 
 def getPluginDetails(name: str):

@@ -415,7 +415,7 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
                 data_input=checkpoint_status[-1]['stdout'],
                 data_output='100',
                 time_limit=1000,
-                mem_limit=256*1024,
+                mem_limit=65536,
                 env_variables={
                     'source_file': 'temp.cpp',
                     'binary_file': 'temp.bin'

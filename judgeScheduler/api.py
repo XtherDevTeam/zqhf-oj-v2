@@ -39,7 +39,7 @@ def send_task(host : int, param : dict) -> dict:
     resp = requests.post("http://%s/submit" % config.judger_hosts[host],
                             json=param)
     try:
-        resp = json.loads(resp)
+        resp = json.loads(resp.content)
         return resp
     except:
         return {

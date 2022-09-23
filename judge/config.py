@@ -1,5 +1,5 @@
 host = '0.0.0.0'
-port = 5918
+port = 5917
 plugins_dir = 'plugins'
 judge_server_conf = {
     "judge-sever-support-language": [

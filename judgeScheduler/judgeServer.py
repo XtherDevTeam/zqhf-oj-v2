@@ -23,7 +23,7 @@ def submit_1():
     
 @app.route('/info', methods=['GET'])
 def info():
-    return api.ask(config.judger_hosts[config.ask_from])
+    return api.ask_info(config.judger_hosts[config.ask_from])
 
 @app.route('/machines', methods=['GET'])
 def machines():

@@ -20,6 +20,11 @@ lock = threading.Lock()
 app = flask.Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
+machine = {
+    'cpu': cpuinfo.get_cpu_info()['brand_raw'],
+    'mem': psutil.virtual_memory().total / 1024 / 1024
+}
+
 def cmdline2arglist(cmdline: str):
     res = []
     temp = ""
@@ -206,10 +211,7 @@ def submit_1():
 def info():
     data = config.judge_server_conf
     
-    data['machine'] = {
-        'cpu': cpuinfo.get_cpu_info()['brand_raw'],
-        'mem': psutil.virtual_memory().total / 1024 / 1024
-    }
+    data['machine'] = machine
     
     if lock.locked():
         data['status'] = 'busy'

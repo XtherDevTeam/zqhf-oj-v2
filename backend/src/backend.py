@@ -424,8 +424,11 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
             checkpoint_status[-1]['status'] = judge_result['status']
             if checkpoint_status[-1]['status'] != 'Accepted':
                 full_ac = False
-
-            score += int(judge_result['stdout'])
+                
+            try:
+                score += int(judge_result['stdout'])
+            except:
+                score = 0
 
         query_db("update oj_records set points = ?, score = ? where id = ?",
                  [json.dumps(checkpoint_status), score, jid])

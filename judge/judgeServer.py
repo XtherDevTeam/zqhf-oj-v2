@@ -124,22 +124,18 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     # 向前兼容
     if result['result'] == _judger.RESULT_SUCCESS:
         stat = 'OK'
-        ret_stderr = 'Debug: ' + json.dumps(result)
     elif result['result'] == _judger.RESULT_CPU_TIME_LIMIT_EXCEEDED:
         stat = 'Time Limit Exceeded'
-        ret_stderr = 'Debug: ' + json.dumps(result)
     elif result['result'] == _judger.RESULT_REAL_TIME_LIMIT_EXCEEDED:
         stat = 'Time Limit Exceeded'
-        ret_stderr = 'Debug: ' + json.dumps(result)
     elif result['result'] == _judger.RESULT_MEMORY_LIMIT_EXCEEDED:
         stat = 'Memory Limit Exceeded'
-        ret_stderr = 'Debug: ' + json.dumps(result)
     elif result['result'] == _judger.RESULT_RUNTIME_ERROR:
         stat = 'Runtime Error'
-        ret_stderr = 'Debug: ' + json.dumps(result)
     elif result['result'] == _judger.RESULT_SYSTEM_ERROR:
         stat = 'System Error'
-        ret_stderr = 'Debug: ' + json.dumps(result)
+        
+    ret_stderr += '\nDebug: ' + json.dumps(result) + '\n'
     
     print(pipe_stdin, pipe_stdout, pipe_stderr)
     

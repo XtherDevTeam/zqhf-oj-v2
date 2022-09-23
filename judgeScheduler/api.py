@@ -4,7 +4,15 @@ import requests, config, json
 @brief 询问指定评测机状态
 @return Dict 状态信息
 """
-def ask(host : str) -> dict:
+def ask_stat(host : str) -> dict:
+    status = json.loads(requests.get(f'http://{host}/status').content)
+    return status
+
+"""
+@brief 询问指定评测机信息
+@return Dict 状态信息
+"""
+def ask_info(host : str) -> dict:
     status = json.loads(requests.get(f'http://{host}/info').content)
     return status
 
@@ -16,7 +24,7 @@ def get_free_judger_list() -> list:
     ret = []
     idx = 0
     for i in config.judger_hosts:
-        if ask(i)['status'] == 'free':
+        if ask_stat(i)['status'] == 'free':
             ret.append(idx)
         idx += 1
     return ret
@@ -28,7 +36,7 @@ def get_free_judger_list() -> list:
 def get_judger_info() -> list:
     ret = []
     for i in config.judger_hosts:
-        ret.append(ask(i))
+        ret.append(ask_info(i))
     return ret
 
 """

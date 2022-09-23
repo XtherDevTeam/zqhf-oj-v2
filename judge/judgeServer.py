@@ -205,15 +205,27 @@ def submit_1():
 @app.route('/info', methods=['GET'])
 def info():
     data = config.judge_server_conf
-    if lock.locked():
-        data['status'] = 'busy'
-    else:
-        data['status'] = 'free'
     
     data['machine'] = {
         'cpu': cpuinfo.get_cpu_info()['brand_raw'],
         'mem': psutil.virtual_memory().total / 1024 / 1024
     }
+    
+    if lock.locked():
+        data['status'] = 'busy'
+    else:
+        data['status'] = 'free'
+    
+    return data
+
+@app.route('/status', methods=['GET'])
+def status():
+    data = {}
+    
+    if lock.locked():
+        data['status'] = 'busy'
+    else:
+        data['status'] = 'free'
     
     return data
 

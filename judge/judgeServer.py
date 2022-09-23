@@ -13,6 +13,7 @@ import _judger
 import threading
 import platform
 import psutil
+import cpuinfo
 
 lock = threading.Lock()
 
@@ -210,7 +211,7 @@ def info():
         data['status'] = 'free'
     
     data['machine'] = {
-        'cpu': platform.processor(),
+        'cpu': cpuinfo.get_cpu_info()['brand_raw'],
         'mem': psutil.virtual_memory().total / 1024 / 1024
     }
     

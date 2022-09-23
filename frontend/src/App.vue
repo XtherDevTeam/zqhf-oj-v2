@@ -7,7 +7,7 @@
             class="el-menu-demo"
             mode="horizontal"
         >
-          <li style="float: left;" height="56px" role="menuitem"><img height="56px" src="./assets/logo-dark.png"/></li>
+          <li style="float: left;" height="56px" role="menuitem"><img height="56px" src="./assets/logo-new.png"/></li>
           <el-menu-item index="1">
             <el-link href="/#/">主页</el-link>
           </el-menu-item>
@@ -32,7 +32,11 @@
             <el-link href="/#/ide">在线IDE</el-link>
           </el-menu-item>
 
-          <el-submenu v-if="user_info['code'] === 0" index="7">
+          <el-menu-item index="7">
+            <el-link href="/#/machines">评测机列表</el-link>
+          </el-menu-item>
+
+          <el-submenu v-if="user_info['code'] === 0" index="8">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
             <el-menu-item index="2-1">
               <el-link href="/#/profile">个人空间</el-link>
@@ -44,7 +48,7 @@
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
-          <el-menu-item v-else index="7">
+          <el-menu-item v-else index="8">
             <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>
@@ -129,7 +133,7 @@ export default {
       activeIndex2: "1",
       logged_in: false,
       user_info: {},
-      app_name: "肇庆华附在线评测系统",
+      app_name: "肇庆华赋在线评测系统",
       change_password_dialog_visible: false,
       change_password_new_password: "",
       change_password_origin_password: ""

@@ -357,6 +357,9 @@ def get_judge_server_info():
     data['address'] = config.get('judge-server-address')
     return data
 
+def get_judge_machines():
+    return judge.get_machine_list(config.get('judge-server-address'))
+
 
 def create_judge(problem: int, author: int, code: str, lang: str, timestamp: int):
     query_db(

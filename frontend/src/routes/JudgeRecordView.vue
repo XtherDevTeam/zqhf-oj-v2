@@ -109,7 +109,7 @@ export default {
   mounted() {
     this.init();
     this.update_status();
-    this.interval_id = setInterval(this.update_status, 2000);
+    this.interval_id = setInterval(this.update_status, 1000);
   },
   data() {
     return {

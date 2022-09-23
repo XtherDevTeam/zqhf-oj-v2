@@ -15,6 +15,7 @@ import ProblemsPage from "./routes/Problems";
 import ProblemViewPage from "./routes/ProblemView";
 import ProblemEditPage from "./routes/ProblemEdit";
 import JudgeRecordViewPage from "./routes/JudgeRecordView";
+import JudgeMachines from "./routes/JudgeMachines";
 import RecordsPage from "./routes/Records";
 import ProblemListsPage from "./routes/ProblemLists";
 import ProblemListEditPage from "./routes/ProblemListEdit";
@@ -41,6 +42,7 @@ const routes = [
     {path: '/bulletins/edit', component: BulletinEditPage},
     {path: '/records', component: RecordsPage},
     {path: '/records/view', component: JudgeRecordViewPage},
+    {path: '/machines', component: JudgeMachines},
     {path: '/login', component: LoginPage},
     {path: '/register', component: RegisterPage},
     {path: '/ide', component: OnlineIDE},

@@ -75,6 +75,14 @@ def judge_record_get_by_swap_router(start, limit):
         'text': '操作成功',
         'data': backend.query_records_by_size(start, limit)
     }
+    
+@app.route("/v1/judge/machines", methods=['GET'])
+def judge_machine():
+    return {
+        'code': 0,
+        'text': '操作成功',
+        'data': backend.get_judge_machines()
+    }
 
 
 @app.route("/v1/judge/get/<int:ident>", methods=['GET'])

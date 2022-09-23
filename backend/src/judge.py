@@ -4,6 +4,12 @@ import pickle
 import requests
 
 
+def get_machine_list(judge_server_address):
+    recv_data = json.loads(
+        requests.get("http://%s/machines" % judge_server_address).content)
+
+    return recv_data
+
 def submit(judge_server_address, judge_plugin, source_file, data_input, data_output, time_limit,
            mem_limit, env_variables):
     recv_data = json.loads(

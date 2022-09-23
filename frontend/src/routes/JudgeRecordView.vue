@@ -47,7 +47,7 @@
     <span>提交代码: </span>
     <div style="margin: 10px;"></div>
     <div class="markdown-body">
-      <pre v-if="user_info['data']['id'] === record_content['author']"><code>{{ record_content['code'] }}</code></pre>
+      <pre v-if="user_info['data']['id'] === record_content['author']['id']"><code>{{ record_content['code'] }}</code></pre>
       <pre v-else><code>您无权限查看他人代码!</code></pre>
     </div>
   </el-card>

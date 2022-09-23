@@ -68,11 +68,7 @@ export default {
         } else {
           this.records_data = response.data['data'];
           for (let record = 0; record < this.records_data.length; record++) {
-            axios.get('/api/v1/user/details?user_id=' + this.records_data[record]['author']).then((response) => {
-              if (response.data['code'] === 0) {
-                this.records_data[record]['author'] = response.data['data']['username'];
-              }
-            })
+            this.records_data[record]['author'] = this.records_data[record]['author']['username']
           }
         }
       })

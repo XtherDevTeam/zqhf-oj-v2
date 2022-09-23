@@ -10,6 +10,11 @@ import os
 import pickle
 import time
 import _judger
+import threading
+import platform
+import psutil
+
+lock = threading.Lock()
 
 app = flask.Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
@@ -183,38 +188,33 @@ def checker(result, expectedOutput):
     # print(result)
     return result
 
-
-@app.route('/submit')
-def submit_0():
-    pickleData = io.BytesIO(bytes())
-    flask.request.files.get('data').save(pickleData)
-    pickleData.seek(0)
-    data = pickle.loads(pickleData.read())
-    pickleData.close()
-    result_data = execute_plugin(data['plugin'], data['source_file'], data['input'], data['env_variables'],
-                                 data['time_limit'], data['mem_limit'])
-    return checker({
-        'status': result_data[0],
-        'stdout': str(result_data[1]),
-        'stderr': str(result_data[2]),
-        'return_code': str(result_data[3])
-    }, data['output'])
-
-@app.route('/ide_submit', methods=['POST'])
+@app.route('/submit', methods=['POST'])
 def submit_1():
-    data = flask.request.json
-    result_data = execute_plugin(data['plugin'], data['source_file'], data['input'], data['env_variables'],
-                                 data['time_limit'], data['mem_limit'])
-    return checker({
-        'status': result_data[0],
-        'stdout': str(result_data[1]),
-        'stderr': str(result_data[2]),
-        'return_code': str(result_data[3])
-    }, data['output'])
+    with lock:
+        data = flask.request.json
+        result_data = execute_plugin(data['plugin'], data['source_file'], data['input'], data['env_variables'],
+                                    data['time_limit'], data['mem_limit'])
+        return checker({
+            'status': result_data[0],
+            'stdout': str(result_data[1]),
+            'stderr': str(result_data[2]),
+            'return_code': str(result_data[3])
+        }, data['output'])
     
 @app.route('/info', methods=['GET'])
 def info():
-    return config.judge_server_conf
+    data = config.judge_server_conf
+    if lock.locked():
+        data['status'] = 'busy'
+    else:
+        data['status'] = 'free'
+    
+    data['machine'] = {
+        'cpu': platform.processor(),
+        'mem': psutil.virtual_memory().total / 1024 / 1024
+    }
+    
+    return data
 
 if __name__ == '__main__':
     app.run(host=config.host, port=config.port)

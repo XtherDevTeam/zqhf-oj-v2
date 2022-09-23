@@ -117,11 +117,23 @@ def change_user_password(user: int, password: str):
 def query_records_by_size(start: int, count: int):
     data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
                     [count, start])
+    for i in data:
+        author = query_user_by_id_simple(i['author'])
+        i['author'] = {
+            'username': author['username'],
+            'id': i['author']
+        }
     return data
 
 
 def query_records_by_id(ident: int):
-    return query_db("select * from oj_records where id = ?", [ident], one=True)
+    data = query_db("select * from oj_records where id = ?", [ident], one=True)
+    author = query_user_by_id_simple(data['author'])
+    data['author'] = {
+        'username': author['username'],
+        'id': data['author']
+    }
+    return data
 
 
 def query_bulletins_by_size(start: int, count: int):

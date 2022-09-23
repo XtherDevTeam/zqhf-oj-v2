@@ -7,7 +7,7 @@ import requests
 def submit(judge_server_address, judge_plugin, source_file, data_input, data_output, time_limit,
            mem_limit, env_variables):
     recv_data = json.loads(
-        requests.post("http://%s/ide_submit" % judge_server_address,
+        requests.post("http://%s/submit" % judge_server_address,
                     json={
                         'plugin': judge_plugin,
                         'input': data_input,

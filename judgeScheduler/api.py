@@ -1,4 +1,4 @@
-import requests, config
+import requests, config, json
 
 """
 @brief 询问指定评测机状态

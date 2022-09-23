@@ -4,5 +4,5 @@
   "special-judge-temp-path": "../temp",
   "web-server-address": "0.0.0.0",
   "web-server-port": 5000,
-  "judge-server-address": "192.168.1.114:5918"
+  "judge-server-address": "192.168.1.115:5918"
 }

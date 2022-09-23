@@ -5,7 +5,7 @@ import requests, config, json
 @return Dict 状态信息
 """
 def ask(host : str) -> dict:
-    status = json.laods(requests.get(f'https://{host}/status').content)
+    status = json.loads(requests.get(f'https://{host}/status').content)
     return status
 
 """

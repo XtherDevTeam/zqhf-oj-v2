@@ -8,22 +8,29 @@
     :root {
         background-color: #262626;
     }
+
     #app-header {
         background: rgba(28, 28, 28, 0.24);
         -webkit-backdrop-filter: blur(300px);
         backdrop-filter: blur(300px);
         position: fixed;
-        top: 0;
         width: 100%;
         z-index: 114514;
     }
+
     .oj-footer {
         color: #ffffff;
         height: 30px;
         text-align: center;
     }
+
     .el-menu.el-menu--horizontal {
         border-bottom: unset;
+    }
+
+    .el-menu--horizontal>.el-menu-item:not(.is-disabled):focus,
+    .el-menu--horizontal>.el-menu-item:not(.is-disabled):hover {
+        background-color: #363636
     }
 }
 
@@ -33,17 +40,23 @@
         -webkit-backdrop-filter: blur(300px);
         backdrop-filter: blur(300px);
         position: fixed;
-        top: 0;
         width: 100%;
         z-index: 114514;
     }
+
     .oj-footer {
         color: #262626;
         height: 30px;
         text-align: center;
     }
+
     .el-menu.el-menu--horizontal {
         border-bottom: unset;
+    }
+
+    .el-menu--horizontal>.el-menu-item:not(.is-disabled):focus,
+    .el-menu--horizontal>.el-menu-item:not(.is-disabled):hover {
+        background-color: #ffffff
     }
 }
 
@@ -99,6 +112,26 @@ a {
 
 #app-container {
     padding-top: 82px;
+}
+
+.is-visible {
+    -webkit-transform: translate3d(0,100%,0);
+    -moz-transform: translate3d(0,100%,0);
+    transform: translate3d(0,100%,0);
+}
+
+.is-fixed {
+    position: fixed;
+    top: -60px;
+    -webkit-transition: -webkit-transform .3s;
+    -moz-transition: -moz-transform .3s;
+    transition: transform .3s;
+}
+
+#app-header {
+    -webkit-transition: .3s;
+    -moz-transition: .3s;
+    transition: .3s;
 }
 
 #app-menu {

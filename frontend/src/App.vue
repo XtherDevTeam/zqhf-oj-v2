@@ -1,7 +1,7 @@
 <template>
   <div id="app" style="width: 100%;">
     <el-container>
-      <el-header id="app-header">
+      <el-header id="app-header" class="header-custom is-fixed">
         <el-menu
             :default-active="activeIndex"
             class="el-menu-demo"
@@ -104,18 +104,16 @@ export default {
           .catch(function (error) {
             
           });
-
+          document.getElementById('app-header').classList.add('is-visible');
       var agent = navigator.userAgent;
       if (/.*Firefox.*/.test(agent)) {
           document.addEventListener("DOMMouseScroll", function(e) {
               e = e || window.event;
               var detail = e.detail;
               if (detail > 0) {
-                document.getElementById('app-header').style.visibility = 'hidden';
-                document.getElementById('app-container').style.paddingTop = '0px';
+                document.getElementById('app-header').classList.remove('is-visible');
               } else {
-                document.getElementById('app-header').style.visibility = 'unset';
-                document.getElementById('app-container').style.paddingTop = '82px';
+                document.getElementById('app-header').classList.add('is-visible');
               }
           });
       } else {
@@ -123,11 +121,9 @@ export default {
               e = e || window.event;
               var wheelDelta = e.wheelDelta;
               if (wheelDelta > 0) {
-                  document.getElementById('app-header').style.visibility = 'unset';
-                  document.getElementById('app-container').style.paddingTop = '82px';
+                document.getElementById('app-header').classList.add('is-visible');
               } else {
-                document.getElementById('app-header').style.visibility = 'hidden';
-                document.getElementById('app-container').style.paddingTop = '0px';
+                document.getElementById('app-header').classList.remove('is-visible');
               }
           }
       }

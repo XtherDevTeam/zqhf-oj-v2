@@ -7,7 +7,8 @@
       <el-tag color="white"><i class="el-icon-user-solid"></i> 作者: {{ problem_content['author'] }}</el-tag>
       <el-tag type="danger"><i class="el-icon-cpu"></i> 内存限制: {{ problem_content['memory'] }} kb</el-tag>
       <el-tag type="warning"><i class="el-icon-time"></i> 时间限制: {{ problem_content['timeout'] }} ms</el-tag>
-      <el-tag type="info">Special Judge: {{ problem_content['special_judge'] ? "是" : "否" }}</el-tag>
+      <el-tag type="success" v-if="problem_content['special_judge']">Special Judge: 是</el-tag>
+      <el-tag type="info" v-else>Special Judge: 否</el-tag>
       <div style="margin: 10px auto;"></div>
       <span><i class="el-icon-s-platform"></i> 判题服务器: {{ judge_server_address }}</span>
       <div style="margin: 10px auto;"></div>

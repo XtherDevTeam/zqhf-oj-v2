@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+
+import './oj-theme/theme.css';
+
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
 import App from './App.vue'
 import LoginPage from './routes/LoginPage'
 import RegisterPage from './routes/RegisterPage'
@@ -20,10 +22,10 @@ import RecordsPage from "./routes/Records";
 import ProblemListsPage from "./routes/ProblemLists";
 import ProblemListEditPage from "./routes/ProblemListEdit";
 import ProblemListViewPage from "./routes/ProblemListView";
-import ArticlesPage from "~/routes/Articles";
-import ArticleViewPage from "~/routes/ArticleView";
-import ArticleEditPage from "~/routes/ArticleEdit";
-import OnlineIDE from "~/routes/OnlineIDE";
+import ArticlesPage from "./routes/Articles";
+import ArticleViewPage from "./routes/ArticleView";
+import ArticleEditPage from "./routes/ArticleEdit";
+import OnlineIDE from "./routes/OnlineIDE";
 
 const routes = [
     {path: '/', component: Home},

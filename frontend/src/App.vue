@@ -227,7 +227,6 @@ a {
 
 
 #app-header {
-  border-bottom: 1px solid #E6E6E6;
   background: rgba(255, 255, 255, 0.24);
   -webkit-backdrop-filter: blur(300px);
   backdrop-filter: blur(300px);
@@ -244,6 +243,6 @@ a {
 #app-menu {
   background: rgba(0, 0, 0, 0);
   width: 100%;
-  border-bottom: unset;
+  border-bottom: 1px solid #E6E6E6;
 }
 </style>

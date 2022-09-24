@@ -82,7 +82,6 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "./components/editor.vue";
-import 'markdown-it-highlight/dist/index.css';
 
 export default {
   methods: {

@@ -1,6 +1,9 @@
 @import './dark/index.css';
 @import './light/index.css';
 
+@import './dark/code.css';
+@import './light/code.css';
+
 @media (prefers-color-scheme: dark) {
     :root {
         background-color: #262626;
@@ -19,6 +22,9 @@
         height: 30px;
         text-align: center;
     }
+    .el-menu.el-menu--horizontal {
+        border-bottom: unset;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -35,6 +41,9 @@
         color: #262626;
         height: 30px;
         text-align: center;
+    }
+    .el-menu.el-menu--horizontal {
+        border-bottom: unset;
     }
 }
 

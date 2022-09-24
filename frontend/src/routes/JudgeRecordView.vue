@@ -47,7 +47,7 @@
     <span>提交代码: </span>
     <div style="margin: 10px;"></div>
     <div class="markdown-body">
-      <pre v-if="user_info['data']['id'] === record_content['author']['id']"><code>{{ record_content['code'] }}</code></pre>
+      <pre v-if="user_info['data']['id'] === record_content['author']['id']"><code v-html="rendered_code_html"></code></pre>
       <pre v-else><code>您无权限查看他人代码!</code></pre>
     </div>
   </el-card>
@@ -57,6 +57,7 @@
 import axios from "axios";
 import MonacoEditor from "../components/editor.vue";
 import markdownItHighlight from 'markdown-it-highlight';
+import hljs from "highlight.js";
 
 const markdown = require('markdown-it')(),
     markdown_with_katex = require('@iktakahiro/markdown-it-katex');
@@ -89,6 +90,7 @@ export default {
           if (this.record_content['status'] !== 'Judging...') {
             clearInterval(this.interval_id)
             this.record_content['timestamp'] = this.timestampToTime(this.record_content['timestamp'] / 100);
+            this.rendered_code_html = hljs.highlightAuto(this.record_content['code']).value;
           }
         }
       });
@@ -116,7 +118,8 @@ export default {
       user_info: {},
       logged_in: "",
       record_content: {},
-      interval_id: 0
+      interval_id: 0,
+      rendered_code_html: ""
     }
   }
 };

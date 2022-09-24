@@ -85,7 +85,7 @@
           <span>{{ hitokoto['hitokoto'] }}</span><br>
           <span>-- 《{{ hitokoto['from'] }}》 {{ hitokoto['from_who'] }}</span>
         </el-card>
-        <el-card shadow="hover" style="margin: 10px auto; height: 512px;">
+        <el-card shadow="hover" style="margin: 10px auto;">
           <div slot="header" class="clearfix">
             <span>查找题目</span>
           </div>
@@ -101,6 +101,12 @@
           <el-table :data="search_result" style="width: 100%;height: auto;">
             <el-table-column prop="id" label="题号"></el-table-column>
             <el-table-column prop="name" label="名称"></el-table-column>
+            <el-table-column fixed="right" label="操作">
+              <template v-slot="scope">
+                <el-button @click="problem_click(scope.row)" type="text" size="small">查看</el-button>
+              </template>
+            </el-table-column>
+
           </el-table>
         </el-card>
       </div>

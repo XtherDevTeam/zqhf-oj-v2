@@ -1,10 +1,11 @@
 <template>
-  <div id="app">
+  <div id="app" style="width: 100%;">
     <el-container>
-      <el-header>
+      <el-header id="app-header">
         <el-menu
             :default-active="activeIndex"
             class="el-menu-demo"
+            id="app-menu"
             mode="horizontal"
         >
           <li style="float: left;" height="56px" role="menuitem"><img height="56px" src="./assets/logo-new.png"/></li>
@@ -53,7 +54,7 @@
           </el-menu-item>
         </el-menu>
       </el-header>
-      <el-main style="margin: 0 auto;">
+      <el-main style="margin: 0 auto;" id="app-container">
         <div class="ui main-container" style="height: 100%; ">
           <el-dialog v-if="logged_in" title="修改密码" :visible.sync="change_password_dialog_visible" width="30%">
             <span>正在修改 {{ user_info['data']['username'] }} 的密码</span>
@@ -104,6 +105,33 @@ export default {
           .catch(function (error) {
             
           });
+
+      var agent = navigator.userAgent;
+      if (/.*Firefox.*/.test(agent)) {
+          document.addEventListener("DOMMouseScroll", function(e) {
+              e = e || window.event;
+              var detail = e.detail;
+              if (detail > 0) {
+                document.getElementById('app-header').style.visibility = 'hidden';
+                document.getElementById('app-container').style.paddingTop = '0px';
+              } else {
+                document.getElementById('app-header').style.visibility = 'unset';
+                document.getElementById('app-container').style.paddingTop = '82px';
+              }
+          });
+      } else {
+          document.onmousewheel = function(e) {
+              e = e || window.event;
+              var wheelDelta = e.wheelDelta;
+              if (wheelDelta > 0) {
+                  document.getElementById('app-header').style.visibility = 'unset';
+                  document.getElementById('app-container').style.paddingTop = '82px';
+              } else {
+                document.getElementById('app-header').style.visibility = 'hidden';
+                document.getElementById('app-container').style.paddingTop = '0px';
+              }
+          }
+      }
     },
     event_change_password() {
       axios
@@ -195,5 +223,27 @@ a {
 .oj-footer {
   height: 30px;
   text-align: center;
+}
+
+
+#app-header {
+  border-bottom: 1px solid #E6E6E6;
+  background: rgba(255, 255, 255, 0.24);
+  -webkit-backdrop-filter: blur(300px);
+  backdrop-filter: blur(300px);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 114514;
+}
+
+#app-container {
+  padding-top: 82px;
+}
+
+#app-menu {
+  background: rgba(0, 0, 0, 0);
+  width: 100%;
+  border-bottom: unset;
 }
 </style>

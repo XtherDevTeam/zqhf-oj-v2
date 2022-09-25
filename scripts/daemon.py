@@ -53,4 +53,4 @@ if sys.argv[1] == 'install':
         os.system(
             'mkdir -p /var/www/html/project; cd ../frontend; make build; cp -r -v ./dist/* /var/www/html/project/;exit')
     if sys.argv[2] == 'nginx':
-        os.system('cp templates/nginx_config.conf /etc/nginx/conf.d/default.config')
+        os.system('cp templates/nginx_config.conf /etc/nginx/sites-enabled/zqhf-oj-v2.conf')

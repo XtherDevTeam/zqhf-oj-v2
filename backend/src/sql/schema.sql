@@ -16,6 +16,8 @@ drop table if exists oj_comments;
 
 drop table if exists oj_articles;
 
+drop table if exists oj_contests;
+
 create table oj_problems
 (
     id                 integer primary key autoincrement,
@@ -105,5 +107,5 @@ create table oj_contests
     joinable            boolean default FALSE,
     start_timestamp     integer not null,
     end_timestamp       integer not null,
-    problems            string default '[]',
+    problems            string default '[]'
 )

@@ -819,7 +819,7 @@ def create_contest():
 
     data = backend.create_contest(author,
                                   req_data['contestName'],
-                                  req_data['contestContest'],
+                                  req_data['contestDescription'],
                                   req_data['startTimestamp'],
                                   req_data['endTimestamp'],
                                   req_data['problems'])

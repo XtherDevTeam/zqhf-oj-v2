@@ -817,11 +817,11 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
         return {'status': False, 'info': 'Invalid timestamp!', 'id': -1}
 
     query_db('''insert into oj_contests (author_uid, name, description, start_timestamp, end_timestamp, problems) values 
-        (?, ?, ?, ?, ?, ?)''', [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, problems])
+        (?, ?, ?, ?, ?, ?)''', [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)])
 
     data = query_db('''select id from oj_contests where author_uid = ? and name = ? and description = ? 
                         and start_timestamp = ? and end_timestamp = ? and problems = ?''',
-                    [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.loads(problems)])
+                    [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)], one=True)
 
     contests_dir = config.get('uploads-path') + '/contests/' + str(data['id'])
 
@@ -855,7 +855,7 @@ def edit_contest(cid: int, contestName: str, contestDescription: str,
             return False
         else:
             query_db("update oj_users set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = ? where id = ?",
-                     [contestName, contestDescription, startTimestamp, endTimestamp, json.loads(problems), cid], one=True)
+                     [contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems), cid], one=True)
 
             return True
 
@@ -883,8 +883,9 @@ def query_contests_by_id(cid: int):
     data = query_db('''select * from oj_contests where id = ?''',
                     [cid], one=True)
     if data != None:
-        data['author'] = query_user_by_id_simple(i['author_uid'])
+        data['author'] = query_user_by_id_simple(data['author_uid'])
         data['problems'] = json.loads(data['problems'])
+        data['problems'] = [query_problem_by_id(i) for i in data['problems']]
 
     return data
         
@@ -892,7 +893,7 @@ def query_contests_by_id(cid: int):
 # 根据ID范围查询比赛简略信息
 def query_contests_by_swap(start: int, count: int):
     data = query_db('''select id, author_uid, name, start_timestamp, end_timestamp, joinable 
-                        from oj_contests where order by id desc limit ? offset ?''',
+                        from oj_contests order by id desc limit ? offset ?''',
                     [count, start])
 
     for i in data:

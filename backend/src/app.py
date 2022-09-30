@@ -73,9 +73,10 @@ def judge_record_get_by_swap_router(start, limit):
     return {
         'code': 0,
         'text': '操作成功',
-        'data': backend.query_records_by_size(start, limit)
+        'data': backend.query_records_by_swap(start, limit)
     }
-    
+
+
 @app.route("/v1/judge/machines", methods=['GET'])
 def judge_machine():
     return {
@@ -250,7 +251,7 @@ def problem_lists_get_by_swap_router(start, limit):
     return {
         'code': 0,
         'text': '操作成功',
-        'data': backend.query_problem_list_by_size(start, limit)
+        'data': backend.query_problem_list_by_swap(start, limit)
     }
 
 
@@ -298,11 +299,11 @@ def problem_lists_edit_router(pid: int):
 
 
 @app.route("/v1/bulletins/get/<int:start>/<int:count>", methods=['GET'])
-def bulletins_get_by_size_router(start, count):
+def bulletins_get_by_swap_router(start, count):
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_bulletins_by_size(start, count)
+        'data': backend.query_bulletins_by_swap(start, count)
     }
 
 
@@ -410,7 +411,7 @@ def problems_get_size_router(start, count):
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_problem_by_size(start, count)
+        'data': backend.query_problem_by_swap(start, count)
     }
 
 
@@ -698,7 +699,7 @@ def create_comment_area(area_name):
 
 @app.route("/v1/comments/get/<area_name>/<int:start>/<int:count>", methods=['GET'])
 def get_comments_by_area(area_name, start, count):
-    return backend.get_comments_by_size(area_name, start, count)
+    return backend.get_comments_by_swap(area_name, start, count)
 
 
 @app.route("/v1/comments/post/<area_name>", methods=['POST'])
@@ -753,23 +754,23 @@ def post_article():
 
 
 @app.route("/v1/articles/get/<int:start>/<int:count>", methods=['GET'])
-def get_articles_by_size(start, count):
+def get_articles_by_swap(start, count):
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_articles_by_size(start, count)
+        'data': backend.query_articles_by_swap(start, count)
     }
 
 
 @app.route("/v1/articles/get/my/<int:start>/<int:count>", methods=['GET'])
-def get_my_articles_by_size(start, count):
+def get_my_articles_by_swap(start, count):
     require_user = require_user_permission()
     if require_user is not True:
         return require_user
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_articles_by_size_uid(get_login_details()['id'], start, count)
+        'data': backend.query_articles_by_swap_uid(get_login_details()['id'], start, count)
     }
 
 
@@ -804,6 +805,140 @@ def delete_article(ident):
         return require_user
 
     return backend.remove_article(ident, get_login_details()['id'])
+
+
+@app.route("/v1/contests/create", methods=['POST'])
+def create_contest():
+    require_admin = require_admin_permission()
+    if require_admin is not True:
+        return require_admin
+
+    req_data = flask.request.get_json()
+
+    author = flask.session.get('user_id')
+
+    data = backend.create_contest(author,
+                                  req_data['contestName'],
+                                  req_data['contestContest'],
+                                  req_data['startTimestamp'],
+                                  req_data['endTimestamp'],
+                                  req_data['problems'])
+
+    if data['status']:
+        return {'code': 0, 'data': data['id']}
+    else:
+        return {'code': 5, 'text': 'API调用格式错误: ' + data['info']}
+
+
+@app.route("/v1/contests/<int:id>", methods=['GET'])
+def get_contest_detail(id: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    data = backend.query_contests_by_id(id)
+
+    if data == None:
+        return {'code': 2, 'text': '比赛不存在!'}
+    else:
+        return {'code': 0, 'text': '请求成功!', 'data': data}
+
+
+@app.route("/v1/contests/get/<int:start>/<int:size>", methods=['GET'])
+def get_contests(start: int, size: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    data = backend.query_contests_by_swap(start, size)
+    return {'code': 0, 'text': '请求成功!', 'data': data}
+
+
+@app.route("/v1/contests/<int:id>/ranking/<int:start>/<int:size>", methods=['GET'])
+def get_contests(id: int, start: int, size: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    data = backend.query_contest_ranking_by_swap(id, start, size)
+
+    return {'code': 0, 'text': '请求成功!', 'data': data}
+
+
+@app.route("/v1/contests/<int:id>/ranking/<int:start>/<int:size>", methods=['GET'])
+def get_contest_ranking(id: int, start: int, size: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    data = backend.query_contest_ranking_by_swap(id, start, size)
+
+    return {'code': 0, 'text': '请求成功!', 'data': data}
+
+
+@app.route("/v1/contests/<int:id>/ranking", methods=['GET'])
+def get_contest_ranking_for_self(id: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    uid = flask.session.get('user_id')
+
+    data = backend.query_contest_ranking_by_uid(id, uid)
+
+    if data['status']:
+        return {'code': 0, 'text': '请求成功!', 'data': data['data']}
+    else:
+        return {'code': 5, 'text': '后端返回错误: ' + data['info']}
+
+
+@app.route("/v1/contests/<int:id>/edit", methods=['POST'])
+def edit_contest(id: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    uid = flask.session.get('user_id')
+
+    req_data = flask.request.get_json()
+
+    data = backend.query_contests_by_id(id)
+    if data != None:
+        if data['author_uid'] == uid:
+            if backend.edit_contest(id,
+                                 req_data['contestName'],
+                                 req_data['contestContest'],
+                                 req_data['startTimestamp'],
+                                 req_data['endTimestamp'],
+                                 req_data['problems']):
+                return {'code': 0, 'text': '请求成功!'}
+            else:
+                return {'code': 5, 'text': '修改失败: 只可以在比赛开始之前更改!'}
+        else:
+            return {'code': 1, 'text': '仅有比赛发起者才能进行修改!'}
+    else:
+        return {'code': 2, 'text': '将要编辑的比赛不存在!'}
+
+
+@app.route("/v1/contests/<int:id>/delete", methods=['POST'])
+def delete_contest(id: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    uid = flask.session.get('user_id')
+
+    data = backend.query_contests_by_id(id)
+    if data != None:
+        if data['author_uid'] == uid:
+            if backend.delete_contest(id):
+                return {'code': 0, 'text': '请求成功!'}
+            else:
+                return {'code': 5, 'text': '删除失败!'}
+        else:
+            return {'code': 1, 'text': '仅有比赛发起者才能删除比赛!'}
+    else:
+        return {'code': 2, 'text': '将要删除的比赛不存在!'}
 
 
 if __name__ == "__main__":

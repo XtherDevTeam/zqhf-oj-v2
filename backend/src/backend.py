@@ -9,10 +9,15 @@ import time
 import config
 import judge
 import requests
+import databaseObject
+import sched
 
 DATABASE = config.get("database-path")
 db = None
 lock = threading.Lock()
+loadedContestDatabases = {}
+
+Scheduler = sched.scheduler(time.time, time.sleep)
 
 
 def connect_db():
@@ -24,7 +29,7 @@ def connect_db():
 
 def init_db():
     with closing(connect_db()) as db1:
-        with open('schema.sql', "r+") as f:
+        with open('sql/schema.sql', "r+") as f:
             db1.cursor().executescript(f.read())
         db1.commit()
 
@@ -114,7 +119,7 @@ def change_user_password(user: int, password: str):
     set_user_attr_by_id(user, 'password', make_password_md5(password))
 
 
-def query_records_by_size(start: int, count: int):
+def query_records_by_swap(start: int, count: int):
     data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
                     [count, start])
     for i in data:
@@ -136,7 +141,7 @@ def query_records_by_id(ident: int):
     return data
 
 
-def query_bulletins_by_size(start: int, count: int):
+def query_bulletins_by_swap(start: int, count: int):
     data = query_db(
         "select time, name, id from oj_bulletins order by id limit ? offset ?", [count, start])
     return data
@@ -347,7 +352,7 @@ def query_problem_by_name(name: str):
     return query_db("select * from oj_problems where name = ?", [name])
 
 
-def query_problem_by_size(start: int, limit: int):
+def query_problem_by_swap(start: int, limit: int):
     return query_db("select id, name, tags, author from oj_problems order by id limit ? offset ?", [limit, start])
 
 
@@ -356,6 +361,7 @@ def get_judge_server_info():
         f"http://{config.get('judge-server-address')}/info").content)
     data['address'] = config.get('judge-server-address')
     return data
+
 
 def get_judge_machines():
     return judge.get_machine_list(config.get('judge-server-address'))
@@ -439,7 +445,7 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
             checkpoint_status[-1]['status'] = judge_result['status']
             if checkpoint_status[-1]['status'] != 'Accepted':
                 full_ac = False
-                
+
             try:
                 score += int(judge_result['stdout'])
             except:
@@ -503,7 +509,7 @@ def remove_problem_list_by_id(ident: int):
     return data
 
 
-def query_problem_list_by_size(start: int, limit: int):
+def query_problem_list_by_swap(start: int, limit: int):
     data = query_db(
         "select id, author, name from oj_problem_lists order by id limit ? offset ?", [limit, start])
     for i in data:
@@ -598,7 +604,7 @@ def insert_comment(require_by: str, author: id, text: str):
     return {'code': 0, 'text': '操作成功'}
 
 
-def get_comments_by_size(require_by: str, start: int, count: int):
+def get_comments_by_swap(require_by: str, start: int, count: int):
     try:
         data = query_comments_by_require(require_by)['comments']
         data = data[start: start + count]
@@ -655,7 +661,7 @@ def reply_comment(require_by: str, index_of_comment: int, author: int, text: str
     return {'code': 0, 'text': '操作成功'}
 
 
-def query_articles_by_size(start: int, count: int):
+def query_articles_by_swap(start: int, count: int):
     data = query_db("select id, author, name from oj_articles where visible = true order by id desc limit  ? offset ?",
                     [count, start])
     for i in range(len(data)):
@@ -764,10 +770,169 @@ def query_articles_by_uid(uid: int):
     return {'code': 0, 'text': '请求成功', 'data': data}
 
 
-def query_articles_by_size_uid(uid: int, start: int, count: int):
-    data = query_db("select id, author, name from oj_articles where author = ? order by id desc limit  ? offset ?",
+def query_articles_by_swap_uid(uid: int, start: int, count: int):
+    data = query_db("select id, author, name from oj_articles where author = ? order by id desc limit ? offset ?",
                     [uid, count, start])
     for i in range(len(data)):
         data[i]['author'] = query_user_by_id_simple(data[i]['author'])
 
     return data
+
+
+# 更改比赛可提交状态
+def change_contest_joinable(cid: int, stat: bool):
+    # 判断比赛是否已被删除
+    if loadedContestDatabases.get(cid) == None:
+        return
+
+    if stat:
+        query_db(
+            "update oj_contests set joinable = ? where id = ?", [True, cid])
+    else:
+        query_db("update oj_contests set joinable = ? where id = ?",
+                 [False, cid])
+        loadedContestDatabases[cid].close()
+
+
+# 初始化比赛的定时任务
+def initializeContestSchedules():
+    data = query_db('''select id, start_timestamp, end_timestamp from oj_contests where start_timestamp >= ?''',
+                    [int(time.time())])
+
+    for i in data:
+        # 加载未开始比赛的定时任务
+        Scheduler.enter(i['start_timestamp'] - time.time(), 1,
+                        change_contest_joinable, (i['id'], True))
+
+        Scheduler.enter(i['end_timestamp'] - time.time(), 1,
+                        change_contest_joinable, (i['id'], False))
+
+
+# 创建比赛
+def create_contest(author_uid: str, contestName: str, contestDescription: str,
+                  startTimestamp: int, endTimestamp: int, problems: list) -> dict:
+
+    # 判断时间戳是否合法
+    if startTimestamp < time.time() + 60 or endTimestamp < time.time() + 60 or endTimestamp < startTimestamp:
+        return {'status': False, 'info': 'Invalid timestamp!', 'id': -1}
+
+    query_db('''insert into oj_contests (author_uid, name, description, start_timestamp, end_timestamp, problems) values 
+        (?, ?, ?, ?, ?, ?)''', [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, problems])
+
+    data = query_db('''select id from oj_contests where author_uid = ? and name = ? and description = ? 
+                        and start_timestamp = ? and end_timestamp = ? and problems = ?''',
+                    [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.loads(problems)])
+
+    contests_dir = config.get('uploads-path') + '/contests/' + str(data['id'])
+
+    os.makedirs(contests_dir)
+
+    loadedContestDatabases[data['id']] = databaseObject.connect(
+        contests_dir + "/contest.db")
+
+    Scheduler.enter(startTimestamp - time.time(), 1,
+                    change_contest_joinable, (data['id'], True))
+
+    Scheduler.enter(endTimestamp - time.time(), 1,
+                    change_contest_joinable, (data['id'], False))
+
+    return {
+        'status': True,
+        'id': data['id']
+    }
+
+
+# 修改比赛
+# Warning: 只可以在比赛开始之前更改
+def edit_contest(cid: int, contestName: str, contestDescription: str,
+                  startTimestamp: int, endTimestamp: int, problems: list) -> bool:
+    data = query_db('''select * from oj_contests where id = ?''',
+                    [cid], one=True)
+    if data == None:
+        return False
+    else:
+        if data['start_timestamp'] <= int(time.time()):
+            return False
+        else:
+            query_db("update oj_users set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = ? where id = ?",
+                     [contestName, contestDescription, startTimestamp, endTimestamp, json.loads(problems), cid], one=True)
+
+            return True
+
+
+# 删除比赛
+def delete_contest(cid: int) -> bool:
+    if query_contests_by_id(cid) == None:
+        return False
+
+    # 卸载数据库
+    if loadedContestDatabases.get(cid) != None:
+        loadedContestDatabases[cid].close()
+        del loadedContestDatabases[cid]
+
+    # 删除比赛存放目录
+    contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
+
+    os.removedirs(contests_dir)
+
+    return True
+
+
+# 根据比赛ID查询比赛详细信息
+def query_contests_by_id(cid: int):
+    data = query_db('''select * from oj_contests where id = ?''',
+                    [cid], one=True)
+    if data != None:
+        data['author'] = query_user_by_id_simple(i['author_uid'])
+        data['problems'] = json.loads(data['problems'])
+
+    return data
+        
+        
+# 根据ID范围查询比赛简略信息
+def query_contests_by_swap(start: int, count: int):
+    data = query_db('''select id, author_uid, name, start_timestamp, end_timestamp, joinable 
+                        from oj_contests where order by id desc limit ? offset ?''',
+                    [count, start])
+
+    for i in data:
+        i['author'] = query_user_by_id_simple(i['author_uid'])
+
+    return data
+
+
+# 根据范围查询比赛排名
+def query_contest_ranking_by_swap(cid: int, start: int, count: int):
+    if loadedContestDatabases.get(cid) == None:
+        contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
+        if os.access(contests_dir, os.F_OK):
+            loadedContestDatabases[cid] = databaseObject.connect(
+                contests_dir + '/contest.db')
+        else:
+            return {'status': False, 'info': 'Contest not exist!'}
+
+    data = loadedContestDatabases[cid].query_db(
+        "select * from oj_contest_ranking where order by final_score desc limit ? offset ?",
+        [count, offset])
+
+    return {'status': True, 'data': data}
+
+
+# 根据UID查询比赛排名
+def query_contest_ranking_by_uid(cid: int, uid: int):
+    if loadedContestDatabases.get(cid) == None:
+        contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
+        if os.access(contests_dir, os.F_OK):
+            loadedContestDatabases[cid] = databaseObject.connect(
+                contests_dir + '/contest.db')
+        else:
+            return {'status': False, 'info': 'Contest not exist!'}
+
+    data = loadedContestDatabases[cid].query_db(
+        "select * from oj_contest_ranking where uid = ?",
+        [uid])
+
+    if data == None:
+        return {'status': False, 'info': 'User did not participate in this contest!'}
+
+    return {'status': True, 'data': data}

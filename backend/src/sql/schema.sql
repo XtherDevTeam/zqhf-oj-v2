@@ -95,3 +95,15 @@ create table oj_articles
     text    string not null,
     visible boolean default TRUE
 );
+
+create table oj_contests
+(
+    id                  integer primary key autoincrement,
+    author_uid          integer not null,
+    name                string not null,
+    description         string not null,
+    joinable            boolean default FALSE,
+    start_timestamp     integer not null,
+    end_timestamp       integer not null,
+    problems            string default '[]',
+)

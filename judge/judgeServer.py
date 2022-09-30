@@ -83,15 +83,24 @@ def execute_plugin(use_plugin: str, source_file: str, input: str, env: dict, tim
     ret_stderr = ''
 
     stat = ''
-    fp = Popen(fork['compile_command'], shell=True, cwd=os.getcwd(), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    fp.stdout.flush()
-    fp.stderr.flush()
+    fp = Popen(fork['compile_command'], shell=True, cwd=os.getcwd(), stdin=PIPE, stdout=open(pipe_stdout, 'w+'), stderr=open(pipe_stderr, 'w+'))
     fp.wait()
     if fp.returncode != 0:
         stat = 'Compile Error'
-        ret_stdout += fp.stdout.read().decode('utf-8')
-        ret_stderr += fp.stderr.read().decode('utf-8')
-        fp.stdout.flush()
+        with open(pipe_stdout, 'r') as file:
+            ret_stdout = file.read()
+            
+        with open(pipe_stderr, 'r') as file:
+            ret_stderr = file.read()
+            
+        try:
+            os.remove(pipe_stdin)
+            os.remove(pipe_stdout)
+            os.remove(pipe_stderr)
+            os.remove(source_fp)
+        except:
+            pass
+        
         return [stat, ret_stdout, ret_stderr, fp.returncode]
     
     print(pipe_stdin, pipe_stdout, pipe_stderr)

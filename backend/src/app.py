@@ -855,17 +855,6 @@ def get_contests(start: int, size: int):
 
 
 @app.route("/v1/contests/<int:id>/ranking/<int:start>/<int:size>", methods=['GET'])
-def get_contests(id: int, start: int, size: int):
-    require_user = require_user_permission()
-    if require_user is not True:
-        return require_user
-
-    data = backend.query_contest_ranking_by_swap(id, start, size)
-
-    return {'code': 0, 'text': '请求成功!', 'data': data}
-
-
-@app.route("/v1/contests/<int:id>/ranking/<int:start>/<int:size>", methods=['GET'])
 def get_contest_ranking(id: int, start: int, size: int):
     require_user = require_user_permission()
     if require_user is not True:

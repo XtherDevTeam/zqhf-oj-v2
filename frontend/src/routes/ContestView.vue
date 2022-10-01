@@ -189,7 +189,7 @@ export default {
     },
     refresh_ranking_table() {
       axios
-        .get("/api/v1/contests/1/ranking", {
+        .get("/api/v1/contests/" + this.contest_info.id + "/ranking", {
           params: {},
         })
         .then((response) => {
@@ -205,7 +205,7 @@ export default {
         .catch(function (error) {});
 
         axios
-        .get("/api/v1/contests/1/ranking/" + this.ranking_page_start + "/" + this.ranking_page_limit, {
+        .get("/api/v1/contests/" + this.contest_info.id + "/ranking/" + this.ranking_page_start + "/" + this.ranking_page_limit, {
           params: {},
         })
         .then((response) => {

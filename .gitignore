@@ -3,3 +3,4 @@
 *.db
 backend/database.db
 .idea
+for_test.db

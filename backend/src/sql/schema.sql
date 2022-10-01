@@ -30,7 +30,8 @@ create table oj_problems
     memory             int    not null default 65536,
     special_judge      boolean         default false,
     special_judge_code string          default '',
-    solution           string          default '[]'
+    solution           string          default '[]',
+    appear_time         integer default 0
 );
 
 create table oj_users

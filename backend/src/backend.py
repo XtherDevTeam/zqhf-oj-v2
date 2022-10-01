@@ -26,7 +26,6 @@ def connect_db():
     db = sqlite3.connect(DATABASE, check_same_thread=False,
                          isolation_level=None)
 
-    initializeContestSchedules()
     return db
 
 
@@ -165,7 +164,7 @@ def create_bulletin(name: str, content: str):
     cur_time = time.time()
     cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(cur_time))
     query_db("insert into oj_bulletins (name, time, content) values (?, ?, ?)", [
-             name, cur_time, content])
+        name, cur_time, content])
     return True
 
 
@@ -218,7 +217,7 @@ def search_problems(way: str, content: str):
             "select id,name,description,tags from oj_problems where id = ?", [content])
     elif way == "by_author":
         result = query_db("select id,name,description,tags from oj_problems where author like ?", [
-                          "%" + content + "%"])
+            "%" + content + "%"])
     elif way == "by_description":
         result = query_db("select id,name,description,tags from oj_problems where description like ?",
                           ["%" + json.dumps(content)[1:-1] + "%"])
@@ -228,7 +227,8 @@ def search_problems(way: str, content: str):
     return result
 
 
-def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0, tags: list = None, io_examples: list = None):
+def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0,
+                 tags: list = None, io_examples: list = None):
     if tags is None:
         tags = []
     if io_examples is None:
@@ -241,7 +241,8 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
     return None
 
 
-def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0, tags: list = None,
+def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0,
+                 tags: list = None,
                  io_examples: list = None, special_judge_code: str = ""):
     if tags is None:
         tags = []
@@ -249,9 +250,10 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
         io_examples = []
 
     if query_problem_by_id(pid) is not None:
-        query_db("update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?, appear_time = ?"
-                 " where id = ?",
-                 [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, appear_time, pid])
+        query_db(
+            "update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?, appear_time = ?"
+            " where id = ?",
+            [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, appear_time, pid])
         if special_judge_code != "" and special_judge_code is not None:
             query_db("update oj_problems set special_judge = true, special_judge_code = ? where id = ?",
                      [special_judge_code, pid])
@@ -355,7 +357,7 @@ def query_problem_by_id_simple(ident: int):
         create_comment_area('problem:' + str(ident))
 
     data = query_db("select id, name, author, tags from oj_problems where id = ?", [
-                    ident], one=True)
+        ident], one=True)
     data['tags'] = json.loads(data['tags'])
     return data
 
@@ -365,7 +367,8 @@ def query_problem_by_name(name: str):
 
 
 def query_problem_by_swap(start: int, limit: int):
-    return query_db("select id, name, tags, author author from oj_problems order by id limit ? offset ?", [limit, start])
+    return query_db("select id, name, tags, author author from oj_problems order by id limit ? offset ?",
+                    [limit, start])
 
 
 def get_judge_server_info():
@@ -402,9 +405,11 @@ def submit_judge_free(data: json):
                         mem_limit=data['mem_limit'])
 
 
-def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str, timestamp: int):
-    problem_content = query_problem_by_id(problem)
-    checkpoint_list = get_checkpoint_list(problem)
+def submit_judge_main(jid: int):
+    record_content = query_records_by_id(jid)
+
+    problem_content = query_problem_by_id(record_content['problem'])
+    checkpoint_list = get_checkpoint_list(record_content['problem'])
     checkpoint_status = []
     score = 0
     full_ac = True
@@ -414,21 +419,22 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
     for i in checkpoint_list:
         datas = ["", ""]
         try:
-            with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.in',
+            with open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.in',
                       "r+") as file:
                 datas[0] = file.read()
         except Exception:
             pass
         try:
-            with open(config.get('uploads-path') + "/problems_data/" + str(problem) + "/" + i + '.out',
-                      "r+") as file:
+            with open(
+                    config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.out',
+                    "r+") as file:
                 datas[1] = file.read()
         except Exception:
             pass
         checkpoint_status.append(judge.submit(
             judge_server_address=config.get('judge-server-address'),
-            judge_plugin=lang,
-            source_file=code,
+            judge_plugin=record_content['lang'],
+            source_file=record_content['code'],
             data_input=datas[0],
             data_output=datas[1],
             time_limit=problem_content['timeout'],
@@ -467,12 +473,12 @@ def submit_judge_main(jid: int, author: int, problem: int, code: str, lang: str,
                  [json.dumps(checkpoint_status), score, jid])
 
     if full_ac:
-        other_message = query_user_by_id(author)['other_message']
-        if not other_message['ac_problems'].count(problem):
-            ac_count = query_user_by_id(author)['ac_count'] + 1
-            other_message['ac_problems'].append(problem)
-            set_user_attr_by_id(author, 'ac_count', ac_count)
-            set_user_attr_by_id(author, 'other_message',
+        other_message = query_user_by_id(record_content['author']['id'])['other_message']
+        if not other_message['ac_problems'].count(record_content['problem']):
+            ac_count = query_user_by_id(record_content['author']['id'])['ac_count'] + 1
+            other_message['ac_problems'].append(record_content['problem'])
+            set_user_attr_by_id(record_content['author']['id'], 'ac_count', ac_count)
+            set_user_attr_by_id(record_content['author']['id'], 'other_message',
                                 pickle.dumps(other_message))
         query_db(
             "update oj_records set status = 'Accepted' where id = ?", [jid])
@@ -516,7 +522,7 @@ def query_problem_list_by_id(ident: int):
 
 def remove_problem_list_by_id(ident: int):
     data = query_db("delete from oj_problem_lists where id = ?", [
-                    ident], one=True)
+        ident], one=True)
     delete_comment_area('problem_list:' + str(ident))
     return data
 
@@ -668,7 +674,7 @@ def reply_comment(require_by: str, index_of_comment: int, author: int, text: str
     comments['comments'] = json.dumps(comments['comments'])
 
     query_db('update oj_comments set comments = ? where require_by = ?', [
-             comments['comments'], comments['author']])
+        comments['comments'], comments['author']])
 
     return {'code': 0, 'text': '操作成功'}
 
@@ -706,7 +712,7 @@ def query_article_by_id(ident: int, require: int):
 
 def remove_article(ident: int, require: int):
     data = query_db("select author, visible from oj_articles where id = ?", [
-                    ident], one=True)
+        ident], one=True)
     if data is None:
         return {
             'code': 2,
@@ -736,7 +742,7 @@ def create_article(name: str, text: str, author: int, visible: bool):
 
 def edit_article(ident: int, name: str, text: str, author: int, visible: bool):
     data = query_db("select author, visible from oj_articles where id = ?", [
-                    ident], one=True)
+        ident], one=True)
     if data is None:
         return {
             'code': 2,
@@ -817,27 +823,30 @@ def initializeContestSchedules():
 
     for i in data:
         # 加载未开始比赛的定时任务
-        Scheduler.enter(i['start_timestamp'] - time.time(), 1,
-                        change_contest_joinable, (i['id'], True))
+        Scheduler.enterabs(i['start_timestamp'], 1,
+                           change_contest_joinable, (i['id'], True))
 
-        Scheduler.enter(i['end_timestamp'] - time.time(), 1,
-                        change_contest_joinable, (i['id'], False))
+        Scheduler.enterabs(i['end_timestamp'], 1,
+                           change_contest_joinable, (i['id'], False))
+
+    Scheduler.run()
 
 
 # 创建比赛
 def create_contest(author_uid: str, contestName: str, contestDescription: str,
                    startTimestamp: int, endTimestamp: int, problems: list) -> dict:
-
     # 判断时间戳是否合法
     if startTimestamp < time.time() + 60 or endTimestamp < time.time() + 60 or endTimestamp < startTimestamp:
         return {'status': False, 'info': 'Invalid timestamp!', 'id': -1}
 
     query_db('''insert into oj_contests (author_uid, name, description, start_timestamp, end_timestamp, problems) values 
-        (?, ?, ?, ?, ?, ?)''', [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)])
+        (?, ?, ?, ?, ?, ?)''',
+             [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)])
 
     data = query_db('''select id from oj_contests where author_uid = ? and name = ? and description = ? 
                         and start_timestamp = ? and end_timestamp = ? and problems = ?''',
-                    [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)], one=True)
+                    [author_uid, contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems)],
+                    one=True)
 
     contests_dir = config.get('uploads-path') + '/contests/' + str(data['id'])
 
@@ -848,15 +857,15 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
 
     with open('sql/contestDatabaseInitialize.sql', "r+") as f:
         loadedContestDatabases[data['id']
-                               ].databaseObject.executescript(f.read())
+        ].databaseObject.executescript(f.read())
 
     loadedContestDatabases[data['id']].databaseObject.commit()
 
-    Scheduler.enter(startTimestamp - time.time(), 1,
-                    change_contest_joinable, (data['id'], True))
+    Scheduler.enterabs(startTimestamp, 1,
+                       change_contest_joinable, (data['id'], True))
 
-    Scheduler.enter(endTimestamp - time.time(), 1,
-                    change_contest_joinable, (data['id'], False))
+    Scheduler.enterabs(endTimestamp - time.time(), 1,
+                       change_contest_joinable, (data['id'], False))
 
     return {
         'status': True,
@@ -870,25 +879,26 @@ def edit_contest(cid: int, contestName: str, contestDescription: str,
                  startTimestamp: int, endTimestamp: int, problems: list) -> bool:
     data = query_db('''select * from oj_contests where id = ?''',
                     [cid], one=True)
-    if data == None:
+    if data is None:
         return False
     else:
         if data['start_timestamp'] <= int(time.time()):
             return False
         else:
-            query_db("update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = ? where id = ?",
-                     [contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems), cid], one=True)
+            query_db(
+                "update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = ? where id = ?",
+                [contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems), cid], one=True)
 
             return True
 
 
 # 删除比赛
 def delete_contest(cid: int) -> bool:
-    if query_contests_by_id(cid) == None:
+    if query_contests_by_id(cid) is None:
         return False
 
     # 卸载数据库
-    if loadedContestDatabases.get(cid) != None:
+    if loadedContestDatabases.get(cid) is not None:
         loadedContestDatabases[cid].close()
         del loadedContestDatabases[cid]
 
@@ -906,7 +916,7 @@ def delete_contest(cid: int) -> bool:
 def query_contests_by_id(cid: int):
     data = query_db('''select * from oj_contests where id = ?''',
                     [cid], one=True)
-    if data != None:
+    if data is not None:
         author = query_user_by_id_simple(data['author_uid'])
         data['author'] = {
             'id': author['id'],
@@ -937,7 +947,7 @@ def query_contests_by_swap(start: int, count: int):
 
 # 根据范围查询比赛排名
 def query_contest_ranking_by_swap(cid: int, start: int, count: int):
-    if loadedContestDatabases.get(cid) == None:
+    if loadedContestDatabases.get(cid) is None:
         contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
         if os.access(contests_dir, os.F_OK):
             loadedContestDatabases[cid] = databaseObject.connect(
@@ -955,7 +965,7 @@ def query_contest_ranking_by_swap(cid: int, start: int, count: int):
         limit ? offset ?
         ''',
         [count, start])
-    
+
     for i in data:
         i['username'] = query_user_by_id_simple(i['uid'])['username']
         i['scores'] = json.loads(i['scores'])
@@ -965,7 +975,7 @@ def query_contest_ranking_by_swap(cid: int, start: int, count: int):
 
 # 根据UID查询比赛排名
 def query_contest_ranking_by_uid(cid: int, uid: int):
-    if loadedContestDatabases.get(cid) == None:
+    if loadedContestDatabases.get(cid) is None:
         contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
         if os.access(contests_dir, os.F_OK):
             loadedContestDatabases[cid] = databaseObject.connect(
@@ -989,14 +999,14 @@ def query_contest_ranking_by_uid(cid: int, uid: int):
         return {'status': False, 'info': 'User did not participate in this contest!'}
 
     data['scores'] = json.loads(data['scores'])
-    data['username'] = query_user_by_id_simple(data ['uid'])['username']
+    data['username'] = query_user_by_id_simple(data['uid'])['username']
 
     return {'status': True, 'data': data}
 
 
 # 查看用户是否已加入指定比赛
 def is_user_joined_contest(cid: int, uid: int) -> bool:
-    if loadedContestDatabases.get(cid) == None:
+    if loadedContestDatabases.get(cid) is None:
         contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
         if os.access(contests_dir, os.F_OK):
             loadedContestDatabases[cid] = databaseObject.connect(
@@ -1012,7 +1022,7 @@ def is_user_joined_contest(cid: int, uid: int) -> bool:
 # 加入比赛
 def join_contest(cid: int, uid: int) -> dict:
     contest = query_contests_by_id(cid)
-    if contest == None:
+    if contest is None:
         return {'status': False, 'info': 'Contest not exist!'}
     if contest['end_timestamp'] <= int(time.time()):
         return {'status': False, 'info': 'Contest already ended!'}
@@ -1026,3 +1036,82 @@ def join_contest(cid: int, uid: int) -> dict:
                                             ''',
                                              [uid])
         return {'status': True, 'info': 'Success!'}
+
+
+# 查询比赛题目详细信息
+def query_contest_problem_details(cid: int, tid: int) -> dict:
+    contest = query_contests_by_id(cid)
+    if contest is None:
+        return {'status': False, 'info': 'Contest not exist!'}
+
+    if int(time.time()) <= contest['start_timestamp'] or int(time.time()) > contest['end_timestamp']:
+        return {'status': False, 'info': 'Contest has not started or has ended!'}
+
+    if tid >= len(contest['problems']):
+        return {'status': False, 'info': 'Invalid TID!'}
+
+    return {'status': True, 'data': query_problem_by_id(contest['problems'][tid]['id'])}
+
+
+# 更新比赛用户提交
+def update_contest_user_score(cid: int, uid: int, scores: list, final_score: int):
+    loadedContestDatabases[cid].query_db(
+        "update oj_contest_ranking set scores = ?, final_score = ? where uid = ?",
+        [json.dumps(scores), final_score, uid], one=True)
+
+
+# 评测比赛题目代码 + 统分
+def submit_to_contest_problem_helper(cid: int, tid: int, jid: int):
+    submit_judge_main(jid)
+
+    # 题目评测完毕 统计分数
+    contest = query_contests_by_id(cid)
+    record = query_records_by_id(jid)
+    data = query_contest_ranking_by_uid(cid, record['author']['id'])
+    data = data['data']
+
+    if len(data['scores']) == 0:
+        data['scores'] = [0 for _ in contest['problems']]
+        print(data['scores'])
+
+    data['scores'][tid] = record['score']
+
+    data['final_score'] = 0
+    for i in data['scores']:
+        data['final_score'] += i
+
+    update_contest_user_score(cid, record['author']['id'], data['scores'], data['final_score'])
+
+
+# 提交比赛题目代码
+def submit_to_contest_problem(cid: int, tid: int, author: int, code: str, lang: str):
+    contest = query_contests_by_id(cid)
+    if contest is None:
+        return {'status': False, 'info': 'Contest not exist!'}
+
+    if int(time.time()) <= contest['start_timestamp'] or int(time.time()) > contest['end_timestamp']:
+        return {'status': False, 'info': 'Contest has not started or has ended!'}
+
+    if tid >= len(contest['problems']):
+        return {'status': False, 'info': 'Invalid TID!'}
+
+    # 获取题号
+    pid = contest['problems'][tid]['id']
+    timestamp = int(time.time() * 100)
+
+    judge_id = create_judge(pid, author, code, lang, timestamp)
+
+    th = threading.Thread(target=submit_to_contest_problem_helper,
+                          args=(cid, tid, judge_id))
+    th.start()
+    time.sleep(0.1)
+
+    return {'status': True, 'data': judge_id}
+
+
+def initialize_backend():
+    connect_db()
+    initializeContestSchedules()
+
+
+initialize_backend()

@@ -11,7 +11,7 @@ import config
 
 app = flask.Flask(__name__)
 app.secret_key = '__@zqhf-oj-v2-secret-code'
-app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
+app.config['MAX_CONTENT_LENGTH'] = 256 * 1024 * 1024
 
 CORS(app, resources=r'/*')
 
@@ -395,14 +395,14 @@ def judge_submit_router(ident):
                                request['lang'], timestamp)
 
     th = threading.Thread(target=backend.submit_judge_main,
-                          args=(jid, flask.session['user_id'], ident, request['code'], request['lang'], timestamp))
+                          args=(jid))
     th.start()
     time.sleep(0.1)
 
     return {
         'code': 0,
         'text': '提交评测成功',
-        'data': backend.get_judge_jid(ident, flask.session['user_id'], timestamp)
+        'data': jid
     }
 
 
@@ -419,7 +419,7 @@ def problems_get_size_router(start, count):
 def problems_get_id_router(ident):
     data = backend.query_problem_by_id(ident)
 
-    if data == None:
+    if data is None:
         return {
             'code': 2,
             'text': '题目不存在!'
@@ -786,7 +786,7 @@ def post_article():
         return {'code': 5, 'text': 'API调用格式错误'}
 
     backend.create_article(req_data['name'], req_data['text'], get_login_details()[
-                           'id'], req_data['visible'])
+        'id'], req_data['visible'])
     return {'code': 0, 'text': '请求成功'}
 
 
@@ -875,7 +875,7 @@ def get_contest_detail(id: int):
 
     data = backend.query_contests_by_id(id)
 
-    if data == None:
+    if data is None:
         return {'code': 2, 'text': '比赛不存在!'}
     else:
         data['joined'] = backend.is_user_joined_contest(
@@ -987,6 +987,52 @@ def join_contest(id: int):
         return {'code': 0, 'text': '请求成功!'}
     else:
         return {'code': 5, 'text': '后端返回错误: ' + result['info']}
+
+
+@app.route("/v1/contests/<int:cid>/problems/get/<int:tid>", methods=['GET'])
+def get_contest_problem(cid: int, tid: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    result = backend.query_contest_problem_details(cid, tid)
+
+    if result['status']:
+        return {'code': 0, 'text': '请求成功!', 'data': result['data']}
+    else:
+        return {'code': 5, 'text': '后端返回错误: ' + result['info']}
+
+
+@app.route("/v1/contests/<int:cid>/problems/submit/<int:tid>", methods=['POST'])
+def contest_judge_submit_router(cid, tid):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    request = flask.request.get_json()
+    if request.get('code') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少代码文本参数'
+        }
+    if request.get('lang') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少代码语言参数'
+        }
+
+    data = backend.submit_to_contest_problem(cid, tid, flask.session.get('user_id'), request['code'], request['lang'])
+    if data['status']:
+        return {
+            'code': 0,
+            'text': '提交评测成功',
+            'data': data['data']
+        }
+    else:
+        return {
+            'code': 5,
+            'text': '提交评测失败: ' + data['info']
+        }
 
 
 if __name__ == "__main__":

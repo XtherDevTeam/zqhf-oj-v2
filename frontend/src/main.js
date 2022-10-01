@@ -28,6 +28,7 @@ import ArticleEditPage from "./routes/ArticleEdit";
 import ContestsPage from "./routes/Contests";
 import ContestViewPage from "./routes/ContestView";
 import ContestEditPage from "./routes/ContestEdit";
+import ContestProblemViewPage from "./routes/ContestProblemView";
 import OnlineIDE from "./routes/OnlineIDE";
 
 const routes = [
@@ -50,6 +51,7 @@ const routes = [
     {path: '/contests', component: ContestsPage},
     {path: '/contests/view', component: ContestViewPage},
     {path: '/contests/edit', component: ContestEditPage},
+    {path: '/contests/solve', component: ContestProblemViewPage},
     {path: '/machines', component: JudgeMachines},
     {path: '/login', component: LoginPage},
     {path: '/register', component: RegisterPage},

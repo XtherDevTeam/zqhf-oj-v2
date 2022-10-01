@@ -417,11 +417,28 @@ def problems_get_size_router(start, count):
 
 @app.route("/v1/problems/get/<int:ident>", methods=['GET'])
 def problems_get_id_router(ident):
-    return {
-        'code': 0,
-        'text': '请求成功',
-        'data': backend.query_problem_by_id(ident)
-    }
+    data = backend.query_problem_by_id(ident)
+    
+    if data['appear_time'] > int(time.time()):
+        require_user = require_user_permission()
+        if require_user is not True or \
+            backend.query_user_by_id_simple(flask.session.get("user_id"))['username'] != data['author']:
+            return {
+                'code': 1,
+                'text': '题目尚未解禁!'
+            }
+        else:
+            return {
+                'code': 0,
+                'text': '请求成功',
+                'data': data
+            }
+    else:
+        return {
+            'code': 0,
+            'text': '请求成功',
+            'data': data
+        }
 
 
 @app.route("/v1/problems/delete/<int:ident>", methods=['POST'])
@@ -479,11 +496,18 @@ def problem_edit_router(ident: int):
             'code': 5,
             'text': '表单缺少题目内存限制参数'
         }
+        
+    if request.get('appear_time') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目解禁时间'
+        }
+        
     if backend.edit_problem(pid=ident,
                             name=request['name'],
-                            description=request['description'], tags=request['tags'],
-                            io_examples=request['examples'], timeout=request['timeout'],
-                            memory_limit=request['memory_limit'],
+                            description=request['description'], appear_time=request['appear_time'], 
+                            tags=request['tags'], io_examples=request['examples'], 
+                            timeout=request['timeout'], memory_limit=request['memory_limit'],
                             special_judge_code=request.get('special_judge_code')):
         return {
             'code': 0,
@@ -533,11 +557,18 @@ def problems_post_router():
             'code': 5,
             'text': '表单缺少题目内存限制参数'
         }
+        
+    if request.get('appear_time') is None:
+        return {
+            'code': 5,
+            'text': '表单缺少题目解禁时间'
+        }
+        
     backend.post_problem(author=backend.query_user_by_id(flask.session.get("user_id"))['username'],
                          name=request['name'],
-                         description=request['description'], tags=request['tags'],
-                         io_examples=request['examples'], timeout=request['timeout'],
-                         memory_limit=request['memory_limit'])
+                         description=request['description'], appear_time=request['appear_time'],
+                         tags=request['tags'], io_examples=request['examples'],
+                         timeout=request['timeout'], memory_limit=request['memory_limit'])
     return {
         'code': 0,
         'text': '请求成功'
@@ -881,7 +912,7 @@ def get_contest_ranking_for_self(id: int):
         return {'code': 5, 'text': '后端返回错误: ' + data['info']}
 
 
-@app.route("/v1/contests/<int:id>/edit", methods=['POST'])
+@app.route("/v1/contests/edit/<int:id>", methods=['POST'])
 def edit_contest(id: int):
     require_user = require_user_permission()
     if require_user is not True:
@@ -909,7 +940,7 @@ def edit_contest(id: int):
         return {'code': 2, 'text': '将要编辑的比赛不存在!'}
 
 
-@app.route("/v1/contests/<int:id>/delete", methods=['POST'])
+@app.route("/v1/contests/delete/<int:id>", methods=['POST'])
 def delete_contest(id: int):
     require_user = require_user_permission()
     if require_user is not True:

@@ -15,7 +15,7 @@
         backdrop-filter: blur(300px);
         position: fixed;
         width: 100%;
-        z-index: 114514;
+        z-index: 1919;
     }
 
     .oj-footer {
@@ -32,6 +32,14 @@
     .el-menu--horizontal>.el-menu-item:not(.is-disabled):hover {
         background-color: #363636
     }
+
+    .el-date-range-picker__time-header {
+        border-bottom: 1px solid #474747;
+    }
+
+    .el-date-editor .el-range-input {
+        background-color: #262626;
+    }
 }
 
 @media (prefers-color-scheme: light) {
@@ -41,7 +49,7 @@
         backdrop-filter: blur(300px);
         position: fixed;
         width: 100%;
-        z-index: 114514;
+        z-index: 1919;
     }
 
     .oj-footer {

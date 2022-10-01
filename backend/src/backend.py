@@ -11,6 +11,7 @@ import judge
 import requests
 import databaseObject
 import sched
+import shutil
 
 DATABASE = config.get("database-path")
 db = None
@@ -24,6 +25,8 @@ def connect_db():
     global db
     db = sqlite3.connect(DATABASE, check_same_thread=False,
                          isolation_level=None)
+    
+    initializeContestSchedules()
     return db
 
 
@@ -225,21 +228,21 @@ def search_problems(way: str, content: str):
     return result
 
 
-def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None,
-                 io_examples: list = None):
+def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", appear_time:int = 0
+                 , tags: list = None, io_examples: list = None):
     if tags is None:
         tags = []
     if io_examples is None:
         io_examples = []
     query_db(
-        "insert into oj_problems (name, description, examples, author, tags, timeout, memory)"
-        " values (?, ?, ?, ?, ?, ?, ?)",
-        [name, description, json.dumps(io_examples), author, json.dumps(tags), timeout, memory_limit])
+        "insert into oj_problems (name, description, examples, author, appear_time, tags, timeout, memory)"
+        " values (?, ?, ?, ?, ?, ?, ?, ?)",
+        [name, description, json.dumps(io_examples), author, appear_time, json.dumps(tags), timeout, memory_limit])
 
     return None
 
 
-def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", tags: list = None,
+def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", appear_time:int = 0, tags: list = None,
                  io_examples: list = None, special_judge_code: str = ""):
     if tags is None:
         tags = []
@@ -247,9 +250,9 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
         io_examples = []
 
     if query_problem_by_id(pid) is not None:
-        query_db("update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?"
+        query_db("update oj_problems set name = ?, description = ?, examples = ?, tags = ?, timeout = ?, memory = ?, appear_time = ?"
                  " where id = ?",
-                 [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, pid])
+                 [name, description, json.dumps(io_examples), json.dumps(tags), timeout, memory_limit, appear_time, pid])
         if special_judge_code != "" and special_judge_code is not None:
             query_db("update oj_problems set special_judge = true, special_judge_code = ? where id = ?",
                      [special_judge_code, pid])
@@ -311,7 +314,7 @@ def make_checkpoint_dir(pid: int):
 
 
 def remove_checkpoint_dir(pid: int):
-    os.removedirs(config.get('uploads-path') + "/problems_data/" + str(pid))
+    shutil.rmtree(config.get('uploads-path') + "/problems_data/" + str(pid))
 
 
 def get_checkpoint_list(pid: int):
@@ -353,7 +356,7 @@ def query_problem_by_name(name: str):
 
 
 def query_problem_by_swap(start: int, limit: int):
-    return query_db("select id, name, tags, author from oj_problems order by id limit ? offset ?", [limit, start])
+    return query_db("select id, name, tags, author author from oj_problems order by id limit ? offset ?", [limit, start])
 
 
 def get_judge_server_info():
@@ -873,7 +876,9 @@ def delete_contest(cid: int) -> bool:
     # 删除比赛存放目录
     contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
 
-    os.removedirs(contests_dir)
+    shutil.rmtree(contests_dir)
+    
+    query_db("delete from oj_contests where id = ?", [cid])
 
     return True
 

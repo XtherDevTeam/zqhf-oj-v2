@@ -22,5 +22,6 @@ if input('Create oj_contests table(yes/no) : ') == 'yes':
         problems            string default '[]'
     )
     """)
+    backend.db.execute("alter table oj_problems add column appear_time integer not null default 0")
     
 backend.db.close()

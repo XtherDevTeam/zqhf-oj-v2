@@ -97,7 +97,7 @@ export default {
         if (this.problem_content == null) {
           this.$message({
             type: "error",
-            message: "题目内容拉取失败!"
+            message: "题目内容拉取失败: " + response.data['text']
           });
         } else {
           this.problem_content['tags'] = JSON.parse(this.problem_content['tags']);

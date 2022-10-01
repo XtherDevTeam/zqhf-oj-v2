@@ -1,7 +1,7 @@
 <template>
   <div id="app" style="width: 100%;">
     <el-container>
-      <el-header id="app-header" class="header-custom is-fixed">
+      <el-header id="app-header" class="header-custom is-fixed" style="overflow-x: hidden;">
         <el-menu
             :default-active="activeIndex"
             class="el-menu-demo"
@@ -22,22 +22,26 @@
           </el-menu-item>
 
           <el-menu-item index="4">
-            <el-link href="/#/records">评测记录</el-link>
+            <el-link href="/#/contests">比赛列表</el-link>
           </el-menu-item>
 
           <el-menu-item index="5">
-            <el-link href="/#/articles">文章列表</el-link>
+            <el-link href="/#/records">评测记录</el-link>
           </el-menu-item>
 
           <el-menu-item index="6">
-            <el-link href="/#/ide">在线IDE</el-link>
+            <el-link href="/#/articles">文章列表</el-link>
           </el-menu-item>
 
           <el-menu-item index="7">
+            <el-link href="/#/ide">在线IDE</el-link>
+          </el-menu-item>
+
+          <el-menu-item index="8">
             <el-link href="/#/machines">评测机列表</el-link>
           </el-menu-item>
 
-          <el-submenu v-if="user_info['code'] === 0" index="8">
+          <el-submenu v-if="user_info['code'] === 0" index="9">
             <template slot="title">{{ user_info["data"]["username"] }}</template>
             <el-menu-item index="2-1">
               <el-link href="/#/profile">个人空间</el-link>
@@ -49,7 +53,7 @@
             <el-menu-item @click="event_logout()">登出</el-menu-item>
           </el-submenu>
 
-          <el-menu-item v-else index="8">
+          <el-menu-item v-else index="9">
             <el-link href="/#/login">登录</el-link>
           </el-menu-item>
         </el-menu>

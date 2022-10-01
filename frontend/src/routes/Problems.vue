@@ -11,6 +11,17 @@
       <el-input style="margin: 10px auto;" placeholder="1000" v-model="new_problem_memory_limit">
         <template slot="prepend">空间限制</template>
       </el-input>
+
+      <div style="margin: 20px auto;"></div>
+      <span style="margin: 20px auto;">设置解禁时间</span>
+      <el-date-picker
+        value-format="timestamp"
+        v-model="new_problem_appear_time"
+        type="datetime"
+        placeholder="设置解禁时间">
+      </el-date-picker>
+      <div style="margin: 20px auto;"></div>
+
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
       <editor style="margin: 10px auto;" v-model="new_problem_description" language="markdown"
 
@@ -161,7 +172,8 @@ export default {
         tags: this.new_problem_tags,
         examples: [],
         timeout: parseInt(this.new_problem_timeout),
-        memory_limit: parseInt(this.new_problem_memory_limit)
+        memory_limit: parseInt(this.new_problem_memory_limit),
+        appear_time: (this.new_problem_appear_time / 1000) | 0
       }).then((response) => {
         if (response.data['code'] !== 0) {
           this.$message({
@@ -199,6 +211,7 @@ export default {
       new_problem_description: "",
       new_problem_timeout: 1000,
       new_problem_memory_limit: 65536,
+      new_problem_appear_time: Date.now(),
       new_problem_tags: [],
       new_problem_temp_tag_name: "",
       new_problem_temp_tag_visible: false,

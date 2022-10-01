@@ -104,6 +104,16 @@
         <template slot="prepend">空间限制</template>
       </el-input>
 
+      <div style="margin: 20px auto;"></div>
+      <span style="margin: 20px auto;">设置解禁时间</span>
+      <el-date-picker
+        value-format="timestamp"
+        v-model="problem_appear_time"
+        type="datetime"
+        placeholder="设置解禁时间">
+      </el-date-picker>
+      <div style="margin: 20px auto;"></div>
+
       <el-tag :key="tag" v-for="tag in problem_tags" closable :disable-transitions="false"
               @close="problem_tags_remove(tag)">
         {{ tag }}
@@ -192,6 +202,7 @@ export default {
           this.problem_memory_limit = response.data['data']['memory'];
           this.problem_tags = JSON.parse(response.data['data']['tags']);
           this.problem_examples = JSON.parse(response.data['data']['examples']);
+          this.problem_appear_time = response.data['data']['appear_time'] * 1000;
         }
       });
     },
@@ -273,7 +284,8 @@ export default {
         memory_limit: parseInt(this.problem_memory_limit),
         tags: this.problem_tags,
         examples: this.problem_examples,
-        special_judge_code: this.problem_special_judge_code
+        special_judge_code: this.problem_special_judge_code,
+        appear_time: (this.problem_appear_time / 1000) | 0
       }).then((response) => {
         if (response.data['code'] !== 0) {
           this.$message({
@@ -321,6 +333,7 @@ export default {
       problem_temp_tag_visible: false,
       problem_temp_tag_name: "",
       problem_checkpoint_list: [],
+      problem_appear_time: 0,
       new_example_dialog_visible: false,
       new_example_content: {'in': '', 'out': ''},
       edit_example_index: -1,

@@ -902,7 +902,10 @@ def get_contest_ranking(id: int, start: int, size: int):
 
     data = backend.query_contest_ranking_by_swap(id, start, size)
 
-    return {'code': 0, 'text': '请求成功!', 'data': data}
+    if data['status']:
+        return {'code': 0, 'text': '请求成功!', 'data': data['data']}
+    else:
+        return {'code': 5, 'text': '后端返回错误: ' + data['info']}
 
 
 @app.route("/v1/contests/<int:id>/ranking", methods=['GET'])

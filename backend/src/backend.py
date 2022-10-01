@@ -25,7 +25,7 @@ def connect_db():
     global db
     db = sqlite3.connect(DATABASE, check_same_thread=False,
                          isolation_level=None)
-    
+
     initializeContestSchedules()
     return db
 
@@ -228,8 +228,7 @@ def search_problems(way: str, content: str):
     return result
 
 
-def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", appear_time:int = 0
-                 , tags: list = None, io_examples: list = None):
+def post_problem(author: str, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0, tags: list = None, io_examples: list = None):
     if tags is None:
         tags = []
     if io_examples is None:
@@ -242,7 +241,7 @@ def post_problem(author: str, name: str, timeout: int, memory_limit: int, descri
     return None
 
 
-def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", appear_time:int = 0, tags: list = None,
+def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, description: str = "", appear_time: int = 0, tags: list = None,
                  io_examples: list = None, special_judge_code: str = ""):
     if tags is None:
         tags = []
@@ -355,7 +354,8 @@ def query_problem_by_id_simple(ident: int):
     if query_comments_by_require('problem:' + str(ident)) is None:
         create_comment_area('problem:' + str(ident))
 
-    data = query_db("select id, name, author, tags from oj_problems where id = ?", [ident], one=True)
+    data = query_db("select id, name, author, tags from oj_problems where id = ?", [
+                    ident], one=True)
     data['tags'] = json.loads(data['tags'])
     return data
 
@@ -826,7 +826,7 @@ def initializeContestSchedules():
 
 # 创建比赛
 def create_contest(author_uid: str, contestName: str, contestDescription: str,
-                  startTimestamp: int, endTimestamp: int, problems: list) -> dict:
+                   startTimestamp: int, endTimestamp: int, problems: list) -> dict:
 
     # 判断时间戳是否合法
     if startTimestamp < time.time() + 60 or endTimestamp < time.time() + 60 or endTimestamp < startTimestamp:
@@ -845,10 +845,11 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
 
     loadedContestDatabases[data['id']] = databaseObject.connect(
         contests_dir + "/contest.db")
-    
+
     with open('sql/contestDatabaseInitialize.sql', "r+") as f:
-        loadedContestDatabases[data['id']].databaseObject.executescript(f.read())
-        
+        loadedContestDatabases[data['id']
+                               ].databaseObject.executescript(f.read())
+
     loadedContestDatabases[data['id']].databaseObject.commit()
 
     Scheduler.enter(startTimestamp - time.time(), 1,
@@ -866,7 +867,7 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
 # 修改比赛
 # Warning: 只可以在比赛开始之前更改
 def edit_contest(cid: int, contestName: str, contestDescription: str,
-                  startTimestamp: int, endTimestamp: int, problems: list) -> bool:
+                 startTimestamp: int, endTimestamp: int, problems: list) -> bool:
     data = query_db('''select * from oj_contests where id = ?''',
                     [cid], one=True)
     if data == None:
@@ -895,7 +896,7 @@ def delete_contest(cid: int) -> bool:
     contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
 
     shutil.rmtree(contests_dir)
-    
+
     query_db("delete from oj_contests where id = ?", [cid])
 
     return True
@@ -912,12 +913,12 @@ def query_contests_by_id(cid: int):
             'username': author['username']
         }
         data['problems'] = json.loads(data['problems'])
-        data['problems'] = [query_problem_by_id_simple(i) for i in data['problems']]
-        
+        data['problems'] = [query_problem_by_id_simple(
+            i) for i in data['problems']]
 
     return data
-        
-        
+
+
 # 根据ID范围查询比赛简略信息
 def query_contests_by_swap(start: int, count: int):
     data = query_db('''select id, author_uid, name, start_timestamp, end_timestamp, joinable 
@@ -945,8 +946,19 @@ def query_contest_ranking_by_swap(cid: int, start: int, count: int):
             return {'status': False, 'info': 'Contest not exist!'}
 
     data = loadedContestDatabases[cid].query_db(
-        "select * from oj_contest_ranking where order by final_score desc limit ? offset ?",
-        [count, offset])
+        '''
+        select *,
+            rank () over ( 
+                order by final_score desc
+            ) as ranking
+        from oj_contest_ranking 
+        limit ? offset ?
+        ''',
+        [count, start])
+    
+    for i in data:
+        i['username'] = query_user_by_id_simple(i['uid'])['username']
+        i['scores'] = json.loads(i['scores'])
 
     return {'status': True, 'data': data}
 
@@ -962,11 +974,22 @@ def query_contest_ranking_by_uid(cid: int, uid: int):
             return {'status': False, 'info': 'Contest not exist!'}
 
     data = loadedContestDatabases[cid].query_db(
-        "select * from oj_contest_ranking where uid = ?",
-        [uid])
+        '''
+        select *,
+            rank () over ( 
+                order by final_score desc
+            ) as ranking
+        from oj_contest_ranking 
+        where uid = ?
+        ''',
+        [uid],
+        one=True)
 
-    if data == None:
+    if data is None:
         return {'status': False, 'info': 'User did not participate in this contest!'}
+
+    data['scores'] = json.loads(data['scores'])
+    data['username'] = query_user_by_id_simple(data ['uid'])['username']
 
     return {'status': True, 'data': data}
 
@@ -980,9 +1003,10 @@ def is_user_joined_contest(cid: int, uid: int) -> bool:
                 contests_dir + '/contest.db')
         else:
             return False
-    
+
     return \
-        loadedContestDatabases[cid].query_db("select * from oj_contest_ranking where uid = ?", [uid], one=True) is not None
+        loadedContestDatabases[cid].query_db(
+            "select * from oj_contest_ranking where uid = ?", [uid], one=True) is not None
 
 
 # 加入比赛
@@ -992,7 +1016,7 @@ def join_contest(cid: int, uid: int) -> dict:
         return {'status': False, 'info': 'Contest not exist!'}
     if contest['end_timestamp'] <= int(time.time()):
         return {'status': False, 'info': 'Contest already ended!'}
-    
+
     if is_user_joined_contest(cid, uid):
         return {'status': False, 'info': 'User already joined this contest!'}
     else:
@@ -1000,5 +1024,5 @@ def join_contest(cid: int, uid: int) -> dict:
                                             insert into oj_contest_ranking 
                                             (uid) values (?)
                                             ''',
-                                            [uid])
+                                             [uid])
         return {'status': True, 'info': 'Success!'}

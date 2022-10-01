@@ -40,7 +40,7 @@ class Database:
     def open(self, path):
         self.databasePath = path
         self.reconnect()
-        Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
+        self.timerEvent = Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
         pass
 
     def query_db(self, query, args=(), one=False):
@@ -49,7 +49,7 @@ class Database:
         else:
             # reopen database connection
             Scheduler.cancel(self.timerEvent)
-            Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
+            self.timerEvent = Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
 
         # wait
         while self.__operating:

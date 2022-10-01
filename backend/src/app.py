@@ -418,11 +418,17 @@ def problems_get_size_router(start, count):
 @app.route("/v1/problems/get/<int:ident>", methods=['GET'])
 def problems_get_id_router(ident):
     data = backend.query_problem_by_id(ident)
-    
+
+    if data == None:
+        return {
+            'code': 2,
+            'text': '题目不存在!'
+        }
+
     if data['appear_time'] > int(time.time()):
         require_user = require_user_permission()
         if require_user is not True or \
-            backend.query_user_by_id_simple(flask.session.get("user_id"))['username'] != data['author']:
+                backend.query_user_by_id_simple(flask.session.get("user_id"))['username'] != data['author']:
             return {
                 'code': 1,
                 'text': '题目尚未解禁!'
@@ -496,17 +502,17 @@ def problem_edit_router(ident: int):
             'code': 5,
             'text': '表单缺少题目内存限制参数'
         }
-        
+
     if request.get('appear_time') is None:
         return {
             'code': 5,
             'text': '表单缺少题目解禁时间'
         }
-        
+
     if backend.edit_problem(pid=ident,
                             name=request['name'],
-                            description=request['description'], appear_time=request['appear_time'], 
-                            tags=request['tags'], io_examples=request['examples'], 
+                            description=request['description'], appear_time=request['appear_time'],
+                            tags=request['tags'], io_examples=request['examples'],
                             timeout=request['timeout'], memory_limit=request['memory_limit'],
                             special_judge_code=request.get('special_judge_code')):
         return {
@@ -557,13 +563,13 @@ def problems_post_router():
             'code': 5,
             'text': '表单缺少题目内存限制参数'
         }
-        
+
     if request.get('appear_time') is None:
         return {
             'code': 5,
             'text': '表单缺少题目解禁时间'
         }
-        
+
     backend.post_problem(author=backend.query_user_by_id(flask.session.get("user_id"))['username'],
                          name=request['name'],
                          description=request['description'], appear_time=request['appear_time'],
@@ -861,7 +867,7 @@ def create_contest():
         return {'code': 5, 'text': 'API调用格式错误: ' + data['info']}
 
 
-@app.route("/v1/contests/<int:id>", methods=['GET'])
+@app.route("/v1/contests/get/<int:id>", methods=['GET'])
 def get_contest_detail(id: int):
     require_user = require_user_permission()
     if require_user is not True:
@@ -872,6 +878,9 @@ def get_contest_detail(id: int):
     if data == None:
         return {'code': 2, 'text': '比赛不存在!'}
     else:
+        data['joined'] = backend.is_user_joined_contest(
+            id, flask.session.get('user_id'))
+        data['ended'] = data['end_timestamp'] < int(time.time())
         return {'code': 0, 'text': '请求成功!', 'data': data}
 
 
@@ -926,11 +935,11 @@ def edit_contest(id: int):
     if data != None:
         if data['author_uid'] == uid:
             if backend.edit_contest(id,
-                                 req_data['contestName'],
-                                 req_data['contestContest'],
-                                 req_data['startTimestamp'],
-                                 req_data['endTimestamp'],
-                                 req_data['problems']):
+                                    req_data['contestName'],
+                                    req_data['contestDescription'],
+                                    req_data['startTimestamp'],
+                                    req_data['endTimestamp'],
+                                    req_data['problems']):
                 return {'code': 0, 'text': '请求成功!'}
             else:
                 return {'code': 5, 'text': '修改失败: 只可以在比赛开始之前更改!'}
@@ -959,6 +968,22 @@ def delete_contest(id: int):
             return {'code': 1, 'text': '仅有比赛发起者才能删除比赛!'}
     else:
         return {'code': 2, 'text': '将要删除的比赛不存在!'}
+
+
+@app.route("/v1/contests/join/<int:id>", methods=['POST'])
+def join_contest(id: int):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+
+    uid = flask.session.get('user_id')
+
+    result = backend.join_contest(id, uid)
+
+    if result['status']:
+        return {'code': 0, 'text': '请求成功!'}
+    else:
+        return {'code': 5, 'text': '后端返回错误: ' + result['info']}
 
 
 if __name__ == "__main__":

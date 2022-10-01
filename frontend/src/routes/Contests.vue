@@ -77,14 +77,10 @@
 import axios from "axios";
 import MonacoEditor from "../components/editor.vue";
 
+import utils from "../utils";
 
 export default {
   methods: {
-    timestampToTime(timestamp) {
-      console.log('wdnmd ', timestamp);
-      var date = new Date(timestamp * 1000);
-      return date.format('yyyy/MM/dd hh:mm:ss');
-    },
     init() {
       this.page_number = this.contests_start / this.contests_limit;
       
@@ -108,8 +104,8 @@ export default {
         } else {
           let contests = response.data['data'];
           for (let i = 0; i < contests.length; i++) {
-            contests[i].formattedStartTime = this.timestampToTime(contests[i].start_timestamp);
-            contests[i].formattedEndTime = this.timestampToTime(contests[i].end_timestamp);
+            contests[i].formattedStartTime = utils.timestampToTime(contests[i].start_timestamp);
+            contests[i].formattedEndTime = utils.timestampToTime(contests[i].end_timestamp);
           }
           this.contests_data = contests;
         }

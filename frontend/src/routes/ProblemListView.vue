@@ -8,14 +8,12 @@
       <div style="margin: 10px auto;"></div>
       <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_description_content"></div>
       <div style="margin: 10px auto;"></div>
-      <el-table :data="problem_list_content['problems']" style="width: 100%">
-        <el-table-column prop="id" fixed="right" label="题目编号" width="100px"></el-table-column>
-        <el-table-column prop="name" fixed="right" label="题目标题"></el-table-column>
-
-        <el-table-column fixed="right" label="操作">
-          <template v-slot="scope">
-            <el-button @click="goto_problem(scope.row.id)" type="text" size="small">查看</el-button>
-          </template>
+      <el-table :data="problem_list_content.problems" style="width: 100%" @row-click="goto_problem">
+        <el-table-column prop="id" fixed label="题目编号" width="100px"></el-table-column>
+        <el-table-column prop="author" label="上传者" width="128"></el-table-column>
+        <el-table-column prop="name" label="题目名"></el-table-column>
+        <el-table-column v-slot="scope" label="标签">
+          <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
         </el-table-column>
       </el-table>
     </el-card>
@@ -62,8 +60,8 @@ export default {
         }
       });
     },
-    goto_problem(id) {
-      window.location = '/#/problems/view?id=' + id;
+    goto_problem(row) {
+      window.location = '/#/problems/view?id=' + row.id;
     },
   },
   mounted() {

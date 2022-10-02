@@ -126,7 +126,7 @@
       <br>
 
       <div style="margin: 20px auto;"></div>
-      <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
+      <span style="margin: 20px auto;">题目介绍(可使用Markdown + LaTeX)</span>
       <editor style="margin: 10px auto;" v-model="problem_description" language="markdown"
               width="100%" height="256px"></editor>
 
@@ -203,6 +203,7 @@ export default {
           this.problem_tags = JSON.parse(response.data['data']['tags']);
           this.problem_examples = JSON.parse(response.data['data']['examples']);
           this.problem_appear_time = response.data['data']['appear_time'] * 1000;
+          console.log('-wdnmd', response.data['data']['appear_time'])
         }
       });
     },

@@ -18,7 +18,7 @@
 
       <div style="height: 10px"></div>
 
-      <span style="margin: 20px auto;">比赛介绍(可使用Markdown + KaTeX)</span>
+      <span style="margin: 20px auto;">比赛介绍(可使用Markdown + LaTeX)</span>
       <editor style="margin: 10px auto;" v-model="new_contest.contestDescription" language="markdown"
 
               width="100%" height="256px"></editor>
@@ -32,11 +32,11 @@
     <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>比赛列表</span>
-        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level'] == 2"
+        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level'] >= 1"
                    style="float: right; padding: 3px 0" type="text" @click="create_contest">新建比赛
         </el-button>
       </div>
-      <el-table :data="contests_data" style="width: 100%">
+      <el-table :data="contests_data" style="width: 100%" @row-click="contest_click">
         <el-table-column fixed label="发起者" width="128">
           <template v-slot="scope">
             <span>{{ scope.row.author.username }}</span>
@@ -48,11 +48,10 @@
 
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
-            <el-button @click="contest_click(scope.row)" type="text" size="small">查看</el-button>
-            <el-button v-if="check_general_permission(scope.row.author_uid)" @click="contest_edit(scope.row)" type="text"
+            <el-button v-if="check_general_permission(scope.row.author_uid)" @click.native.stop="contest_edit(scope.row)" type="text"
                        size="small">修改
             </el-button>
-            <el-button v-if="check_general_permission(scope.row.author_uid)" @click="contest_remove(scope.row)" type="text"
+            <el-button v-if="check_general_permission(scope.row.author_uid)" @click.native.stop="contest_remove(scope.row)" type="text"
                        size="small">删除
             </el-button>
           </template>

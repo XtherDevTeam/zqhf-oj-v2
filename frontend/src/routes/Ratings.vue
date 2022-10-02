@@ -4,7 +4,7 @@
       <div slot="header" class="clearfix">
         <span>Rating 排名</span>
       </div>
-      <el-table :data="ratings_data" style="width: 100%">
+      <el-table :data="ratings_data" style="width: 100%" @row-click="profile_click">
         <el-table-column fixed prop="id" label="UID" width="128"></el-table-column>
         <el-table-column fixed label="用户名">
             <template v-slot="scope">
@@ -68,7 +68,10 @@ export default {
       this.ratings_start = this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']);
       this.ratings_limit = this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']);
       this.init();
-    }
+    },
+    profile_click(toCheck) {
+      window.location = '/#/profile?id=' + toCheck.id;
+    },
   },
   components: {
     editor: MonacoEditor,

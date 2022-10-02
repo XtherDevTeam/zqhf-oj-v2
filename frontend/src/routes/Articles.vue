@@ -42,7 +42,7 @@
           <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
         </el-input>
       </div>
-      <el-table :data="lists_data" style="width: 100%">
+      <el-table :data="lists_data" style="width: 100%" @row-click="article_click">
         <el-table-column fixed prop="id" label="ID" width="128"></el-table-column>
         <el-table-column fixed label="作者" width="128">
           <template v-slot="scope">
@@ -52,12 +52,11 @@
         <el-table-column fixed prop="name" label="标题"></el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
-            <el-button @click="article_click(scope.row)" type="text" size="small">查看</el-button>
-            <el-button v-if="check_general_permission(scope.row.author.username)" @click="article_edit(scope.row)"
+            <el-button v-if="check_general_permission(scope.row.author.username)" @click.native.stop="article_edit(scope.row)"
                        type="text" size="small">修改
             </el-button>
             <el-button v-if="check_general_permission(scope.row.author.username)"
-                       @click="article_remove(scope.row)"
+                       @click.native.stop="article_remove(scope.row)"
                        type="text" size="small">删除
             </el-button>
           </template>

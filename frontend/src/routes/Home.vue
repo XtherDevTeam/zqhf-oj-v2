@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-dialog title="新建公告" :visible.sync="create_bulletin_dialog_visible" width="500px">
+    <el-dialog title="新建公告" :visible.sync="create_bulletin_dialog_visible" width="50%">
       <el-input placeholder="请输入内容" v-model="create_bulletin_dialog_name">
         <template slot="prepend">标题</template>
       </el-input>
@@ -17,7 +17,7 @@
     <el-aside width="70%" style="padding: 20px;">
       <el-card shadow="hover" class="box-card">
         <div slot="header" class="clearfix">
-          <span>欢迎来到{{ app_name }}!</span>
+          <span>欢迎来到{{ app_name }}！</span>
         </div>
         <img src="../assets/head-image.png" style="width: 100%;"/>
       </el-card>
@@ -30,18 +30,17 @@
             新建
           </el-button>
         </div>
-        <el-table :data="bulletins" style="width: 100%">
+        <el-table :data="bulletins" style="width: 100%" @row-click="bulletins_check">
           <el-table-column fixed prop="id" label="编号" width="64"></el-table-column>
           <el-table-column fixed prop="time" label="日期" width="200"></el-table-column>
           <el-table-column prop="name" label="名称"></el-table-column>
           <el-table-column fixed="right" label="操作" width="256">
             <template v-slot="scope">
-              <el-button @click="bulletins_check(scope.row)" type="text" size="small">查看</el-button>
               <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']" type="text"
-                         size="small" @click="bulletins_edit(scope.row)">编辑
+                         size="small" @click.native.stop="bulletins_edit(scope.row)">编辑
               </el-button>
               <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
-                         @click="bulletins_delete(scope.row)" type="text" size="small">删除
+                         @click.native.stop="bulletins_delete(scope.row)" type="text" size="small">删除
               </el-button>
             </template>
           </el-table-column>
@@ -55,7 +54,7 @@
             查看全部
           </el-button>
         </div>
-        <el-table :data="ranking_top10" style="width: 100%;">
+        <el-table :data="ranking_top10" style="width: 100%;" @row-click="profile_click">
           <el-table-column fixed prop="id" label="User ID" width="128"></el-table-column>
           <el-table-column fixed label="用户名">
             <template v-slot="scope">
@@ -66,11 +65,6 @@
           <el-table-column fixed prop="introduction" label="一句话介绍"></el-table-column>
           <el-table-column fixed prop="ac_count" label="Rating" width="64"></el-table-column>
           <el-table-column fixed prop="ranking" label="排名" width="64"></el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
-            <template v-slot="scope">
-              <el-button @click="profile_click(scope.row)" type="text" size="small">个人主页</el-button>
-            </template>
-          </el-table-column>
         </el-table>
       </el-card>
     </el-aside>

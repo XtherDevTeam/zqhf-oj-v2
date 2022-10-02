@@ -5,7 +5,7 @@
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_problem_list_name">
         <template slot="prepend">标题</template>
       </el-input>
-      <span style="margin: 20px auto;">题单介绍(可使用Markdown + KaTeX)</span>
+      <span style="margin: 20px auto;">题单介绍(可使用Markdown + LaTeX)</span>
       <editor style="margin: 10px auto;" v-model="new_problem_list_description" language="markdown"
 
               width="100%" height="256px"></editor>
@@ -19,7 +19,7 @@
     <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>题单列表</span>
-        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
+        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level'] >= 1"
                    style="float: right; padding: 3px 0" type="text" @click="new_problem_list_dialog_visible = true;">
           新建题单
         </el-button>
@@ -33,7 +33,7 @@
           <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
         </el-input>
       </div>
-      <el-table :data="lists_data" style="width: 100%">
+      <el-table :data="lists_data" style="width: 100%" @row-click="problem_list_click">
         <el-table-column fixed prop="id" label="题单编号" width="128"></el-table-column>
         <el-table-column fixed label="上传者" width="128">
           <template v-slot="scope">
@@ -43,12 +43,11 @@
         <el-table-column fixed prop="name" label="标题"></el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
-            <el-button @click="problem_list_click(scope.row)" type="text" size="small">查看</el-button>
-            <el-button v-if="check_general_permission(scope.row.author.username)" @click="problem_list_edit(scope.row)"
+            <el-button v-if="check_general_permission(scope.row.author.username)" @click.native.stop="problem_list_edit(scope.row)"
                        type="text" size="small">修改
             </el-button>
             <el-button v-if="check_general_permission(scope.row.author.username)"
-                       @click="problem_list_remove(scope.row)"
+                       @click.native.stop="problem_list_remove(scope.row)"
                        type="text" size="small">删除
             </el-button>
           </template>

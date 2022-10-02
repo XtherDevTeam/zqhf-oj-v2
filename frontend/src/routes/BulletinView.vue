@@ -4,6 +4,7 @@
       <span>{{ bulletin_content['name'] }}</span>
     </div>
     <span>上次修改: {{ bulletin_content['time'] }}</span>
+    <div style="margin: 50px;"></div>
     <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
   </el-card>
 </template>

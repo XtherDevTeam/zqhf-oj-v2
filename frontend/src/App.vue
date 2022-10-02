@@ -1,7 +1,7 @@
 <template>
   <div id="app" style="width: 100%;">
     <el-container>
-      <el-header id="app-header" class="header-custom is-fixed" style="overflow-x: hidden;">
+      <el-header id="app-header" class="header-custom is-fixed" style="overflow: hidden;">
         <el-menu
             :default-active="activeIndex"
             class="el-menu-demo"
@@ -85,7 +85,6 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "./components/editor.vue";
 
 export default {
   methods: {

@@ -5,7 +5,7 @@
         <span>{{ article_content['name'] }}</span>
       </div>
       <span>作者: {{ article_content['author']['username'] }}</span>
-      <div style="margin: 20px;"></div>
+      <div style="margin: 50px;"></div>
       <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
     </el-card>
     <div style="margin: 20px;"></div>

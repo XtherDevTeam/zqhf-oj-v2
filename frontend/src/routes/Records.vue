@@ -4,7 +4,7 @@
       <div slot="header" class="clearfix">
         <span>评测记录</span>
       </div>
-      <el-table :data="records_data" style="width: 100%">
+      <el-table :data="records_data" style="width: 100%" @row-click="problem_click">
         <el-table-column fixed prop="id" label="评测编号" width="128"></el-table-column>
         <el-table-column fixed prop="author" label="上传者UID" width="128"></el-table-column>
         <el-table-column fixed prop="problem" label="题目ID" width="128"></el-table-column>
@@ -17,11 +17,6 @@
           </template>
         </el-table-column>
         <el-table-column fixed prop="lang" label="使用语言"></el-table-column>
-        <el-table-column fixed="right" label="操作" width="256">
-          <template v-slot="scope">
-            <el-button @click="problem_click(scope.row)" type="text" size="small">查看</el-button>
-          </template>
-        </el-table-column>
       </el-table>
 
       <div style="margin: 20px;"></div>

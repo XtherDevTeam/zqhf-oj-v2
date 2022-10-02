@@ -22,7 +22,7 @@
       </el-date-picker>
       <div style="margin: 20px auto;"></div>
 
-      <span style="margin: 20px auto;">题目介绍(可使用Markdown + KaTeX)</span>
+      <span style="margin: 20px auto;">题目介绍(可使用Markdown + LaTeX)</span>
       <editor style="margin: 10px auto;" v-model="new_problem_description" language="markdown"
 
               width="100%" height="256px"></editor>
@@ -47,11 +47,17 @@
     <el-card shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
         <span>题库</span>
-        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level']"
+        <el-button v-if="logged_in && user_info['data']['other_message']['permission_level'] >= 1"
                    style="float: right; padding: 3px 0" type="text" @click="new_problem">新建题目
         </el-button>
       </div>
-      <el-table :data="problems_data" style="width: 100%">
+      <el-alert
+        title="注意"
+        description="由于 zqhf-oj-v2 开放的权限管理制度, 请各位管理员不要误删他人的题目！"
+        type="warning"
+        close-text="知道了">
+      </el-alert>
+      <el-table :data="problems_data" style="width: 100%" @row-click="problem_click">
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
         <el-table-column fixed prop="name" label="题目名"></el-table-column>
         <el-table-column fixed v-slot="scope" label="标签">
@@ -59,11 +65,10 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
-            <el-button @click="problem_click(scope.row)" type="text" size="small">查看</el-button>
-            <el-button v-if="check_general_permission(scope.row.author)" @click="problem_edit(scope.row)" type="text"
+            <el-button v-if="check_general_permission(scope.row.author)" @click.native.stop="problem_edit(scope.row)" type="text"
                        size="small">修改
             </el-button>
-            <el-button v-if="check_general_permission(scope.row.author)" @click="problem_remove(scope.row)" type="text"
+            <el-button v-if="check_general_permission(scope.row.author)" @click.native.stop="problem_remove(scope.row)" type="text"
                        size="small">删除
             </el-button>
           </template>
@@ -112,9 +117,8 @@ export default {
             message: '拉取题目列表失败: ' + response.data['text']
           });
         } else {
-          this.problems_data = response.data['data'];
+          this.problems_data = response.data.data;
           for (let problemsDataKey in this.problems_data) {
-            
             this.problems_data[problemsDataKey]['tags'] = JSON.parse(this.problems_data[problemsDataKey]['tags']);
           }
         }
@@ -166,6 +170,7 @@ export default {
       this.new_problem_dialog_visible = true;
     },
     new_problem_on_create() {
+      console.log('+wdnmd', this.new_problem_appear_time)
       axios.post('/api/v1/problems/post', {
         name: this.new_problem_name,
         description: this.new_problem_description,

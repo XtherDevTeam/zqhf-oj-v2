@@ -61,7 +61,8 @@ def check_login(user: str, password: str):
     return user_item['password'] == make_password_md5(password)
 
 
-def register_user(user: str, password: str, permission_level: int = 2):
+# 我他妈是个弱智
+def register_user(user: str, password: str, permission_level: int = 0):
     query_db(
         '''insert into oj_users (username, password, introduction, full_introduction, ac_count, other_message) values 
         (?, ?, ?, ?, ?, ?)''',
@@ -541,6 +542,7 @@ def query_problem_list_by_id(ident: int):
     data['problems'] = json.loads(data['problems'])
     for i in range(len(data['problems'])):
         data['problems'][i] = query_problem_by_id(data['problems'][i])
+        data['problems'][i]['tags'] = json.loads(data['problems'][i]['tags'])
 
     if query_comments_by_require('problem_list:' + str(ident)) is None:
         create_comment_area('problem_list:' + str(ident))

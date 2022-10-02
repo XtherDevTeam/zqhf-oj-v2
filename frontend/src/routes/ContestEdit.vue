@@ -25,7 +25,7 @@
 
       <div style="height: 10px"></div>
 
-      <span style="margin: 20px auto">比赛介绍(可使用Markdown + KaTeX)</span>
+      <span style="margin: 20px auto">比赛介绍(可使用Markdown + LaTeX)</span>
       <editor
         style="margin: 10px auto"
         v-model="contest_data.contestDescription"

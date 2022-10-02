@@ -57,18 +57,12 @@
       </el-tab-pane>
 
       <el-tab-pane label="题目列表" name="problem-list">
-        <el-table :data="this.contest_info.problems" style="width: 100%">
+        <el-table :data="this.contest_info.problems" style="width: 100%" @row-click="goto_problem_view">
           <el-table-column prop="id" fixed label="题目编号" width="100px"></el-table-column>
           <el-table-column prop="author" label="上传者" width="128"></el-table-column>
           <el-table-column prop="name" label="题目名"></el-table-column>
           <el-table-column v-slot="scope" label="标签">
             <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
-          </el-table-column>
-
-          <el-table-column fixed="right" label="操作">
-            <template v-slot="scope">
-              <el-button @click="goto_problem_view(scope.$index)" type="text" size="small">查看</el-button>
-            </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
@@ -189,8 +183,8 @@ export default {
           }
         });
     },
-    goto_problem_view(tid) {
-      window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + tid;
+    goto_problem_view(row) {
+      window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + row.$index;
     },
     refresh_ranking_table() {
       axios

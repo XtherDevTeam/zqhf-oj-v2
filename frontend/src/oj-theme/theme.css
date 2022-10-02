@@ -33,6 +33,11 @@
         background-color: #363636
     }
 
+    .el-menu--horizontal>.el-submenu .el-submenu__title:not(.is-disabled):focus,
+    .el-menu--horizontal>.el-submenu .el-submenu__title:not(.is-disabled):hover {
+        background-color: #363636
+    }
+
     .el-date-range-picker__time-header {
         border-bottom: 1px solid #474747;
     }
@@ -68,6 +73,11 @@
 
     .el-menu--horizontal>.el-menu-item:not(.is-disabled):focus,
     .el-menu--horizontal>.el-menu-item:not(.is-disabled):hover {
+        background-color: #ffffff
+    }
+
+    .el-menu--horizontal>.el-submenu .el-submenu__title:not(.is-disabled):focus,
+    .el-menu--horizontal>.el-submenu .el-submenu__title:not(.is-disabled):hover {
         background-color: #ffffff
     }
 }

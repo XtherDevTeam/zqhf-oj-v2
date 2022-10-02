@@ -82,7 +82,14 @@ def query_user_by_name(user: str):
 
 
 def query_user_by_id(user: int):
-    data = query_db("select * from oj_users where id = ?", [user], True)
+    data = query_db('''
+            select * from (
+                select *,
+                    rank () over ( 
+                        order by ac_count desc
+                    ) as ranking
+                from oj_users
+            ) where id = ?''', [user], True)
     data['other_message'] = pickle.loads(data['other_message'])
     return data
 
@@ -109,6 +116,10 @@ def set_user_attr_by_name(user: str, attr_name: str, attr_val):
 
 def set_user_attr_by_id(user: int, attr_name: str, attr_val):
     return query_db("update oj_users set %s = ? where id = ?" % attr_name, [attr_val, user], True)
+
+
+def get_user_attr_by_id(user: int, attr_name: str):
+    return query_db("select %s from oj_users where id = ?" % attr_name, [user], True)['attr_name']
 
 
 def change_user_attrs(user: int, name: str, introduction: str, full_introduction: str):
@@ -206,9 +217,15 @@ def remove_bulletin_by_name(name: str):
     return True
 
 
-def query_ranking(start: int, count: int):
+def query_rating(start: int, count: int):
     result = query_db(
-        "select username, id, ac_count, introduction from oj_users order by ac_count desc limit ? offset ?",
+        '''select username, id, ac_count, introduction, ranking from (
+                select *,
+                    rank () over ( 
+                        order by ac_count desc
+                    ) as ranking
+                from oj_users
+            ) limit ? offset ?''',
         [count, start])
 
     return result
@@ -812,6 +829,33 @@ def query_articles_by_swap_uid(uid: int, start: int, count: int):
     return data
 
 
+# 结束比赛后统计rating
+def count_rating_after_contest(cid: int):
+    number = loadedContestDatabases[cid].query_db('select Count(*) as count from oj_contest_ranking', one=True)['count']
+    count_per_page = 16
+    current_page = 0
+    data = query_contest_ranking_by_swap(cid, current_page, count_per_page)['data']
+    while len(data) != 0:
+        for i in data:
+            author = i['uid']
+            rank = i['ranking']
+            rating_change = 0
+            # 前 10% 加 50 分
+            if rank < int(number * 0.1):
+                rating_change = 50
+            # 前 25% 加 30 分
+            elif rank < int(number * 0.25):
+                rating_change = 40
+            # 前 50% 加 25 分
+            elif rank < int(number * 0.5):
+                rating_change = 25
+
+            set_user_attr_by_id(author, 'ac_count', get_user_attr_by_id(author, 'ac_count') + rating_change)
+
+        current_page += 1
+        data = query_contest_ranking_by_swap(cid, current_page, count_per_page)
+
+
 # 更改比赛可提交状态
 def change_contest_joinable(cid: int, stat: bool):
     # 判断比赛是否已被删除
@@ -824,6 +868,7 @@ def change_contest_joinable(cid: int, stat: bool):
     else:
         query_db("update oj_contests set joinable = ? where id = ?",
                  [False, cid])
+        count_rating_after_contest(cid)
         loadedContestDatabases[cid].close()
         del loadedContestDatabases[cid]
         del loadedContestTasks[cid]
@@ -920,7 +965,7 @@ def edit_contest(cid: int, contestName: str, contestDescription: str,
                     threading.Timer(endTimestamp - int(time.time()),
                                     change_contest_joinable, (data['id'], False))
                 loadedContestTasks[cid][1].start()
-                
+
             query_db(
                 "update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = "
                 "? where id = ?",
@@ -1035,12 +1080,13 @@ def query_contest_ranking_by_uid(cid: int, uid: int):
 
     data = loadedContestDatabases[cid].query_db(
         '''
-        select *,
-            rank () over ( 
-                order by final_score desc
-            ) as ranking
-        from oj_contest_ranking 
-        where uid = ?
+        select * from (
+            select *,
+                rank () over ( 
+                    order by final_score desc
+                ) as ranking
+            from oj_contest_ranking
+        ) where uid = ?
         ''',
         [uid],
         one=True)

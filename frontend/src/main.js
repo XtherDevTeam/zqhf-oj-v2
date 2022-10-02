@@ -3,13 +3,13 @@ import VueRouter from 'vue-router'
 
 import './oj-theme/theme.css';
 
-import ElementUI from 'element-ui'
-import App from './App.vue'
-import LoginPage from './routes/LoginPage'
-import RegisterPage from './routes/RegisterPage'
-import Home from './routes/Home.vue'
-import NotFound from './routes/NotFound'
-import ProfilePage from "./routes/Profile"
+import ElementUI from 'element-ui';
+import App from './App.vue';
+import LoginPage from './routes/LoginPage';
+import RegisterPage from './routes/RegisterPage';
+import Home from './routes/Home.vue';
+import NotFound from './routes/NotFound';
+import ProfilePage from "./routes/Profile";
 import EditProfilePage from "./routes/EditProfile";
 import BulletinViewPage from "./routes/BulletinView";
 import BulletinEditPage from "./routes/BulletinEdit";
@@ -29,6 +29,7 @@ import ContestsPage from "./routes/Contests";
 import ContestViewPage from "./routes/ContestView";
 import ContestEditPage from "./routes/ContestEdit";
 import ContestProblemViewPage from "./routes/ContestProblemView";
+import RatingsPage from "./routes/Ratings";
 import OnlineIDE from "./routes/OnlineIDE";
 
 const routes = [
@@ -48,6 +49,7 @@ const routes = [
     {path: '/bulletins/edit', component: BulletinEditPage},
     {path: '/records', component: RecordsPage},
     {path: '/records/view', component: JudgeRecordViewPage},
+    {path: '/ratings', component: RatingsPage},
     {path: '/contests', component: ContestsPage},
     {path: '/contests/view', component: ContestViewPage},
     {path: '/contests/edit', component: ContestEditPage},

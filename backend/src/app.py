@@ -353,21 +353,21 @@ def bulletin_remove_router(ident: int):
     return {'code': 0, 'text': '请求成功'}
 
 
-@app.route("/v1/ranking/get", methods=['GET'])
+@app.route("/v1/rating/get", methods=['GET'])
 def ranking_get_10th_router():
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_ranking(0, 10)
+        'data': backend.query_rating(0, 10)
     }
 
 
-@app.route("/v1/ranking/get/<int:start>/<int:count>", methods=['GET'])
+@app.route("/v1/rating/get/<int:start>/<int:count>", methods=['GET'])
 def ranking_get_router(start, count):
     return {
         'code': 0,
         'text': '请求成功',
-        'data': backend.query_ranking(start, count)
+        'data': backend.query_rating(start, count)
     }
 
 

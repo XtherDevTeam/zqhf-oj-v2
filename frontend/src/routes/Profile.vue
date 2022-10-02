@@ -9,7 +9,10 @@
           </el-container>
         </el-col>
       </div>
-      <div class="text item"><span>通过题目数: {{ show_user_info['data']['ac_count'] }}</span></div>
+      <div class="text item">
+          <el-tag type="warning"><i class="el-icon-s-flag"></i> Rating: {{ show_user_info['data']['ac_count'] }}</el-tag>
+          <el-tag type="success"><i class="el-icon-s-data"></i> 全站排名: {{ show_user_info['data']['ranking'] }}</el-tag>
+      </div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
       <div style="height: 10px;"></div>
       <div class="markdown-body" v-html="full_introduction_rendered"></div>

@@ -49,18 +49,23 @@
       </el-card>
       <el-card shadow="hover" style="margin: 10px auto;">
         <div slot="header" class="clearfix">
-          <span>Ranking · 前十</span>
+          <span>Rating · 前十</span>
+          <el-button style="float: right; padding: 3px 0" type="text"
+                     @click="goto_ratings()">
+            查看全部
+          </el-button>
         </div>
         <el-table :data="ranking_top10" style="width: 100%;">
           <el-table-column fixed prop="id" label="User ID" width="128"></el-table-column>
-          <el-table-column fixed prop="ac_count" label="通过题目数量" width="128"></el-table-column>
           <el-table-column fixed label="用户名">
             <template v-slot="scope">
               <el-avatar :size="25" :src="'/api/v1/user/image/get/' + scope.row.id"></el-avatar>
               <span style="margin: 2px 4px;position: absolute;">{{ scope.row.username }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="introduction" label="一句话介绍"></el-table-column>
+          <el-table-column fixed prop="introduction" label="一句话介绍"></el-table-column>
+          <el-table-column fixed prop="ac_count" label="Rating" width="64"></el-table-column>
+          <el-table-column fixed prop="ranking" label="排名" width="64"></el-table-column>
           <el-table-column fixed="right" label="操作" width="100">
             <template v-slot="scope">
               <el-button @click="profile_click(scope.row)" type="text" size="small">个人主页</el-button>
@@ -76,7 +81,10 @@
             <span>{{ user_info['data']['username'] }}</span>
           </div>
           <div class="text item">{{ user_info['data']['introduction'] }}</div>
-          <div class="text item">已通过题目: {{ user_info['data']['ac_count'] }}</div>
+          <div class="text item">
+              <el-tag type="warning"><i class="el-icon-s-flag"></i> Rating: {{ user_info['data']['ac_count'] }}</el-tag>
+              <el-tag type="success"><i class="el-icon-s-data"></i> 全站排名: {{ user_info['data']['ranking'] }}</el-tag>
+          </div>
         </el-card>
         <el-card shadow="hover" style="margin: 10px auto;">
           <div slot="header" class="clearfix">
@@ -149,7 +157,7 @@ export default {
       }).catch(function (error) {
         
       });
-      axios.get("/api/v1/ranking/get", {
+      axios.get("/api/v1/rating/get", {
         params: {},
       }).then((response) => {
         if (response.data['code'] !== 0) {
@@ -242,7 +250,9 @@ export default {
     problem_click(toCheck) {
       window.location = '/#/problems/view?id=' + toCheck.id;
     },
-
+    goto_ratings() {
+      window.location = '/#/ratings';
+    }
   },
   components: {
     editor: MonacoEditor,

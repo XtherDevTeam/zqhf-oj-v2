@@ -1,15 +1,12 @@
-import datetime
 import time
-import sched
 import sqlite3
 import threading
 
-Scheduler = sched.scheduler(time.time, time.sleep)
-
 _lock = threading.Lock()
 
+
 class Database:
-    closing_time = 30 * 60 # 30 min
+    closing_time = 30 * 60  # 30 min
     databaseObject = {}
     databasePath = ""
     timerEvent = {}
@@ -27,20 +24,20 @@ class Database:
 
     def reconnect(self):
         self.databaseObject = sqlite3.connect(self.databasePath, check_same_thread=False,
-                                                isolation_level=None)
+                                              isolation_level=None)
 
     def checkConnection(self):
         try:
             self.databaseObject.execute("")
         except:
             return False
-        
+
         return True
 
     def open(self, path):
         self.databasePath = path
         self.reconnect()
-        self.timerEvent = Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
+        self.timerEvent = threading.Timer(self.closing_time, self.unloadDatabase, ())
         pass
 
     def query_db(self, query, args=(), one=False):
@@ -48,8 +45,8 @@ class Database:
             self.reconnect()
         else:
             # reopen database connection
-            Scheduler.cancel(self.timerEvent)
-            self.timerEvent = Scheduler.enter(self.closing_time, 1, self.unloadDatabase, (self))
+            self.timerEvent.cancel()
+            self.timerEvent = threading.Timer(self.closing_time, self.unloadDatabase, ())
 
         # wait
         while self.__operating:
@@ -59,17 +56,17 @@ class Database:
 
         cur = self.databaseObject.execute(query, args)
         rv = [dict((cur.description[idx][0], value)
-                for idx, value in enumerate(row)) for row in cur.fetchall()]
+                   for idx, value in enumerate(row)) for row in cur.fetchall()]
         self.databaseObject.commit()
 
         self.__operating = False
 
         return (rv[0] if rv else None) if one else rv
 
-
     def close(self):
-        Scheduler.cancel(self.timerEvent)
+        self.timerEvent.cancel()
         self.databaseObject.close()
+
 
 # open a database connection
 def connect(path):

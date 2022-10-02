@@ -18,8 +18,7 @@ DATABASE = config.get("database-path")
 db = None
 lock = threading.Lock()
 loadedContestDatabases = {}
-
-Scheduler = sched.scheduler(time.time, time.sleep)
+loadedContestTasks = {}
 
 event_loop = asyncio.new_event_loop()
 
@@ -816,7 +815,7 @@ def query_articles_by_swap_uid(uid: int, start: int, count: int):
 # 更改比赛可提交状态
 def change_contest_joinable(cid: int, stat: bool):
     # 判断比赛是否已被删除
-    if loadedContestDatabases.get(cid) == None:
+    if loadedContestDatabases.get(cid) is None:
         return
 
     if stat:
@@ -826,6 +825,8 @@ def change_contest_joinable(cid: int, stat: bool):
         query_db("update oj_contests set joinable = ? where id = ?",
                  [False, cid])
         loadedContestDatabases[cid].close()
+        del loadedContestDatabases[cid]
+        del loadedContestTasks[cid]
 
 
 # 初始化比赛的定时任务
@@ -841,11 +842,14 @@ def initializeContestSchedules():
                     contests_dir + '/contest.db')
         # 加载未开始比赛的定时任务
         if i['start_timestamp'] >= int(time.time()):
-            threading.Timer(i['start_timestamp'] - int(time.time()),
-                            change_contest_joinable, (i['id'], True)).start()
-
-        threading.Timer(i['end_timestamp'] - int(time.time()),
-                        change_contest_joinable, (i['id'], False)).start()
+            loadedContestTasks[i['id']] = [
+                threading.Timer(i['start_timestamp'] - int(time.time()),
+                                change_contest_joinable, (i['id'], True)),
+                threading.Timer(i['end_timestamp'] - int(time.time()),
+                                change_contest_joinable, (i['id'], False))
+            ]
+            loadedContestTasks[i['id']][0].start()
+            loadedContestTasks[i['id']][1].start()
 
 
 # 创建比赛
@@ -876,11 +880,14 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
 
     loadedContestDatabases[data['id']].databaseObject.commit()
 
-    threading.Timer(startTimestamp - int(time.time()),
-                    change_contest_joinable, (data['id'], True)).start()
-
-    threading.Timer(endTimestamp - time.time(),
-                    change_contest_joinable, (data['id'], False)).start()
+    loadedContestTasks[data['id']] = [
+        threading.Timer(startTimestamp - int(time.time()),
+                        change_contest_joinable, (data['id'], True)),
+        threading.Timer(endTimestamp - time.time(),
+                        change_contest_joinable, (data['id'], False))
+    ]
+    loadedContestTasks[data['id']][0].start()
+    loadedContestTasks[data['id']][1].start()
 
     return {
         'status': True,
@@ -900,6 +907,20 @@ def edit_contest(cid: int, contestName: str, contestDescription: str,
         if data['start_timestamp'] <= int(time.time()):
             return False
         else:
+            if data['start_timestamp'] != startTimestamp:
+                loadedContestTasks[cid][0].cancel()
+                loadedContestTasks[cid][0] = \
+                    threading.Timer(startTimestamp - int(time.time()),
+                                    change_contest_joinable, (data['id'], True))
+                loadedContestTasks[cid][0].start()
+
+            if data['end_timestamp'] != endTimestamp:
+                loadedContestTasks[cid][1].cancel()
+                loadedContestTasks[cid][1] = \
+                    threading.Timer(endTimestamp - int(time.time()),
+                                    change_contest_joinable, (data['id'], False))
+                loadedContestTasks[cid][1].start()
+                
             query_db(
                 "update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = "
                 "? where id = ?",
@@ -917,6 +938,19 @@ def delete_contest(cid: int) -> bool:
     if loadedContestDatabases.get(cid) is not None:
         loadedContestDatabases[cid].close()
         del loadedContestDatabases[cid]
+
+    if loadedContestTasks.get(cid) is not None:
+        try:
+            loadedContestTasks[cid][0].cancel()
+        finally:
+            pass
+
+        try:
+            loadedContestTasks[cid][1].cancel()
+        finally:
+            pass
+
+        del loadedContestTasks[cid]
 
     # 删除比赛存放目录
     contests_dir = config.get('uploads-path') + '/contests/' + str(cid)
@@ -1088,7 +1122,6 @@ def submit_to_contest_problem_helper(cid: int, tid: int, jid: int):
 
     if len(data['scores']) == 0:
         data['scores'] = [0 for _ in contest['problems']]
-        print(data['scores'])
 
     data['scores'][tid] = record['score']
 

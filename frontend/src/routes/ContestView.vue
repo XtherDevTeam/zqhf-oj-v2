@@ -22,6 +22,7 @@
             title="这场比赛已结束"
             :description="'由于技术原因, zqhf-oj-v2 不提供比赛复现, 您可以在 排行榜 查看您的比赛成绩.'"
             type="info"
+            show-icon
             :closable="false"
           >
           </el-alert>
@@ -36,6 +37,7 @@
               contest_time[1] +
               ' 结束, 请注意比赛时间.'
             "
+            show-icon
             type="success"
             :closable="false"
             v-if="this.contest_info.joined"
@@ -145,11 +147,11 @@ export default {
       axios
         .get("/api/v1/contests/get/" + this.$route.query["id"])
         .then((response) => {
-          this.contest_info = response.data["data"];
-          if (this.contest_info == null) {
+          this.contest_info = response.data.data;
+          if (response.data.code !== 0) {
             this.$message({
               type: "error",
-              message: "比赛内容拉取失败: " + response.data["text"],
+              message: "比赛内容拉取失败: " + response.data.text,
             });
           } else {
             // format time
@@ -167,6 +169,8 @@ export default {
             this.rendered_description = markdown.render(
               this.contest_info.description
             );
+
+            console.log('caonima ', this.contest_info.joined);
           }
         });
     },
@@ -174,13 +178,14 @@ export default {
       axios
         .post("/api/v1/contests/join/" + this.$route.query["id"])
         .then((response) => {
-          if (this.response.data["code"] !== 0) {
+          if (response.data.code !== 0) {
             this.$message({
               type: "error",
               message: "报名失败: " + response.data["text"],
             });
           } else {
             this.init();
+            this.refresh_ranking_table();
           }
         });
     },
@@ -189,7 +194,7 @@ export default {
     },
     refresh_ranking_table() {
       axios
-        .get("/api/v1/contests/" + this.contest_info.id + "/ranking", {
+        .get("/api/v1/contests/" + this.$route.query["id"] + "/ranking", {
           params: {},
         })
         .then((response) => {
@@ -198,14 +203,14 @@ export default {
           } else {
             this.$message({
               type: 'error',
-              message: '拉取排名失败: ' + response.data['text']
+              message: '拉取用户排名失败: ' + response.data['text']
             });
           }
         })
         .catch(function (error) {});
 
         axios
-        .get("/api/v1/contests/" + this.contest_info.id + "/ranking/" + this.ranking_page_start + "/" + this.ranking_page_limit, {
+        .get("/api/v1/contests/" + this.$route.query["id"] + "/ranking/" + this.ranking_page_start + "/" + this.ranking_page_limit, {
           params: {},
         })
         .then((response) => {

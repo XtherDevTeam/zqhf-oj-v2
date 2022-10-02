@@ -389,20 +389,10 @@ def judge_submit_router(ident):
             'text': '表单缺少代码语言参数'
         }
 
-    timestamp = int(time.time() * 100)
-
-    jid = backend.create_judge(ident, flask.session['user_id'], request['code'],
-                               request['lang'], timestamp)
-
-    th = threading.Thread(target=backend.submit_judge_main,
-                          args=(jid))
-    th.start()
-    time.sleep(0.1)
-
     return {
         'code': 0,
         'text': '提交评测成功',
-        'data': jid
+        'data': backend.run_judge_task(ident, flask.session.get('user_id'), request['code'], request['lang'])
     }
 
 

@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import os
@@ -19,6 +20,10 @@ lock = threading.Lock()
 loadedContestDatabases = {}
 
 Scheduler = sched.scheduler(time.time, time.sleep)
+
+event_loop = asyncio.new_event_loop()
+
+waiting_tasks = []
 
 
 def connect_db():
@@ -486,7 +491,14 @@ def submit_judge_main(jid: int):
         query_db(
             "update oj_records set status = 'Wrong answer' where id = ?", [jid])
 
-    return True
+
+def run_judge_task(pid: int, author: int, code: str, lang: str):
+    timestamp = int(time.time() * 100)
+    jid = create_judge(pid, author, code, lang, timestamp)
+
+    threading.Timer(0.1, submit_judge_main, (jid,)).start()
+
+    return jid
 
 
 def get_judge_jid(problem: int, author: int, timestamp: int):
@@ -818,18 +830,22 @@ def change_contest_joinable(cid: int, stat: bool):
 
 # 初始化比赛的定时任务
 def initializeContestSchedules():
-    data = query_db('''select id, start_timestamp, end_timestamp from oj_contests where start_timestamp >= ?''',
+    data = query_db('''select id, start_timestamp, end_timestamp from oj_contests where end_timestamp >= ?''',
                     [int(time.time())])
 
     for i in data:
+        if loadedContestDatabases.get(i['id']) is None:
+            contests_dir = config.get('uploads-path') + '/contests/' + str(i['id'])
+            if os.access(contests_dir, os.F_OK):
+                loadedContestDatabases[i['id']] = databaseObject.connect(
+                    contests_dir + '/contest.db')
         # 加载未开始比赛的定时任务
-        Scheduler.enterabs(i['start_timestamp'], 1,
-                           change_contest_joinable, (i['id'], True))
+        if i['start_timestamp'] >= int(time.time()):
+            threading.Timer(i['start_timestamp'] - int(time.time()),
+                            change_contest_joinable, (i['id'], True)).start()
 
-        Scheduler.enterabs(i['end_timestamp'], 1,
-                           change_contest_joinable, (i['id'], False))
-
-    Scheduler.run()
+        threading.Timer(i['end_timestamp'] - int(time.time()),
+                        change_contest_joinable, (i['id'], False)).start()
 
 
 # 创建比赛
@@ -856,16 +872,15 @@ def create_contest(author_uid: str, contestName: str, contestDescription: str,
         contests_dir + "/contest.db")
 
     with open('sql/contestDatabaseInitialize.sql', "r+") as f:
-        loadedContestDatabases[data['id']
-        ].databaseObject.executescript(f.read())
+        loadedContestDatabases[data['id']].databaseObject.executescript(f.read())
 
     loadedContestDatabases[data['id']].databaseObject.commit()
 
-    Scheduler.enterabs(startTimestamp, 1,
-                       change_contest_joinable, (data['id'], True))
+    threading.Timer(startTimestamp - int(time.time()),
+                    change_contest_joinable, (data['id'], True)).start()
 
-    Scheduler.enterabs(endTimestamp - time.time(), 1,
-                       change_contest_joinable, (data['id'], False))
+    threading.Timer(endTimestamp - time.time(),
+                    change_contest_joinable, (data['id'], False)).start()
 
     return {
         'status': True,
@@ -886,7 +901,8 @@ def edit_contest(cid: int, contestName: str, contestDescription: str,
             return False
         else:
             query_db(
-                "update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = ? where id = ?",
+                "update oj_contests set name = ?, description = ?, start_timestamp = ?, end_timestamp = ?, problems = "
+                "? where id = ?",
                 [contestName, contestDescription, startTimestamp, endTimestamp, json.dumps(problems), cid], one=True)
 
             return True
@@ -1101,10 +1117,7 @@ def submit_to_contest_problem(cid: int, tid: int, author: int, code: str, lang: 
 
     judge_id = create_judge(pid, author, code, lang, timestamp)
 
-    th = threading.Thread(target=submit_to_contest_problem_helper,
-                          args=(cid, tid, judge_id))
-    th.start()
-    time.sleep(0.1)
+    threading.Timer(0.1, submit_to_contest_problem_helper, (cid, tid, judge_id)).start()
 
     return {'status': True, 'data': judge_id}
 

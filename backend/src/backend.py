@@ -119,7 +119,7 @@ def set_user_attr_by_id(user: int, attr_name: str, attr_val):
 
 
 def get_user_attr_by_id(user: int, attr_name: str):
-    return query_db("select %s from oj_users where id = ?" % attr_name, [user], True)['attr_name']
+    return query_db("select %s from oj_users where id = ?" % attr_name, [user], True)[attr_name]
 
 
 def change_user_attrs(user: int, name: str, introduction: str, full_introduction: str):
@@ -831,6 +831,7 @@ def query_articles_by_swap_uid(uid: int, start: int, count: int):
 
 # 结束比赛后统计rating
 def count_rating_after_contest(cid: int):
+    print('Counting rating...')
     number = loadedContestDatabases[cid].query_db('select Count(*) as count from oj_contest_ranking', one=True)['count']
     count_per_page = 16
     current_page = 0
@@ -841,23 +842,24 @@ def count_rating_after_contest(cid: int):
             rank = i['ranking']
             rating_change = 0
             # 前 10% 加 50 分
-            if rank < int(number * 0.1):
+            if rank <= int(number * 0.1):
                 rating_change = 50
             # 前 25% 加 30 分
-            elif rank < int(number * 0.25):
+            elif rank <= int(number * 0.25):
                 rating_change = 40
             # 前 50% 加 25 分
-            elif rank < int(number * 0.5):
+            elif rank <= int(number * 0.5):
                 rating_change = 25
 
             set_user_attr_by_id(author, 'ac_count', get_user_attr_by_id(author, 'ac_count') + rating_change)
 
         current_page += 1
-        data = query_contest_ranking_by_swap(cid, current_page, count_per_page)
+        data = query_contest_ranking_by_swap(cid, current_page, count_per_page)['data']
 
 
 # 更改比赛可提交状态
 def change_contest_joinable(cid: int, stat: bool):
+    print('Event triggered')
     # 判断比赛是否已被删除
     if loadedContestDatabases.get(cid) is None:
         return
@@ -866,8 +868,10 @@ def change_contest_joinable(cid: int, stat: bool):
         query_db(
             "update oj_contests set joinable = ? where id = ?", [True, cid])
     else:
+        print('Ending contest...')
         query_db("update oj_contests set joinable = ? where id = ?",
                  [False, cid])
+        print('Executing scripts...')
         count_rating_after_contest(cid)
         loadedContestDatabases[cid].close()
         del loadedContestDatabases[cid]
@@ -885,16 +889,19 @@ def initializeContestSchedules():
             if os.access(contests_dir, os.F_OK):
                 loadedContestDatabases[i['id']] = databaseObject.connect(
                     contests_dir + '/contest.db')
-        # 加载未开始比赛的定时任务
+                
+        print('Event registered: contest_start, contest_end for ', i['id'])
+        loadedContestTasks[i['id']] = [
+            threading.Timer(i['start_timestamp'] - int(time.time()),
+                            change_contest_joinable, (i['id'], True)),
+            threading.Timer(i['end_timestamp'] - int(time.time()),
+                            change_contest_joinable, (i['id'], False))
+        ]
+        
         if i['start_timestamp'] >= int(time.time()):
-            loadedContestTasks[i['id']] = [
-                threading.Timer(i['start_timestamp'] - int(time.time()),
-                                change_contest_joinable, (i['id'], True)),
-                threading.Timer(i['end_timestamp'] - int(time.time()),
-                                change_contest_joinable, (i['id'], False))
-            ]
             loadedContestTasks[i['id']][0].start()
-            loadedContestTasks[i['id']][1].start()
+            
+        loadedContestTasks[i['id']][1].start()
 
 
 # 创建比赛

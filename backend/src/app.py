@@ -303,12 +303,9 @@ def problem_lists_delete_router(pid: int):
     require_admin = require_admin_permission()
     if require_admin is not True:
         return require_admin
-
-    data = flask.request.get_json()
-    if backend.remove_problem_list_by_id(pid):
-        return {'code': 0, 'text': '请求成功'}
-    else:
-        return {'code': 3, 'text': '将要删除的题单不存在'}
+    
+    backend.remove_problem_list_by_id(pid)
+    return {'code': 0, 'text': '请求成功'}
 
 
 @app.route("/v1/bulletins/get/<int:start>/<int:count>", methods=['GET'])

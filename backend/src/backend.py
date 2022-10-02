@@ -42,7 +42,12 @@ def init_db():
 
 def query_db(query, args=(), one=False):
     lock.acquire()
-    cur = db.execute(query, args)
+    
+    try:
+        cur = db.execute(query, args)
+    except Exception:
+        lock.release()
+        
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
     db.commit()

@@ -89,12 +89,19 @@ export default {
         };
       axios.post('/api/v1/judge/submit', param).then((response) => {
         this.judging = false;
-        if(response.data['data']['status'].startsWith('Wrong Answer')) {
-          this.stdout = `Status: OK\n\n`;
+        if (response.data.code !== 0) {
+          this.$message({
+            type: "error",
+            message: "无法提交评测: " + response.data.text
+          });
         } else {
-          this.stdout = `Status: ${response.data['data']['status']}\n\n`;
+          if(response.data['data']['status'].startsWith('Wrong Answer')) {
+            this.stdout = `Status: OK\n\n`;
+          } else {
+            this.stdout = `Status: ${response.data['data']['status']}\n\n`;
+          }
+          this.stdout += 'Stderr>\n' + response.data['data']['stderr'] + '\n\nStdout>\n' + response.data['data']['stdout'] + '\n';
         }
-        this.stdout += 'Stderr>\n' + response.data['data']['stderr'] + '\n\nStdout>\n' + response.data['data']['stdout'] + '\n';
       });
     }
   },

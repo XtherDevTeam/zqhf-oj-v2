@@ -45,7 +45,7 @@ def get_judger_info() -> list:
 """
 def send_task(host : int, param : dict) -> dict:
     resp = requests.post("http://%s/submit" % config.judger_hosts[host],
-                            json=param)
+                            json=param, timeout=114514191)
     try:
         resp = json.loads(resp.content)
         return resp

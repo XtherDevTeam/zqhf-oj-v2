@@ -53,7 +53,8 @@
       <span>{{ edit_checkpoint_mode === "in" ? "修改输入(.in)" : "修改输出(.out)" }}</span><br>
       <el-upload
           name="file" drag
-          :action="edit_checkpoint_upload_url">
+          :action="edit_checkpoint_upload_url"
+          show-file-list="false">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip" slot="tip">上传一个.{{ edit_checkpoint_mode }}文件</div>
@@ -67,15 +68,31 @@
         </el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="批量上传文件" :visible.sync="upload_file_dialog_visible">
+      <el-upload name="file" multiple drag :action="upload_file_url">
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">上传任意.in, .out文件, 将文件拖到此处, 或<em>点击上传</em></div>
+      </el-upload>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="edit_checkpoint_dialog_visible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="refresh_checkpoint_list();edit_checkpoint_dialog_visible = false;">
+          确 定
+        </el-button>
+      </span>
+    </el-dialog>
+
     <el-dialog title="上传数据点" :visible.sync="new_checkpoint_dialog_visible">
       <span>上传数据点</span><br>
-      <el-upload name="file" drag :action="new_checkpoint_upload_url_input">
+      <el-upload name="file" drag :action="new_checkpoint_upload_url_input" show-file-list="false">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">上传一个.in文件, 将文件拖到此处, 或<em>点击上传</em></div>
       </el-upload>
       <el-upload
           name="file" drag
-          :action="new_checkpoint_upload_url_output">
+          :action="new_checkpoint_upload_url_output"
+          show-file-list="false">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">上传一个.out文件, 将文件拖到此处, 或<em>点击上传</em></div>
       </el-upload>
@@ -83,7 +100,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="new_checkpoint_dialog_visible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="refresh_checkpoint_list();new_checkpoint_dialog_visible = false;">
+                   @click="init();new_checkpoint_dialog_visible = false;">
           确 定
         </el-button>
       </span>
@@ -167,6 +184,7 @@
         <template slot="prepend">名称</template>
       </el-input>
       <el-button type="primary" @click="upload_new_checkpoint">上传新测试点</el-button>
+      <el-button type="primary" @click="upload_file">批量上传文件</el-button>
     </el-card>
   </div>
 </template>
@@ -319,6 +337,11 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
+    upload_file() {
+      this.upload_file_dialog_visible = true;
+      this.upload_file_url = '/api/v1/problems/checkpoints/upload/' +
+          this.$route.query['id'] + '/file';
+    }
   },
   data() {
     return {
@@ -344,6 +367,9 @@ export default {
       edit_checkpoint_name: "",
       edit_checkpoint_upload_url: "",
       new_checkpoint_dialog_visible: false,
+      upload_file_dialog_visible: false,
+      upload_file_url: "",
+      upload_file_name: "",
       new_checkpoint_upload_url_input: "",
       new_checkpoint_upload_url_output: "",
       new_checkpoint_name: ""

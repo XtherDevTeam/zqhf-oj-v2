@@ -59,7 +59,10 @@
           <el-table-column fixed label="用户名">
             <template v-slot="scope">
               <el-avatar :size="25" :src="'/api/v1/user/image/get/' + scope.row.id"></el-avatar>
-              <span style="margin: 2px 4px;position: absolute;">{{ scope.row.username }}</span>
+              <span style="margin: 2px 4px;">{{ scope.row.username }}</span>
+              <el-tag v-if="scope.row.other_message.permission_level == 1" style="margin-left: 5px;" type="warning">Admin</el-tag>
+              <el-tag v-else-if="scope.row.other_message.permission_level == 2" style="margin-left: 5px;" type="danger">Super-admin</el-tag>
+              <el-tag v-else-if="scope.row.other_message.permission_level == -1" style="margin-left: 5px;" type="info">Cheater</el-tag>
             </template>
           </el-table-column>
           <el-table-column fixed prop="introduction" label="一句话介绍"></el-table-column>
@@ -100,15 +103,9 @@
             </el-select>
             <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
           </el-input>
-          <el-table :data="search_result" style="width: 100%;height: auto;">
+          <el-table :data="search_result" style="width: 100%;height: auto;" @row-click="problem_click">
             <el-table-column prop="id" label="题号"></el-table-column>
             <el-table-column prop="name" label="名称"></el-table-column>
-            <el-table-column fixed="right" label="操作">
-              <template v-slot="scope">
-                <el-button @click="problem_click(scope.row)" type="text" size="small">查看</el-button>
-              </template>
-            </el-table-column>
-
           </el-table>
         </el-card>
       </div>

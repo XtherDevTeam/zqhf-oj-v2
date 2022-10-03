@@ -11,7 +11,6 @@ import config
 import judge
 import requests
 import databaseObject
-import sched
 import shutil
 
 DATABASE = config.get("database-path")
@@ -100,6 +99,15 @@ def query_user_by_id(user: int):
     return data
 
 
+def query_user_by_id_min(user: int):
+    data = query_db("select id, username, other_message from oj_users where id = ?", [user], True)
+    data['other_message'] = pickle.loads(data['other_message'])
+    data['other_message'] = {
+        'permission_level': data['other_message']['permission_level']
+    }
+    return data
+
+
 def query_user_by_id_simple(user: int):
     data = query_db("select * from oj_users where id = ?", [user], True)
     data['other_message'] = pickle.loads(data['other_message'])
@@ -138,6 +146,12 @@ def change_user_attrs(user: int, name: str, introduction: str, full_introduction
                  [name, old_user_name], one=True)
 
 
+def change_user_permission(user: int, new_level: int):
+    message = query_user_by_id(user)['other_message']
+    message['permission_level'] = new_level
+    set_user_attr_by_id(user, 'other_message', pickle.dumps(message))
+
+
 def change_user_password(user: int, password: str):
     set_user_attr_by_id(user, 'password', make_password_md5(password))
 
@@ -146,21 +160,13 @@ def query_records_by_swap(start: int, count: int):
     data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
                     [count, start])
     for i in data:
-        author = query_user_by_id_simple(i['author'])
-        i['author'] = {
-            'username': author['username'],
-            'id': i['author']
-        }
+        i['author'] = query_user_by_id_min(i['author'])
     return data
 
 
 def query_records_by_id(ident: int):
     data = query_db("select * from oj_records where id = ?", [ident], one=True)
-    author = query_user_by_id_simple(data['author'])
-    data['author'] = {
-        'username': author['username'],
-        'id': data['author']
-    }
+    data['author'] = query_user_by_id_min(data['author'])
     return data
 
 
@@ -225,7 +231,7 @@ def remove_bulletin_by_name(name: str):
 
 def query_rating(start: int, count: int):
     result = query_db(
-        '''select username, id, ac_count, introduction, ranking from (
+        '''select username, id, ac_count, introduction, ranking, other_message from (
                 select *,
                     rank () over ( 
                         order by ac_count desc
@@ -233,6 +239,11 @@ def query_rating(start: int, count: int):
                 from oj_users
             ) limit ? offset ?''',
         [count, start])
+    
+    for i in result:
+        i['other_message'] = {
+            'permission_level': pickle.loads(i['other_message'])['permission_level']
+        }
 
     return result
 
@@ -293,8 +304,22 @@ def edit_problem(pid: int, name: str, timeout: int, memory_limit: int, descripti
     return False
 
 
+def add_file_to_problem(pid: int, filename: str, data):
+    if type(data) is bytes:
+        data = data.decode('utf-8')
+    if query_problem_by_id(pid) is not None:
+        os.makedirs(config.get('uploads-path') +
+                    "/problems_data/" + str(pid), exist_ok=True)
+        with open(config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + filename,
+                  'w+') as file:
+            file.write(data)
+        return True
+    else:
+        return False
+
+
 def add_in_checkpoint_to_problem(pid: int, checkpoint_name: str, input_data):
-    if type(input_data) == bytes:
+    if type(input_data) is bytes:
         input_data = input_data.decode('utf-8')
     if query_problem_by_id(pid) is not None:
         os.makedirs(config.get('uploads-path') +
@@ -1026,11 +1051,7 @@ def query_contests_by_id(cid: int):
     data = query_db('''select * from oj_contests where id = ?''',
                     [cid], one=True)
     if data is not None:
-        author = query_user_by_id_simple(data['author_uid'])
-        data['author'] = {
-            'id': author['id'],
-            'username': author['username']
-        }
+        data['author'] = query_user_by_id_min(data['author_uid'])
         data['problems'] = json.loads(data['problems'])
         data['problems'] = [query_problem_by_id_simple(
             i) for i in data['problems']]
@@ -1045,11 +1066,7 @@ def query_contests_by_swap(start: int, count: int):
                     [count, start])
 
     for i in data:
-        author = query_user_by_id_simple(i['author_uid'])
-        i['author'] = {
-            'id': author['id'],
-            'username': author['username']
-        }
+        i['author'] = query_user_by_id_min(i['author_uid'])
 
     return data
 
@@ -1076,7 +1093,7 @@ def query_contest_ranking_by_swap(cid: int, start: int, count: int):
         [count, start])
 
     for i in data:
-        i['username'] = query_user_by_id_simple(i['uid'])['username']
+        i['username'] = query_user_by_id_min(i['uid'])['username']
         i['scores'] = json.loads(i['scores'])
 
     return {'status': True, 'data': data}
@@ -1109,7 +1126,7 @@ def query_contest_ranking_by_uid(cid: int, uid: int):
         return {'status': False, 'info': 'User did not participate in this contest!'}
 
     data['scores'] = json.loads(data['scores'])
-    data['username'] = query_user_by_id_simple(data['uid'])['username']
+    data['username'] = query_user_by_id_min(data['uid'])['username']
 
     return {'status': True, 'data': data}
 

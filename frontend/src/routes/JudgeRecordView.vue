@@ -79,8 +79,9 @@ export default {
         if (this.record_content == null || response.data['code'] !== 0) {
           this.$message({
             type: "error",
-            message: "评测记录内容拉取失败!"
+            message: "评测记录内容拉取失败: " + response.data.text
           });
+          clearInterval(this.interval_id);
         } else {
           if (this.record_content['status'] !== 'Judging...') {
             clearInterval(this.interval_id)

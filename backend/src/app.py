@@ -2,6 +2,7 @@ import io
 import json
 import threading
 import time
+import re
 
 import flask
 from flask_cors import CORS
@@ -60,12 +61,13 @@ def judge_server_info_router():
 
 @app.route("/v1/judge/submit", methods=['POST'])
 def judge_server_api_router():
-    if flask.session.get('user_id') is not None:
-        data = flask.request.json
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+    
+    data = flask.request.json
 
-        return {"code": 0, "text": "请求成功!", "data": backend.submit_judge_free(data)}
-    else:
-        return {"code": 7, "text": "用户未登录!"}
+    return {"code": 0, "text": "请求成功!", "data": backend.submit_judge_free(data)}
 
 
 @app.route("/v1/judge/get/<int:start>/<int:limit>", methods=['GET'])
@@ -88,6 +90,10 @@ def judge_machine():
 
 @app.route("/v1/judge/get/<int:ident>", methods=['GET'])
 def judge_record_get_by_id_router(ident):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+    
     result = backend.query_records_by_id(ident)
     result['points'] = json.loads(result['points'])
     if result is None:
@@ -107,8 +113,15 @@ def judge_record_get_by_id_router(ident):
 def register_router(username, password):
     if backend.query_user_by_name(username) is not None:
         return {"code": 3, "text": "用户已存在!"}
-    backend.register_user(username, password)
-    return {"code": 0, "text": "注册成功!"}
+    
+    if re.match(r"^[a-zA-Z0-9_-]{4,16}$", username) is not None:
+        if re.match(r"^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$", password) is not None:
+            backend.register_user(username, password)
+            return {"code": 0, "text": "注册成功!"}
+        else:
+            return {"code": 5, "text": "密码不符合要求!"}
+    else:
+        return {"code": 5, "text": "用户名不符合要求!"}
 
 
 @app.route("/v1/user/login/<username>/<password>", methods=['POST'])
@@ -638,6 +651,32 @@ def upload_checkpoint_input_router(ident, checkpoint_name):
                 'code': 2,
                 'text': '题目不存在'
             }
+
+
+# 注意 该路由不对数据进行任何检查 请确认上传完成后为配套的in, out文件
+@app.route("/v1/problems/checkpoints/upload/<int:ident>/file", methods=['POST'])
+def upload_checkpoint_all_router(ident):
+    filename = flask.request.files.get("file").filename
+    
+    if not filename.endswith(".in") and not filename.endswith(".out"):
+        return {
+            'code': 5,
+            'text': '失败: 文件名必须以 .in, .out结尾 收到: ' + filename
+        }
+    with io.BytesIO() as dst:
+        flask.request.files.get("file").save(dst)
+        dst.seek(0)
+        if not backend.add_file_to_problem(ident, filename, dst.read()):
+            return {
+                'code': 2,
+                'text': '题目不存在'
+            }
+                
+    return {
+        'code': 0,
+        'text': '请求成功'
+    }
+            
 
 
 @app.route("/v1/problems/checkpoints/upload/<int:ident>/<checkpoint_name>/out", methods=['POST'])

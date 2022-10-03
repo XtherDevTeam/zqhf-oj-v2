@@ -9,9 +9,22 @@
           </el-container>
         </el-col>
       </div>
-      <div class="text item">
+      <div class="text item" v-if="show_user_info.data.other_message.permission_level !== -1">
           <el-tag type="warning"><i class="el-icon-s-flag"></i> Rating: {{ show_user_info['data']['ac_count'] }}</el-tag>
           <el-tag type="success"><i class="el-icon-s-data"></i> 全站排名: {{ show_user_info['data']['ranking'] }}</el-tag>
+
+          <el-tag v-if="show_user_info.data.other_message.permission_level == 1" type="warning">Admin</el-tag>
+          <el-tag v-else-if="show_user_info.data.other_message.permission_level == 2" type="danger">Super-admin</el-tag>
+      </div>
+      <div class="text item" v-else>
+        <el-alert
+            title="作弊者"
+            description="该用户由于作弊、辱骂他人等不正当行为已被管理员封禁！"
+            type="error"
+            show-icon
+            :closable="false"
+          >
+          </el-alert>
       </div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
       <div style="height: 10px;"></div>

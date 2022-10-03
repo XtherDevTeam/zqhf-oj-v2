@@ -9,7 +9,10 @@
         <el-table-column fixed label="用户名">
             <template v-slot="scope">
               <el-avatar :size="25" :src="'/api/v1/user/image/get/' + scope.row.id"></el-avatar>
-              <span style="margin: 2px 4px;position: absolute;">{{ scope.row.username }}</span>
+              <span style="margin: 2px 4px;">{{ scope.row.username }}</span>
+              <el-tag v-if="scope.row.other_message.permission_level == 1" style="margin-left: 5px;" type="warning">Admin</el-tag>
+              <el-tag v-else-if="scope.row.other_message.permission_level == 2" style="margin-left: 5px;" type="danger">Super-admin</el-tag>
+              <el-tag v-else-if="scope.row.other_message.permission_level == -1" style="margin-left: 5px;" type="info">Cheater</el-tag>
             </template>
           </el-table-column>
         <el-table-column fixed prop="introduction" label="介绍"></el-table-column>

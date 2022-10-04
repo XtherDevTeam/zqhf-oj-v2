@@ -40,16 +40,13 @@ def init_db():
 
 
 def query_db(query, args=(), one=False):
-    lock.acquire()
-    
     try:
         cur = db.execute(query, args)
     except Exception:
-        lock.release()
+        pass
         
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
-    lock.release()
     return (rv[0] if rv else None) if one else rv
 
 

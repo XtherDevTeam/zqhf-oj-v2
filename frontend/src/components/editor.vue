@@ -48,10 +48,9 @@ export default {
           theme: this.theme,
           language: this.language,
           automaticLayout: true,
-          fontFamily: 'Fira Mono'
+          fontSize: '14px',
+          fontLigatures: true,
         });
-        monaco.editor.remeasureFonts();
-        
         this.monacoEditor.onDidChangeModelContent((e) => {
           this.$emit("change", this.monacoEditor.getValue());
         });

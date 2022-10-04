@@ -52,7 +52,9 @@ def before_request():
 
 @app.after_request
 def after_request(response):
+    backend.lock.acquire()
     backend.db.commit()
+    backend.lock.release()
     return response
 
 
@@ -1070,7 +1072,7 @@ def contest_judge_submit_router(cid, tid):
             'text': '表单缺少代码语言参数'
         }
         
-    if backend.is_user_joined_contest(cid, flask.session.get('user_id')):
+    if not backend.is_user_joined_contest(cid, flask.session.get('user_id')):
         return {
             'code': 1,
             'text': '用户没有参加这场比赛！'

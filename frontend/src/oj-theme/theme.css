@@ -4,6 +4,8 @@
 @import './dark/code.css';
 @import './light/code.css';
 
+@import './Fira_Mono/font.css';
+
 @media (prefers-color-scheme: dark) {
     :root {
         background-color: #1A1A1A;

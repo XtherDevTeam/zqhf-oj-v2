@@ -1,31 +1,45 @@
 <template>
-  <el-card shadow="hover" class="box-card" style="width=100%;" v-if="logged_in">
-    <div slot="header" class="clearfix">
-      <span>在线IDE</span>
-    </div>
-    <div style="margin: 10px auto;"></div>
-    <span>代码</span>
-    <editor style="margin: 10px auto;" v-model="judge_answer" :language="editor_highlight_mode"
-        width="100%" height="256px" @change="auto_save()"></editor>
-    <div style="margin: 10px auto;"></div>
-    <span>输入</span>
-    <editor style="margin: 10px auto;" v-model="stdin" :language="editor_highlight_mode"
-        width="100%" height="128px"></editor>
-    <div style="margin: 10px auto;"></div>
-    <span>输出</span>
-    <editor style="margin: 10px auto;" v-model="stdout" :language="editor_highlight_mode"
-        :readonly="true" width="100%" height="128px"></editor>
-    <el-select v-model="judge_lang" placeholder="选择语言" @change="switch_language">
-      <el-option v-for="item in support_judge_language" :key="item" :label="item" :value="item"></el-option>
-    </el-select>
-    <el-button type="primary" @click="submit" v-bind:disabled="judging">运行</el-button>
-  </el-card>
-  <el-card shadow="hover" class="box-card" style="width=100%;" v-else>
-    <div slot="header" class="clearfix">
-      <span>在线IDE</span>
-    </div>
-    <span>请先登录</span>
-  </el-card>
+  <div>
+    <el-dialog width="90%" style="margin: 0 auto;" title="运行程序" :visible.sync="run_dialog_visible">
+      <el-container style="width: 100%;">
+        <el-aside width="50%">
+          <span>输入</span>
+          <editor style="margin: 10px auto;" v-model="stdin" :language="editor_highlight_mode"
+              width="100%" height="256px"></editor>
+        </el-aside>
+        <el-main style="padding: unset;">
+          <span>输出</span>
+          <editor style="margin: 10px auto;" v-model="stdout" :language="editor_highlight_mode"
+              :readonly="true" width="100%" height="256px"></editor>
+        </el-main>
+      </el-container>
+      
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="run_dialog_visible = false">取 消</el-button>
+        <el-button type="primary" @click="submit" v-bind:disabled="judging">运行</el-button>
+      </span>
+    </el-dialog>
+    <el-card shadow="hover" class="box-card" style="width: 100%; height: fit-content(100%);" v-if="logged_in">
+      <div slot="header" class="clearfix">
+        <span>在线IDE</span>
+      </div>
+      <div style="margin: 10px auto;"></div>
+      <span>代码</span>
+      <editor style="margin: 10px auto;" v-model="judge_answer" :language="editor_highlight_mode"
+          width="100%" height="512px" @change="auto_save()"></editor>
+      <div style="margin: 10px auto;"></div>
+      <el-select v-model="judge_lang" placeholder="选择语言" @change="switch_language">
+        <el-option v-for="item in support_judge_language" :key="item" :label="item" :value="item"></el-option>
+      </el-select>
+      <el-button type="primary" @click="run_dialog_visible = true;">运行</el-button>
+    </el-card>
+    <el-card shadow="hover" class="box-card" style="width=100%;" v-else>
+      <div slot="header" class="clearfix">
+        <span>在线IDE</span>
+      </div>
+      <span>请先登录</span>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -127,6 +141,7 @@ export default {
       stdin: "",
       stdout: "",
       judging: false,
+      run_dialog_visible: false,
     }
   }
 };

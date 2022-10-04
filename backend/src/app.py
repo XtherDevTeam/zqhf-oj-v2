@@ -46,7 +46,14 @@ def require_user_permission():
 
 @app.before_request
 def before_request():
-    backend.db = backend.connect_db()
+    if backend.db is None:
+        backend.db = backend.connect_db()
+
+
+@app.after_request
+def after_request(response):
+    backend.db.commit()
+    return response
 
 
 @app.route("/", methods=['GET'])
@@ -115,11 +122,8 @@ def register_router(username, password):
         return {"code": 3, "text": "用户已存在!"}
     
     if re.match(r"^[a-zA-Z0-9_-]{4,16}$", username) is not None:
-        if re.match(r"^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$", password) is not None:
-            backend.register_user(username, password)
-            return {"code": 0, "text": "注册成功!"}
-        else:
-            return {"code": 5, "text": "密码不符合要求!"}
+        backend.register_user(username, password)
+        return {"code": 0, "text": "注册成功!"}
     else:
         return {"code": 5, "text": "用户名不符合要求!"}
 
@@ -1034,6 +1038,12 @@ def get_contest_problem(cid: int, tid: int):
     if require_user is not True:
         return require_user
 
+    if not backend.is_user_joined_contest(cid, flask.session.get('user_id')):
+        return {
+            'code': 1,
+            'text': '用户没有参加这场比赛！'
+        }
+
     result = backend.query_contest_problem_details(cid, tid)
 
     if result['status']:
@@ -1058,6 +1068,12 @@ def contest_judge_submit_router(cid, tid):
         return {
             'code': 5,
             'text': '表单缺少代码语言参数'
+        }
+        
+    if backend.is_user_joined_contest(cid, flask.session.get('user_id')):
+        return {
+            'code': 1,
+            'text': '用户没有参加这场比赛！'
         }
 
     data = backend.submit_to_contest_problem(cid, tid, flask.session.get('user_id'), request['code'], request['lang'])

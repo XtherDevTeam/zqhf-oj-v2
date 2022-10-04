@@ -1,0 +1,15 @@
+/* fira-mono-regular - greek_latin_latin-ext_greek-ext_cyrillic-ext_cyrillic */
+@font-face {
+    font-family: 'Fira Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Fira Mono Regular'), local('FiraMono-Regular'),
+         url('FiraMono-Regular.ttf') format('truetype'); /* Legacy iOS */
+  }
+  @font-face {
+    font-family: 'Fira Mono';
+    font-style: normal;
+    font-weight: 500;
+    src: local('Fira Mono Regular'), local('FiraMono-Regular'),
+         url('FiraMono-Medium.ttf') format('truetype'); /* Legacy iOS */
+  }

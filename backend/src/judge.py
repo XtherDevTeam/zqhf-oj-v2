@@ -22,6 +22,6 @@ def submit(judge_server_address, judge_plugin, source_file, data_input, data_out
                         'mem_limit': mem_limit,
                         'env_variables': env_variables,
                         'source_file': source_file
-                    }).content, timeout=114514191)
+                    }, timeout=114514191).content,)
 
     return recv_data

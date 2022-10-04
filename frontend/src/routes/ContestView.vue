@@ -43,7 +43,23 @@
             v-if="this.contest_info.joined"
           >
           </el-alert>
-          <el-button v-else type="primary" @click="join">报名比赛</el-button>
+          <div v-else>
+            <el-alert
+              title="您未报名本场比赛"
+              :description="
+                '这场比赛将在 ' +
+                contest_time[0] +
+                ' 开始, ' +
+                contest_time[1] +
+                ' 结束.'
+              "
+              show-icon
+              type="info"
+              :closable="false"
+            >
+            </el-alert>
+            <el-button style="margin-top: 10px;" type="primary" @click="join">报名比赛</el-button>
+          </div>
         </div>
         <div v-else>
           <el-alert
@@ -57,7 +73,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="题目列表" name="problem-list">
-        <el-table :data="this.contest_info.problems" style="width: 100%" @row-click="goto_problem_view">
+        <el-table :data="this.contest_info.problems" style="width: 100%" :row-class-name="generateIndex" @row-click="goto_problem_view">
           <el-table-column prop="id" fixed label="题目编号" width="100px"></el-table-column>
           <el-table-column prop="author" label="上传者" width="128"></el-table-column>
           <el-table-column prop="name" label="题目名"></el-table-column>
@@ -184,7 +200,7 @@ export default {
         });
     },
     goto_problem_view(row) {
-      window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + row.$index;
+      window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + row.index;
     },
     refresh_ranking_table() {
       axios
@@ -218,6 +234,10 @@ export default {
           }
         })
         .catch(function (error) {});
+    },
+    generateIndex({row, rowIndex}) {
+      console.log(rowIndex);
+      row.index = rowIndex;
     }
   },
   components: {

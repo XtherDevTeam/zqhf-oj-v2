@@ -49,7 +49,6 @@ def query_db(query, args=(), one=False):
         
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
-    db.commit()
     lock.release()
     return (rv[0] if rv else None) if one else rv
 
@@ -401,16 +400,23 @@ def query_problem_by_id(ident: int):
     if query_comments_by_require('problem:' + str(ident)) is None:
         create_comment_area('problem:' + str(ident))
 
-    return query_db("select * from oj_problems where id = ?", [ident], one=True)
+    data = query_db("select * from oj_problems where id = ?", [ident], one=True)
+        
+    return data
 
 
 def query_problem_by_id_simple(ident: int):
     if query_comments_by_require('problem:' + str(ident)) is None:
         create_comment_area('problem:' + str(ident))
 
-    data = query_db("select id, name, author, tags from oj_problems where id = ?", [
+    data = query_db("select id, name, author, tags, appear_time from oj_problems where id = ?", [
         ident], one=True)
-    data['tags'] = json.loads(data['tags'])
+    
+    if int(time.time()) >= data['appear_time']:
+        data['tags'] = json.loads(data['tags'])
+    else:
+        data['tags'] = []
+        
     return data
 
 
@@ -419,8 +425,13 @@ def query_problem_by_name(name: str):
 
 
 def query_problem_by_swap(start: int, limit: int):
-    return query_db("select id, name, tags, author author from oj_problems order by id limit ? offset ?",
+    data = query_db("select id, name, tags, author author, appear_time from oj_problems order by id limit ? offset ?",
                     [limit, start])
+    for i in data:
+        if int(time.time()) < i['appear_time']:
+            i['tags'] = '[]'
+            
+    return data
 
 
 def get_judge_server_info():

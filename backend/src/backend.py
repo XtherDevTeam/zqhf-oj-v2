@@ -508,32 +508,36 @@ def submit_judge_main(jid: int):
             else:
                 score = score + int(round(100 * (1 / len(checkpoint_list)), 0))
         else:
-            spj_result = judge.submit(
-                judge_server_address=config.get('judge-server-address'),
-                judge_plugin='C++14',
-                source_file=problem_content['special_judge_code'],
-                data_input=_zqhf_oj_v2_spj.build_stdin(datas[0], checkpoint_status[-1]['stdout']),
-                data_output='',
-                time_limit=65536,
-                mem_limit=1048576,
-                env_variables={}
-            )
-            if spj_result['status'].startswith('Wrong Answer'):
-                spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
-                checkpoint_status[-1]['status'] = spj_result['status']
-                if checkpoint_status[-1]['status'] != 'Accepted':
-                    full_ac = False
+            if checkpoint_status[-1]['status'].startswith('Wrong Answer'):
+                spj_result = judge.submit(
+                    judge_server_address=config.get('judge-server-address'),
+                    judge_plugin='C++14',
+                    source_file=problem_content['special_judge_code'],
+                    data_input=_zqhf_oj_v2_spj.build_stdin(datas[0], checkpoint_status[-1]['stdout']),
+                    data_output='',
+                    time_limit=65536,
+                    mem_limit=1048576,
+                    env_variables={}
+                )
+                if spj_result['status'].startswith('Wrong Answer'):
+                    spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
+                    checkpoint_status[-1]['status'] = spj_result['status']
+                    if checkpoint_status[-1]['status'] != 'Accepted':
+                        full_ac = False
 
-                try:
-                    score += int(spj_result['score'])
-                except:
+                    try:
+                        score += int(spj_result['score'])
+                    except:
+                        score = 0
+                        
+                    checkpoint_status[-1]['stderr'] += 'Special Judge Plugin Message: ' + spj_result['message'] + '\n'
+                else:
+                    checkpoint_status[-1] = spj_result
+                    checkpoint_status[-1]['status'] = 'System Error'
+                    checkpoint_status[-1]['stderr'] += 'An error occurred in the Special Judge Plugin\n'
                     score = 0
-                    
-                checkpoint_status[-1]['stderr'] += 'Special Judge Plugin Message: ' + spj_result['message'] + '\n'
+                    full_ac = False
             else:
-                checkpoint_status[-1] = spj_result
-                checkpoint_status[-1]['status'] = 'System Error'
-                checkpoint_status[-1]['stderr'] += 'An error occurred in the Special Judge Plugin\n'
                 score = 0
                 full_ac = False
 

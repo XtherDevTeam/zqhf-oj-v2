@@ -38,7 +38,9 @@ It's an "*online judge system*" based on vue2 and elements-ui
     sudo service nginx restart
     ```
 
-  4. Initialize and start api
+  4. Install the new spj backend according to [the document](https://github.com/XtherDevTeam/zqhf-oj-v2-spj-backend#readme).
+
+  5. Initialize and start api
 
     On web interface machine:
 

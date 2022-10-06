@@ -244,6 +244,7 @@ def submit_2():
         # 预编译spj
         spj_use_plugin = getPluginDetails('C++14')
         spj_program_task_id = uuid.uuid4()
+        print('spj_uuid', spj_program_task_id)
         spj_program_stdin = f'/tmp/{spj_program_task_id}-stdin.log'
         
         if do_compile(spj_program_task_id, spj_use_plugin, data['spj_source']):
@@ -257,6 +258,7 @@ def submit_2():
             return result
     
     task_id = uuid.uuid4()
+    print('task_uuid', task_id)
     use_plugin = getPluginDetails(data['plugin'])
     compile_result = do_compile(task_id, use_plugin, data['source_file'])
     
@@ -296,7 +298,7 @@ def submit_2():
                             spj_infile.write(_zqhf_oj_v2_spj.build_stdin(ins.read(), outs.read()))
                             
                 spj_result = execute_plugin(task_id=spj_program_task_id, 
-                                            use_plugin=use_plugin,
+                                            use_plugin=spj_use_plugin,
                                             time_out=65536,
                                             memlimit=1048576)
                 spj_result = {
@@ -311,7 +313,6 @@ def submit_2():
                     result['checkpoints'][-1] = spj_result
                 else:
                     try:
-                        print(spj_result['stdout'])
                         spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
                         result['checkpoints'][-1]['status'] = spj_result['status']
                         result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']

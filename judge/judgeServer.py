@@ -293,7 +293,7 @@ def submit_2():
                 with open(spj_program_stdin, 'w+') as spj_infile:
                     with open(pipe_stdin, 'r+') as ins:
                         with open(pipe_stdout, 'r+') as outs:
-                            spj_infile.write(_zqhf_oj_v2_spj.build_stdin(ins, outs))
+                            spj_infile.write(_zqhf_oj_v2_spj.build_stdin(ins.read(), outs.read()))
                             
                 spj_result = execute_plugin(task_id=spj_program_task_id, 
                                             use_plugin=use_plugin,

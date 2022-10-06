@@ -170,12 +170,13 @@ def checker(result, expectedOutput):
             result['stdout'] = result['stdout'][0:-1]
 
     if expectedOutput != "":
+        print(ord(expectedOutput[-1]))
         while expectedOutput[-1] == '\n' or expectedOutput[-1] == ' ' or expectedOutput[-1] == '\0' or expectedOutput[-1] == '\r':
+            print(ord(expectedOutput[-1]), '草泥马')
             expectedOutput = expectedOutput[0:-1]
 
     if len(result['stdout']) != len(expectedOutput):
-        
-        print(result['stdout'], expectedOutput, type(expectedOutput), len(result['stdout']), len(expectedOutput), ord(expectedOutput[-1]), 'rnm\n')
+        # print(result['stdout'], expectedOutput, type(expectedOutput), len(result['stdout']), len(expectedOutput), ord(expectedOutput[-1]), 'rnm\n')
         result['status'] = 'Wrong Answer at character ' + str(len(result['stdout'])) + ' of ' + str(len(expectedOutput))
         return result
 

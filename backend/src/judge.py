@@ -29,7 +29,7 @@ def submit(judge_server_address, judge_plugin, source_file, data_input, data_out
 
 def judge(judge_server_address, data, points):
     recv_data = json.loads(
-        requests.post("http://%s/submit" % judge_server_address,
+        requests.post("http://%s/checker" % judge_server_address,
                     json=data, timeout=114514191, files=points).content,)
 
     return recv_data

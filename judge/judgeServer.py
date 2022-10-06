@@ -311,15 +311,16 @@ def submit_2():
                     result['checkpoints'][-1] = spj_result
                 else:
                     try:
+                        print(spj_result['stdout'])
                         spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
+                        result['checkpoints'][-1]['status'] = spj_result['status']
+                        result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
+                        result['score'] += spj_result['score']
                     except Exception:
                         spj_result['status'] = 'System Error'
                         spj_result['stderr'] += '\n' + 'An error occurred in the Special Judge Plugin\n'
                         result[-1] = spj_result
-                    
-                    result['checkpoints'][-1]['status'] = spj_result['status']
-                    result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
-                    result['score'] += spj_result['score']
+                        
             else:
                 result['checkpoints'][-1] = checker(result['checkpoints'][-1], flask.request.files.get(out_filename).stream.read().decode('utf-8'))
                 if result['checkpoints'][-1]['status'] == 'Accepted':

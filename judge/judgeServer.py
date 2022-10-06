@@ -11,6 +11,7 @@ import threading
 import psutil
 import cpuinfo
 import _zqhf_oj_v2_spj
+import io
 
 lock = threading.Lock()
 
@@ -109,9 +110,6 @@ def execute_plugin(task_id: str, use_plugin: dict, time_out: int = 1000, memlimi
     ret_stderr = ''
 
     stat = ''
-    
-    with open(pipe_stdin, 'w+') as file:
-        file.write(input)
         
     with open(pipe_stdout, 'w+') as file:
         pass
@@ -231,9 +229,10 @@ def submit_1():
         
         
 # 第三次优化评测机 一次编译多次运行 需要主机传入所有数据点
-@app.route('/checker', method=['POST'])
+@app.route('/checker', methods=['POST'])
 def submit_2():
-    data = flask.request.json
+    print(flask.request.files.keys())
+    data = json.loads(flask.request.files.get('json').stream.read())
     result = []
     result = {
         'ac': True,
@@ -267,8 +266,8 @@ def submit_2():
         pipe_stdin = f'/tmp/{task_id}-stdin.log'
         pipe_stdout = f'/tmp/{task_id}-stdout.log'
         
-        in_filename = i[1]
-        out_filename = i[2]
+        in_filename = i[0]
+        out_filename = i[1]
         flask.request.files[in_filename].save(pipe_stdin)
         
         compile_result = do_compile(task_id, use_plugin, data['source_file'])
@@ -325,9 +324,10 @@ def submit_2():
                     result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
                     result['score'] += spj_result['score']
             else:
-                out_file = ''
+                out_file = io.BytesIO()
                 flask.request.files.get(out_filename).save(out_file)
-                result['checkpoints'][-1] = checker(result['checkpoints'][-1], out_file)
+                out_file.seek(0)
+                result['checkpoints'][-1] = checker(result['checkpoints'][-1], out_file.read().decode('utf-8'))
                 result['score'] += int(round(100 * (1 / len(data['tests'])), 0))
                 
             if result['checkpoints'][-1]['status'] != 'Accepted':

@@ -58,16 +58,22 @@ def send_task(host : int, param : dict) -> dict:
         }
         
 
-def send_judge_task(host: int, param: dict, files: list) -> dict:
-    resp = requests.post("http://%s/judge" % config.judger_hosts[host],
-                            json=param, files=files, timeout=114514191)
+def send_judge_task(host: int, files: list) -> dict:
+    resp = requests.post("http://%s/checker" % config.judger_hosts[host],
+                            files=files, timeout=114514191)
     try:
         resp = json.loads(resp.content)
         return resp
     except:
         return {
-            'status': 'System Error',
-            'stdout': 'The specified judge machine encountered an error during judging.',
-            'stderr': '',
-            'return_code': '255'
+            'ac': False,
+            'score': 0,
+            'checkpoints': [
+                {
+                    'status': 'System Error',
+                    'stdout': 'The specified judge machine encountered an error during judging.',
+                    'stderr': '',
+                    'return_code': '255'
+                }
+            ]
         }

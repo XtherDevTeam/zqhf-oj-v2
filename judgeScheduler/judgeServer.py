@@ -20,7 +20,7 @@ def submit_1():
     while not len(l):
         time.sleep(1)
         pass
-    return api.send_task(l[0], flask.request.json)
+    return api.send_task(l[0], flask.jsonify(flask.request.json))
 
 
 @app.route('/checker', methods=['POST'])
@@ -31,14 +31,12 @@ def submit_2():
         pass
     
     filelist = []
-    for i in flask.request.files:
+    for i in flask.request.files.keys():
         file_obj = flask.request.files.get(i)
         origin_file_name = file_obj.filename
-        if origin_file_name.endswith('"'):
-            origin_file_name = origin_file_name[:-1]
-        filelist.append((i, (origin_file_name, file_obj.read(), file_obj.content_type)))
-        
-    return api.send_judge_task(l[0], flask.request.json, filelist)
+        filelist.append((i, (origin_file_name, file_obj.stream.read(), file_obj.content_type)))
+    
+    return api.send_judge_task(l[0], filelist)
     
 
 @app.route('/info', methods=['GET'])

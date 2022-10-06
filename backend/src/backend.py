@@ -482,17 +482,19 @@ def submit_judge_main(jid: int):
         'tests': [],
     }
     
-    request_files = []
+    request_files = {}
 
     for i in checkpoint_list:
         request_data['tests'].append([i + '.in', i + '.out'])
         
-        request_files.append((i + '.in', (i + '.in', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.in',
-                      "rb+"))))
-        request_files.append((i + '.out', (i + '.out', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.out',
-                      "rb+"))))
+        request_files[i + '.in'] = (i + '.in', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.in',
+                      "rb+"), 'text/txt')
+        request_files[i + '.out'] = (i + '.out', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.out',
+                      "rb+"), 'text/txt')
         
-    response = judge.judge(config.get('judge-server-address'), request_data, request_files)
+    request_files['json'] = ('json', json.dumps(request_data), 'application/json')
+    
+    response = judge.judge(config.get('judge-server-address'), request_files)
     
     query_db("update oj_records set status = ? where id = ?",
                  ['Accepted' if response['ac'] else 'Wrong Answer', jid])

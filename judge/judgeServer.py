@@ -1,6 +1,7 @@
 #!/bin/python3
 from subprocess import Popen, PIPE
 import uuid
+from backend.src.judge import judge
 
 import config
 import flask
@@ -331,7 +332,9 @@ def submit_2():
                 result['checkpoints'][-1]['stderr'] = result['checkpoints'][-1]['stderr'][0:1024] + "\n[Excessive output]\n"
             
     do_remove_task_files(task_id=task_id, use_plugin=use_plugin)
-    do_remove_task_files(task_id=spj_program_task_id, use_plugin=spj_use_plugin)
+    
+    if judge_type == 'spj':
+        do_remove_task_files(task_id=spj_program_task_id, use_plugin=spj_use_plugin)
             
     return result
     

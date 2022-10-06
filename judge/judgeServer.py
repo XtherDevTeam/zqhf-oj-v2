@@ -158,8 +158,6 @@ def execute_plugin(task_id: str, use_plugin: dict, time_out: int = 1000, memlimi
         
     ret_stderr += '\nDebug: ' + json.dumps(result) + '\n'
     
-    do_remove_task_files(task_id=task_id, use_plugin=use_plugin)
-    
     return [stat, ret_stdout, ret_stderr, result['signal']]
 
 
@@ -238,13 +236,14 @@ def submit_2():
     judge_type = data['judge_type']
     spj_program_task_id = ''
     spj_program_stdin = ''
+    spj_use_plugin = {}
     if judge_type == 'spj':
         # 预编译spj
-        use_plugin = getPluginDetails('C++14')
+        spj_use_plugin = getPluginDetails('C++14')
         spj_program_task_id = uuid.uuid4()
         spj_program_stdin = f'/tmp/{spj_program_task_id}-stdin.log'
         
-        if do_compile(spj_program_task_id, use_plugin, data['spj_source']):
+        if do_compile(spj_program_task_id, spj_use_plugin, data['spj_source']):
             result['checkpoints'].append({
                 'status': 'System Error',
                 'stdout': str(compile_result[1]),
@@ -330,6 +329,9 @@ def submit_2():
                 result['checkpoints'][-1]['stdout'] = result['checkpoints'][-1]['stdout'][0:1024] + "\n[Excessive output]\n"
             if len(result['checkpoints'][-1]['stderr']) > 1024:
                 result['checkpoints'][-1]['stderr'] = result['checkpoints'][-1]['stderr'][0:1024] + "\n[Excessive output]\n"
+            
+    do_remove_task_files(task_id=task_id, use_plugin=use_plugin)
+    do_remove_task_files(task_id=spj_program_task_id, use_plugin=spj_use_plugin)
             
     return result
     

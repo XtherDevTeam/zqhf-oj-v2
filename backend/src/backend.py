@@ -497,7 +497,7 @@ def submit_judge_main(jid: int):
     response = judge.judge(config.get('judge-server-address'), request_files)
     
     query_db("update oj_records set status = ? where id = ?",
-                 ['Accepted' if response['ac'] else 'Wrong Answer', jid])
+                 ['Accepted' if response['ac'] else 'Wrong answer', jid])
     
     query_db("update oj_records set points = ?, score = ? where id = ?",
                  [json.dumps(response['checkpoints']), response['score'], jid])

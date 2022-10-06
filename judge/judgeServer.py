@@ -209,7 +209,8 @@ def submit_1():
         data = flask.request.json
         task_id = uuid.uuid4()
         
-        compile_result = do_compile(task_id=task_id, use_plugin=data['plugin'], source_file=data['source_file'])
+        use_plugin = getPluginDetails(data['plugin'])
+        compile_result = do_compile(task_id=task_id, use_plugin=use_plugin, source_file=data['source_file'])
         
         pipe_stdin = f'/tmp/{task_id}-stdin.log'
         pipe_stdout = f'/tmp/{task_id}-stdout.log'
@@ -226,7 +227,7 @@ def submit_1():
         with open(pipe_stdin, 'w+') as file:
             file.write(data['input'])
         
-        result_data = execute_plugin(task_id, data['plugin'], data['time_limit'], data['mem_limit'])
+        result_data = execute_plugin(task_id, use_plugin, data['time_limit'], data['mem_limit'])
         return checker({
             'status': result_data[0],
             'stdout': str(result_data[1]),

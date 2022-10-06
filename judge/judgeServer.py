@@ -164,19 +164,20 @@ def execute_plugin(task_id: str, use_plugin: dict, time_out: int = 1000, memlimi
 def checker(result, expectedOutput):
     if (result['status'] != 'OK'):
         return result
+    
+    result['stdout'] = result['stdout'].replace('\r', '')
 
     if result['stdout'] != "":
         while result['stdout'][-1] == '\n' or result['stdout'][-1] == ' ':
             result['stdout'] = result['stdout'][0:-1]
 
+    expectedOutput = expectedOutput.replace('\r', '')
+
     if expectedOutput != "":
-        print(ord(expectedOutput[-1]))
         while expectedOutput[-1] == '\n' or expectedOutput[-1] == ' ' or expectedOutput[-1] == '\0' or expectedOutput[-1] == '\r':
-            print(ord(expectedOutput[-1]), '草泥马')
             expectedOutput = expectedOutput[0:-1]
 
     if len(result['stdout']) != len(expectedOutput):
-        # print(result['stdout'], expectedOutput, type(expectedOutput), len(result['stdout']), len(expectedOutput), ord(expectedOutput[-1]), 'rnm\n')
         result['status'] = 'Wrong Answer at character ' + str(len(result['stdout'])) + ' of ' + str(len(expectedOutput))
         return result
 

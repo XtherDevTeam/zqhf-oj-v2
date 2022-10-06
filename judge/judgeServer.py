@@ -1,7 +1,6 @@
 #!/bin/python3
 from subprocess import Popen, PIPE
 import uuid
-from backend.src.judge import judge
 
 import config
 import flask

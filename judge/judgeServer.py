@@ -1,4 +1,5 @@
 #!/bin/python3
+from asyncore import read
 from subprocess import Popen, PIPE
 import uuid
 
@@ -52,6 +53,16 @@ def cmdline2arglist(cmdline: str):
 def getPluginDetails(name: str):
     with open(config.plugins_dir + '/' + name + '.json', 'r+') as file:
         return json.loads(file.read())
+
+
+def get_stdout(task_id: str):
+    with open(f'/tmp/{task_id}-stdout.log', 'r') as file:
+        return file.read()
+    
+    
+def get_stderr(task_id: str):
+    with open(f'/tmp/{task_id}-stderr.log', 'r') as file:
+        return file.read()
 
 
 # 第三次重构 解藕
@@ -204,12 +215,12 @@ def submit_1():
         pipe_stdout = f'/tmp/{task_id}-stdout.log'
         pipe_stderr = f'/tmp/{task_id}-stderr.log'
         
-        if compile_result['status'] != 'OK':
+        if compile_result:
             return checker({
-                'status': result_data[0],
-                'stdout': str(result_data[1]),
-                'stderr': str(result_data[2]),
-                'return_code': str(result_data[3])
+                'status': 'CE',
+                'stdout': get_stdout(task_id=task_id),
+                'stderr': get_stderr(task_id=task_id),
+                'return_code': '1'
             }, data['output'])
         
         with open(pipe_stdin, 'w+') as file:
@@ -246,13 +257,13 @@ def submit_2():
         spj_program_task_id = uuid.uuid4()
         print('spj_uuid', spj_program_task_id)
         spj_program_stdin = f'/tmp/{spj_program_task_id}-stdin.log'
-        
-        if do_compile(spj_program_task_id, spj_use_plugin, data['spj_source']):
+        spj_compile_result = do_compile(spj_program_task_id, spj_use_plugin, data['spj_source'])
+        if spj_compile_result:
             result['checkpoints'].append({
                 'status': 'System Error',
-                'stdout': str(compile_result[1]),
-                'stderr': str(compile_result[2]) + '\n' + 'An error occurred in the Special Judge Plugin\n',
-                'return_code': str(compile_result[3])
+                'stdout': get_stdout(spj_program_task_id),
+                'stderr': get_stderr(spj_program_task_id) + '\n' + 'An error occurred in the Special Judge Plugin\n',
+                'return_code': '1'
             })
             result['ac'] = False
             return result
@@ -273,9 +284,9 @@ def submit_2():
         if compile_result:
             result['checkpoints'].append({
                 'status': 'Compile Error',
-                'stdout': str(compile_result[1]),
-                'stderr': str(compile_result[2]),
-                'return_code': str(compile_result[3])
+                'stdout': get_stdout(task_id),
+                'stderr': get_stderr(task_id),
+                'return_code': '1'
             })
             result['ac'] = False
         else:

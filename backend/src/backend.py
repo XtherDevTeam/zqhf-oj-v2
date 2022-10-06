@@ -471,92 +471,35 @@ def submit_judge_main(jid: int):
 
     problem_content = query_problem_by_id(record_content['problem'])
     checkpoint_list = get_checkpoint_list(record_content['problem'])
-    checkpoint_status = []
-    score = 0
-    full_ac = True
 
-    env_vars = {}
+    request_data = {
+        'judge_type': 'spj' if problem_content['special_judge'] else 'text',
+        'plugin': record_content['lang'],
+        'source_file': record_content['code'],
+        'time_limit': problem_content['timeout'],
+        'mem_limit': problem_content['memory'],
+        'spj_source': problem_content['special_judge_code'] if problem_content['special_judge'] else '',
+        'tests': [],
+    }
+    
+    request_files = []
 
     for i in checkpoint_list:
-        datas = ["", ""]
-        try:
-            with open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.in',
-                      "r+") as file:
-                datas[0] = file.read()
-        except Exception:
-            pass
-        try:
-            with open(
-                    config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.out',
-                    "r+") as file:
-                datas[1] = file.read()
-        except Exception:
-            pass
-        checkpoint_status.append(judge.submit(
-            judge_server_address=config.get('judge-server-address'),
-            judge_plugin=record_content['lang'],
-            source_file=record_content['code'],
-            data_input=datas[0],
-            data_output=datas[1],
-            time_limit=problem_content['timeout'],
-            mem_limit=problem_content['memory'],
-            env_variables=env_vars
-        ))
-        if not problem_content['special_judge']:
-            if checkpoint_status[-1]['status'] != 'Accepted':
-                full_ac = False
-            else:
-                score = score + int(round(100 * (1 / len(checkpoint_list)), 0))
-        else:
-            if checkpoint_status[-1]['status'].startswith('Wrong Answer'):
-                spj_result = judge.submit(
-                    judge_server_address=config.get('judge-server-address'),
-                    judge_plugin='C++14',
-                    source_file=problem_content['special_judge_code'],
-                    data_input=_zqhf_oj_v2_spj.build_stdin(datas[0], checkpoint_status[-1]['stdout']),
-                    data_output='',
-                    time_limit=65536,
-                    mem_limit=1048576,
-                    env_variables={}
-                )
-                if spj_result['status'].startswith('Wrong Answer'):
-                    spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
-                    checkpoint_status[-1]['status'] = spj_result['status']
-                    if checkpoint_status[-1]['status'] != 'Accepted':
-                        full_ac = False
-
-                    try:
-                        score += int(spj_result['score'])
-                    except:
-                        score = 0
-                        
-                    checkpoint_status[-1]['stderr'] += 'Special Judge Plugin Message: ' + spj_result['message'] + '\n'
-                else:
-                    checkpoint_status[-1] = spj_result
-                    checkpoint_status[-1]['status'] = 'System Error'
-                    checkpoint_status[-1]['stderr'] += 'An error occurred in the Special Judge Plugin\n'
-                    score = 0
-                    full_ac = False
-            else:
-                score = 0
-                full_ac = False
-
-        query_db("update oj_records set points = ?, score = ? where id = ?",
-                 [json.dumps(checkpoint_status), score, jid])
-
-    if full_ac:
-        other_message = query_user_by_id(record_content['author']['id'])['other_message']
-        if not other_message['ac_problems'].count(record_content['problem']):
-            ac_count = query_user_by_id(record_content['author']['id'])['ac_count'] + 1
-            other_message['ac_problems'].append(record_content['problem'])
-            set_user_attr_by_id(record_content['author']['id'], 'ac_count', ac_count)
-            set_user_attr_by_id(record_content['author']['id'], 'other_message',
-                                pickle.dumps(other_message))
-        query_db(
-            "update oj_records set status = 'Accepted' where id = ?", [jid])
-    else:
-        query_db(
-            "update oj_records set status = 'Wrong answer' where id = ?", [jid])
+        request_data['tests'].append([i + '.in', i + '.out'])
+        
+        request_files.append((i + '.in', (i + '.in', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.in',
+                      "rb+"))))
+        request_files.append((i + '.out', (i + '.out', open(config.get('uploads-path') + "/problems_data/" + str(record_content['problem']) + "/" + i + '.out',
+                      "rb+"))))
+        
+    response = judge.judge(config.get('judge-server-address'), request_data, request_files)
+    
+    query_db("update oj_records set status = ? where id = ?",
+                 ['Accepted' if response['ac'] else 'Wrong Answer', jid])
+    
+    query_db("update oj_records set points = ?, score = ? where id = ?",
+                 [json.dumps(response['checkpoints']), response['score'], jid])
+        
 
 
 def run_judge_task(pid: int, author: int, code: str, lang: str):

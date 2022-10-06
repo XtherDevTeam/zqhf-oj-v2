@@ -255,11 +255,10 @@ def submit_2():
             return result
     
     task_id = uuid.uuid4()
+    use_plugin = getPluginDetails(data['plugin'])
     compile_result = do_compile(task_id, use_plugin, data['source_file'])
     
     for i in data['tests']:
-        use_plugin = getPluginDetails(data['plugin'])
-        
         pipe_stdin = f'/tmp/{task_id}-stdin.log'
         pipe_stdout = f'/tmp/{task_id}-stdout.log'
         

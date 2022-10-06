@@ -365,7 +365,7 @@ def bulletin_edit_router(ident: int):
         return require_admin
 
     data = flask.request.get_json()
-    print(data)
+    # print(data)
     if backend.set_bulletin_by_id(ident, data['name'], data['content']):
         return {'code': 0, 'text': '请求成功'}
     else:

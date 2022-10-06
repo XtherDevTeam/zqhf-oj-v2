@@ -715,7 +715,7 @@ def get_comments_by_swap(require_by: str, start: int, count: int):
 
         return {'code': 0, 'text': '操作成功', 'data': data}
     except Exception as e:
-        print(e)
+        # print(e)
         return {'code': 4, 'text': '请求的评论区不存在'}
 
 

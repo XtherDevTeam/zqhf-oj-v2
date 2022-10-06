@@ -174,7 +174,7 @@ def checker(result, expectedOutput):
             expectedOutput = expectedOutput[0:-1]
 
     if len(result['stdout']) != len(expectedOutput):
-        print(result['stdout'], expectedOutput, type(expectedOutput), len(result['stdout']), len(expectedOutput))
+        print(result['stdout'], expectedOutput, type(expectedOutput), len(result['stdout']), len(expectedOutput), expectedOutput[-1], '\n')
         result['status'] = 'Wrong Answer at character ' + str(len(result['stdout'])) + ' of ' + str(len(expectedOutput))
         return result
 

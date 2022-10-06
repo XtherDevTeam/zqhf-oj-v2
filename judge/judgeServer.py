@@ -186,11 +186,6 @@ def checker(result, expectedOutput):
                 result['status'] = 'Wrong Answer at character ' + str(i)
                 return result
 
-    if len(result['stdout']) > 1024:
-        result['stdout'] = result['stdout'][0:1024] + "\n[Excessive output]\n"
-    if len(result['stderr']) > 1024:
-        result['stderr'] = result['stderr'][0:1024] + "\n[Excessive output]\n"
-
     result['status'] = 'Accepted'
     # print(result)
     return result
@@ -324,14 +319,17 @@ def submit_2():
                     result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
                     result['score'] += spj_result['score']
             else:
-                out_file = io.BytesIO()
-                flask.request.files.get(out_filename).save(out_file)
-                out_file.seek(0)
-                result['checkpoints'][-1] = checker(result['checkpoints'][-1], out_file.read().decode('utf-8'))
-                result['score'] += int(round(100 * (1 / len(data['tests'])), 0))
+                result['checkpoints'][-1] = checker(result['checkpoints'][-1], flask.request.files.get(out_filename).stream.read().decode('utf-8'))
+                if result['checkpoints'][-1]['status'] == 'Accepted':
+                    result['score'] += int(round(100 * (1 / len(data['tests'])), 0))
                 
             if result['checkpoints'][-1]['status'] != 'Accepted':
                 result['ac'] = False
+                
+            if len(result['checkpoints'][-1]['stdout']) > 1024:
+                result['checkpoints'][-1]['stdout'] = result['checkpoints'][-1]['stdout'][0:1024] + "\n[Excessive output]\n"
+            if len(result['checkpoints'][-1]['stderr']) > 1024:
+                result['checkpoints'][-1]['stderr'] = result['checkpoints'][-1]['stderr'][0:1024] + "\n[Excessive output]\n"
             
     return result
     

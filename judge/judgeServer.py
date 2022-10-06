@@ -254,6 +254,8 @@ def submit_2():
             result['ac'] = False
             return result
     
+    compile_result = do_compile(task_id, use_plugin, data['source_file'])
+    
     for i in data['tests']:
         use_plugin = getPluginDetails(data['plugin'])
         task_id = uuid.uuid4()
@@ -265,7 +267,6 @@ def submit_2():
         out_filename = i[1]
         flask.request.files[in_filename].save(pipe_stdin)
         
-        compile_result = do_compile(task_id, use_plugin, data['source_file'])
         if compile_result:
             result['checkpoints'].append({
                 'status': 'Compile Error',

@@ -20,7 +20,7 @@ def submit_1():
     while not len(l):
         time.sleep(1)
         pass
-    return api.send_task(l[0], flask.jsonify(flask.request.json))
+    return api.send_task(l[0], flask.request.json)
 
 
 @app.route('/checker', methods=['POST'])

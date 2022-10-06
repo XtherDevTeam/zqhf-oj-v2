@@ -44,6 +44,7 @@ def get_judger_info() -> list:
 @return Dict 评测机的返回值
 """
 def send_task(host : int, param : dict) -> dict:
+    print(param)
     resp = requests.post("http://%s/submit" % config.judger_hosts[host],
                             json=param, timeout=114514191)
     try:

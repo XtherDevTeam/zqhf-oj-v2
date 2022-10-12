@@ -55,7 +55,8 @@
         title="注意"
         description="由于 zqhf-oj-v2 开放的权限管理制度, 请各位管理员不要误删他人的题目！"
         type="warning"
-        close-text="知道了">
+        close-text="知道了"
+        v-if="logged_in && user_info['data']['other_message']['permission_level'] >= 1">
       </el-alert>
       <el-table :data="problems_data" style="width: 100%" @row-click="problem_click">
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>

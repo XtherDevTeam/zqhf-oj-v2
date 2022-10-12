@@ -5,12 +5,12 @@
         <el-aside width="50%">
           <span>输入</span>
           <editor style="margin: 10px auto;" v-model="stdin" :language="editor_highlight_mode"
-              width="100%" height="256px"></editor>
+              width="100%" height="400px"></editor>
         </el-aside>
         <el-main style="padding: unset;">
           <span>输出</span>
           <editor style="margin: 10px auto;" v-model="stdout" :language="editor_highlight_mode"
-              :readonly="true" width="100%" height="256px"></editor>
+              :readonly="true" width="100%" height="400px"></editor>
         </el-main>
       </el-container>
       

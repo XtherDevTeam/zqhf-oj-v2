@@ -239,120 +239,121 @@ def submit_1():
 # 第三次优化评测机 一次编译多次运行 需要主机传入所有数据点
 @app.route('/checker', methods=['POST'])
 def submit_2():
-    print(flask.request.files.keys())
-    data = json.loads(flask.request.files.get('json').stream.read())
-    result = []
-    result = {
-        'ac': True,
-        'score': 0,
-        'checkpoints': [],
-    }
-    
-    judge_type = data['judge_type']
-    spj_program_task_id = ''
-    spj_program_stdin = ''
-    spj_use_plugin = {}
-    if judge_type == 'spj':
-        # 预编译spj
-        spj_use_plugin = getPluginDetails('C++14')
-        spj_program_task_id = uuid.uuid4()
-        print('spj_uuid', spj_program_task_id)
-        spj_program_stdin = f'/tmp/{spj_program_task_id}-stdin.log'
-        spj_compile_result = do_compile(spj_program_task_id, spj_use_plugin, data['spj_source'])
-        if spj_compile_result:
-            result['checkpoints'].append({
-                'status': 'System Error',
-                'stdout': get_stdout(spj_program_task_id),
-                'stderr': get_stderr(spj_program_task_id) + '\n' + 'An error occurred in the Special Judge Plugin\n',
-                'return_code': '1'
-            })
-            result['ac'] = False
-            return result
-    
-    task_id = uuid.uuid4()
-    print('task_uuid', task_id)
-    use_plugin = getPluginDetails(data['plugin'])
-    compile_result = do_compile(task_id, use_plugin, data['source_file'])
-    
-    for i in data['tests']:
-        pipe_stdin = f'/tmp/{task_id}-stdin.log'
-        pipe_stdout = f'/tmp/{task_id}-stdout.log'
+    with lock:
+        print(flask.request.files.keys())
+        data = json.loads(flask.request.files.get('json').stream.read())
+        result = []
+        result = {
+            'ac': True,
+            'score': 0,
+            'checkpoints': [],
+        }
         
-        in_filename = i[0]
-        out_filename = i[1]
-        flask.request.files[in_filename].save(pipe_stdin)
+        judge_type = data['judge_type']
+        spj_program_task_id = ''
+        spj_program_stdin = ''
+        spj_use_plugin = {}
+        if judge_type == 'spj':
+            # 预编译spj
+            spj_use_plugin = getPluginDetails('C++14')
+            spj_program_task_id = uuid.uuid4()
+            print('spj_uuid', spj_program_task_id)
+            spj_program_stdin = f'/tmp/{spj_program_task_id}-stdin.log'
+            spj_compile_result = do_compile(spj_program_task_id, spj_use_plugin, data['spj_source'])
+            if spj_compile_result:
+                result['checkpoints'].append({
+                    'status': 'System Error',
+                    'stdout': get_stdout(spj_program_task_id),
+                    'stderr': get_stderr(spj_program_task_id) + '\n' + 'An error occurred in the Special Judge Plugin\n',
+                    'return_code': '1'
+                })
+                result['ac'] = False
+                return result
         
-        if compile_result:
-            result['checkpoints'].append({
-                'status': 'Compile Error',
-                'stdout': get_stdout(task_id),
-                'stderr': get_stderr(task_id),
-                'return_code': '1'
-            })
-            result['ac'] = False
-        else:
-            exec_result = execute_plugin(task_id=task_id, 
-                                         use_plugin=use_plugin,
-                                         time_out=data['time_limit'],
-                                         memlimit=data['mem_limit'])
-            result['checkpoints'].append({
-                'status': exec_result[0],
-                'stdout': str(exec_result[1]),
-                'stderr': str(exec_result[2]),
-                'return_code': str(exec_result[3])
-            })
+        task_id = uuid.uuid4()
+        print('task_uuid', task_id)
+        use_plugin = getPluginDetails(data['plugin'])
+        compile_result = do_compile(task_id, use_plugin, data['source_file'])
+        
+        for i in data['tests']:
+            pipe_stdin = f'/tmp/{task_id}-stdin.log'
+            pipe_stdout = f'/tmp/{task_id}-stdout.log'
             
-            # 评测
-            if judge_type == 'spj':
-                with open(spj_program_stdin, 'w+') as spj_infile:
-                    with open(pipe_stdin, 'r+') as ins:
-                        with open(pipe_stdout, 'r+') as outs:
-                            spj_infile.write(_zqhf_oj_v2_spj.build_stdin(ins.read(), outs.read()))
-                            
-                spj_result = execute_plugin(task_id=spj_program_task_id, 
-                                            use_plugin=spj_use_plugin,
-                                            time_out=65536,
-                                            memlimit=1048576)
-                spj_result = {
-                    'status': spj_result[0],
-                    'stdout': str(spj_result[1]),
-                    'stderr': str(spj_result[2]),
-                    'return_code': str(spj_result[3])
-                }
-                if spj_result['return_code'] != '0':
-                    spj_result['status'] = 'System Error'
-                    spj_result['stderr'] += '\n' + 'An error occurred in the Special Judge Plugin\n'
-                    result['checkpoints'][-1] = spj_result
-                else:
-                    try:
-                        spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
-                        result['checkpoints'][-1]['status'] = spj_result['status']
-                        result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
-                        result['score'] += spj_result['score']
-                    except Exception:
+            in_filename = i[0]
+            out_filename = i[1]
+            flask.request.files[in_filename].save(pipe_stdin)
+            
+            if compile_result:
+                result['checkpoints'].append({
+                    'status': 'Compile Error',
+                    'stdout': get_stdout(task_id),
+                    'stderr': get_stderr(task_id),
+                    'return_code': '1'
+                })
+                result['ac'] = False
+            else:
+                exec_result = execute_plugin(task_id=task_id, 
+                                            use_plugin=use_plugin,
+                                            time_out=data['time_limit'],
+                                            memlimit=data['mem_limit'])
+                result['checkpoints'].append({
+                    'status': exec_result[0],
+                    'stdout': str(exec_result[1]),
+                    'stderr': str(exec_result[2]),
+                    'return_code': str(exec_result[3])
+                })
+                
+                # 评测
+                if judge_type == 'spj':
+                    with open(spj_program_stdin, 'w+') as spj_infile:
+                        with open(pipe_stdin, 'r+') as ins:
+                            with open(pipe_stdout, 'r+') as outs:
+                                spj_infile.write(_zqhf_oj_v2_spj.build_stdin(ins.read(), outs.read()))
+                                
+                    spj_result = execute_plugin(task_id=spj_program_task_id, 
+                                                use_plugin=spj_use_plugin,
+                                                time_out=65536,
+                                                memlimit=1048576)
+                    spj_result = {
+                        'status': spj_result[0],
+                        'stdout': str(spj_result[1]),
+                        'stderr': str(spj_result[2]),
+                        'return_code': str(spj_result[3])
+                    }
+                    if spj_result['return_code'] != '0':
                         spj_result['status'] = 'System Error'
                         spj_result['stderr'] += '\n' + 'An error occurred in the Special Judge Plugin\n'
-                        result[-1] = spj_result
-                        
-            else:
-                result['checkpoints'][-1] = checker(result['checkpoints'][-1], flask.request.files.get(out_filename).stream.read().decode('utf-8'))
-                if result['checkpoints'][-1]['status'] == 'Accepted':
-                    result['score'] += int(round(100 * (1 / len(data['tests'])), 0))
+                        result['checkpoints'][-1] = spj_result
+                    else:
+                        try:
+                            spj_result = _zqhf_oj_v2_spj.parse_result(spj_result['stdout'])
+                            result['checkpoints'][-1]['status'] = spj_result['status']
+                            result['checkpoints'][-1]['stderr'] += '\n' + 'SPJ Plugin Message: ' + spj_result['message']
+                            result['score'] += spj_result['score']
+                        except Exception:
+                            spj_result['status'] = 'System Error'
+                            spj_result['stderr'] += '\n' + 'An error occurred in the Special Judge Plugin\n'
+                            result[-1] = spj_result
+                            
+                else:
+                    result['checkpoints'][-1] = checker(result['checkpoints'][-1], flask.request.files.get(out_filename).stream.read().decode('utf-8'))
+                    if result['checkpoints'][-1]['status'] == 'Accepted':
+                        result['score'] += int(round(100 * (1 / len(data['tests'])), 0))
+                    
+                if result['checkpoints'][-1]['status'] != 'Accepted':
+                    result['ac'] = False
+                    
+                if len(result['checkpoints'][-1]['stdout']) > 1024:
+                    result['checkpoints'][-1]['stdout'] = result['checkpoints'][-1]['stdout'][0:1024] + "\n[Excessive output]\n"
+                if len(result['checkpoints'][-1]['stderr']) > 1024:
+                    result['checkpoints'][-1]['stderr'] = result['checkpoints'][-1]['stderr'][0:1024] + "\n[Excessive output]\n"
                 
-            if result['checkpoints'][-1]['status'] != 'Accepted':
-                result['ac'] = False
+        do_remove_task_files(task_id=task_id, use_plugin=use_plugin)
+        
+        if judge_type == 'spj':
+            do_remove_task_files(task_id=spj_program_task_id, use_plugin=spj_use_plugin)
                 
-            if len(result['checkpoints'][-1]['stdout']) > 1024:
-                result['checkpoints'][-1]['stdout'] = result['checkpoints'][-1]['stdout'][0:1024] + "\n[Excessive output]\n"
-            if len(result['checkpoints'][-1]['stderr']) > 1024:
-                result['checkpoints'][-1]['stderr'] = result['checkpoints'][-1]['stderr'][0:1024] + "\n[Excessive output]\n"
-            
-    do_remove_task_files(task_id=task_id, use_plugin=use_plugin)
-    
-    if judge_type == 'spj':
-        do_remove_task_files(task_id=spj_program_task_id, use_plugin=spj_use_plugin)
-            
-    return result
+        return result
     
 @app.route('/info', methods=['GET'])
 def info():

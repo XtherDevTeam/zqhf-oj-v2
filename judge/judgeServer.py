@@ -99,9 +99,9 @@ def do_compile(task_id: str, use_plugin: dict, source_file: str):
     use_plugin['compile_command'] = use_plugin['compile_command'].replace('$binary_file', binary_fp)
     
     fp = Popen(use_plugin['compile_command'], shell=True, cwd=os.getcwd(), stdin=PIPE, stdout=open(pipe_stdout, 'w+'), stderr=open(pipe_stderr, 'w+'))
-    fp.wait()
+    fp.wait(10)
     
-    return fp.returncode
+    return fp.returncode if fp.returncode is not None else 255
 
 
 # 第三次优化评测机 运行评测插件不需要输入 由判题流程写入文件

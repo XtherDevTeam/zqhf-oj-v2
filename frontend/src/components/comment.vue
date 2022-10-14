@@ -7,29 +7,22 @@
       <editor language="markdown" height="128px" v-model="post_comment_content"></editor>
       <el-button type="primary" @click="post_comment">提交评论</el-button>
     </el-card>
-    <el-card shadow="hover" class="oj_comments_show" :key="comment" v-for="comment in comments">
+    <el-card shadow="hover" class="oj_comments_show" :key="index" v-for="comment, index in comments">
       <span>{{ comment['author']['username'] }}</span>
       <el-button style="float: right; padding: 3px 0" type="text"
                  @click="delete_comment(comment.index)"
                  v-if="logged_in && (user_info.data.id === comment.author.id || user_info.data['other_message']['permission_level'] === 2)">
         删除
       </el-button>
-      <div v-html="comment.text"></div>
+      <Markdown :code="comment['text']"></Markdown>
     </el-card>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
-
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdown_with_katex);
-markdown.use(markdownItHighlight);
+import MonacoEditor from "~/components/editor.vue";
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -43,9 +36,6 @@ export default {
             .then((response) => {
               if (response.data['code'] === 0) {
                 this.comments = response.data['data'];
-                for (let comment of this.comments) {
-                  comment['text'] = markdown.render(comment['text']);
-                }
               } else {
                 this.$message({
                   type: 'error',
@@ -124,7 +114,8 @@ export default {
     this.init();
   },
   components: {
-    editor: MonacoEditor
+    editor: MonacoEditor,
+    Markdown,
   }
 };
 </script>

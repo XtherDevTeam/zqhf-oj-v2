@@ -26,7 +26,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
 import 'mavon-editor/dist/css/index.css'
 
 export default {

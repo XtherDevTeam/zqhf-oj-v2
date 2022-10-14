@@ -74,7 +74,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
 
 import utils from "../utils";
 

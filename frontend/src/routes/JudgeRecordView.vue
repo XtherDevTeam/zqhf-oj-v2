@@ -47,7 +47,7 @@
     <span>提交代码: </span>
     <div style="margin: 10px;"></div>
     <div class="markdown-body">
-      <pre v-if="user_info['data']['id'] === record_content['author']['id']"><code v-html="rendered_code_html"></code></pre>
+      <pre v-if="user_info.data.other_message.permission_level == 2 || user_info['data']['id'] === record_content['author']['id']"><code v-html="rendered_code_html"></code></pre>
       <pre v-else><code>您无权限查看他人代码!</code></pre>
     </div>
   </el-card>
@@ -55,7 +55,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
 import markdownItHighlight from 'markdown-it-highlight';
 import hljs from "highlight.js";
 
@@ -75,6 +75,7 @@ export default {
     },
     update_status() {
       axios.get('/api/v1/judge/get/' + this.$route.query['id']).then((response) => {
+        console.log(response.status);
         this.record_content = response.data['data'];
         if (this.record_content == null || response.data['code'] !== 0) {
           this.$message({
@@ -89,6 +90,8 @@ export default {
             this.rendered_code_html = hljs.highlightAuto(this.record_content['code']).value;
           }
         }
+      }).catch(() => {
+        clearInterval(this.interval_id);
       });
     },
     init() {
@@ -98,7 +101,7 @@ export default {
       }).then((response) => {
         this.user_info = response.data;
         this.logged_in = response.data['code'] === 0;
-      }).catch(function (error) {
+      }).catch(() => {
         
       });
     },

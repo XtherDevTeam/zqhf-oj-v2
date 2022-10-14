@@ -6,7 +6,7 @@
       </div>
       <span>作者: {{ article_content['author']['username'] }}</span>
       <div style="margin: 50px;"></div>
-      <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
+      <Markdown :code="article_content['text']"></markdown>
     </el-card>
     <div style="margin: 20px;"></div>
     <comment class="box-card" :area_id="'article:' + this.$route.query['id']"></comment>
@@ -15,16 +15,9 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
 import Comment from "~/components/comment";
 
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdown_with_katex);
-markdown.use(markdownItHighlight);
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -46,8 +39,6 @@ export default {
             type: "error",
             message: "文章内容拉取失败!"
           });
-        } else {
-          this.rendered_content = markdown.render(this.article_content['text']);
         }
       });
     },
@@ -65,7 +56,8 @@ export default {
     }
   },
   components: {
-    comment: Comment
+    comment: Comment,
+    Markdown,
   }
 };
 </script>

@@ -19,7 +19,7 @@
       <div style="margin: 10px auto;"></div>
       <span><strong>题目介绍: </strong></span><br>
       <div style="margin: 10px auto;"></div>
-      <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
+      <Markdown :code="problem_content['description']"></Markdown>
 
       <div style="margin: 10px auto;"></div>
 
@@ -61,15 +61,9 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
+import Markdown from "~/components/markdown.vue";
 
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdownItHighlight);
-markdown.use(markdown_with_katex);
 
 export default {
   methods: {
@@ -101,7 +95,6 @@ export default {
         } else {
           this.problem_content['tags'] = JSON.parse(this.problem_content['tags']);
           this.problem_content['examples'] = JSON.parse(this.problem_content['examples']);
-          this.rendered_content = markdown.render(this.problem_content['description']);
         }
       });
       axios.get('/api/v1/judge/info').then((response) => {
@@ -140,8 +133,9 @@ export default {
   },
   components: {
     editor: MonacoEditor,
-    comment: Comment
-  },
+    comment: Comment,
+    Markdown
+},
   mounted() {
     this.init();
   },
@@ -150,7 +144,6 @@ export default {
       user_info: "",
       logged_in: "",
       problem_content: "",
-      rendered_content: "",
       support_judge_language: [],
       support_judge_language_highlight_mode: [],
       editor_highlight_mode: "cpp",

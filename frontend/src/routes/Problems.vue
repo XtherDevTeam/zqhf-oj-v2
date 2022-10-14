@@ -27,7 +27,7 @@
 
               width="100%" height="256px"></editor>
 
-      <el-tag :key="tag" v-for="tag in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"
+      <el-tag :key="index" v-for="tag, index in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"
               @close="new_problem_tags_remove(tag)">
         {{ tag }}
       </el-tag>
@@ -62,7 +62,7 @@
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
         <el-table-column fixed prop="name" label="题目名"></el-table-column>
         <el-table-column fixed v-slot="scope" label="标签">
-          <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
+          <el-tag :key="index" v-for="tag, index in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="256">
           <template v-slot="scope">
@@ -92,7 +92,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
 
 
 export default {

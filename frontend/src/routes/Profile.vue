@@ -28,22 +28,15 @@
       </div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
       <div style="height: 10px;"></div>
-      <div class="markdown-body" v-html="full_introduction_rendered"></div>
+      <Markdown :code="show_user_info['data']['full_introduction']"></Markdown>
     </el-card>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
-
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdownItHighlight);
-markdown.use(markdown_with_katex);
+import MonacoEditor from "~/components/editor.vue";
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -63,16 +56,11 @@ export default {
                     type: "error",
                     message: "[" + response.data['code'] + "] " + response.data['text'] + " 拉取用户信息失败!"
                   });
-                } else {
-                  this.full_introduction_rendered = markdown.render(this.show_user_info['data']['full_introduction']);
                 }
               });
             } else {
               this.show_user_info = this.user_info;
               this.logged_in = response.data['code'] === 0;
-              if (this.logged_in) {
-                this.full_introduction_rendered = markdown.render(this.user_info['data']['full_introduction']);
-              }
             }
           })
           .catch(function (error) {
@@ -86,6 +74,9 @@ export default {
       full_introduction_rendered: "",
       show_user_info: {},
     };
+  },
+  components: {
+    Markdown
   },
   mounted: function () {
     this.init();

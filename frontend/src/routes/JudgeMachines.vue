@@ -17,7 +17,7 @@
               <span><el-tag>{{ props.row['status'] === 'free' ? '空闲' : '忙碌' }}</el-tag></span>
             </el-form-item>
             <el-form-item label="支持语言">
-              <span><el-tag v-bind:key="i" v-for="i in props.row['judge-sever-support-language']">{{ i }}</el-tag></span>
+              <span><el-tag v-bind:key="index" v-for="i, index in props.row['judge-sever-support-language']">{{ i }}</el-tag></span>
             </el-form-item>
           </el-form>
         </template>

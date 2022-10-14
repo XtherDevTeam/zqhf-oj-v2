@@ -9,11 +9,7 @@
         </span>
 
         <h3>比赛介绍</h3>
-        <div
-          class="markdown-body"
-          id="markdownRenderedPlace"
-          v-html="rendered_description"
-        ></div>
+        <Markdown :code="contest_info['description']"></Markdown>
 
         <div style="height: 20px"></div>
 
@@ -78,7 +74,7 @@
           <el-table-column prop="author" label="上传者" width="128"></el-table-column>
           <el-table-column prop="name" label="题目名"></el-table-column>
           <el-table-column v-slot="scope" label="标签">
-            <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
+            <el-tag v-for="(item, index) in scope.row.tags" :key="index" style="margin: 0 2px;">{{ item }}</el-tag>
           </el-table-column>
         </el-table>
       </el-tab-pane>
@@ -93,9 +89,7 @@
           <el-table-column fixed prop="username" label="用户名" width="128"></el-table-column>
           <el-table-column fixed label="各题分数">
             <template v-slot="scope">
-              <el-tag :key="i" v-for="i in scope.row.scores" style="margin-left: 10px;">
-                {{ i }}
-              </el-tag>
+              <el-tag v-for="(item, index) in scope.row.scores" :key="index" style="margin: 0 2px;">{{ item }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column fixed prop="final_score" label="最终分数"></el-table-column>
@@ -128,17 +122,10 @@
   
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
-
-import markdownItHighlight from "markdown-it-highlight";
+import MonacoEditor from "~/components/editor.vue";
 
 import utils from "../utils";
-
-const markdown = require("markdown-it")(),
-  markdown_with_katex = require("@iktakahiro/markdown-it-katex");
-
-markdown.use(markdown_with_katex);
-markdown.use(markdownItHighlight);
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -164,6 +151,7 @@ export default {
               message: "比赛内容拉取失败: " + response.data.text,
             });
           } else {
+            console.log(this.contest_info.description);
             // format time
             this.contest_time = [
               utils.timestampToTime(this.contest_info.start_timestamp),
@@ -173,11 +161,6 @@ export default {
             this.contest_duration = utils.getDuration(
               this.contest_info.start_timestamp,
               this.contest_info.end_timestamp
-            );
-
-            // render html
-            this.rendered_description = markdown.render(
-              this.contest_info.description
             );
           }
         });
@@ -248,7 +231,8 @@ export default {
   },
   components: {
     editor: MonacoEditor,
-  },
+    Markdown
+},
   data() {
     return {
       pageName: "contest-view",

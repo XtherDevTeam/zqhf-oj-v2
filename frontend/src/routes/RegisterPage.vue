@@ -22,7 +22,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
+import MonacoEditor from "~/components/editor.vue";
 import App from "../App.vue";
 import Vue from "vue";
 

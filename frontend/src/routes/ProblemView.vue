@@ -18,13 +18,13 @@
       <div style="margin: 10px auto;"></div>
       <span><strong>题目介绍: </strong></span><br>
       <div style="margin: 10px auto;"></div>
-      <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
+      <Markdown :code="problem_content['description']"></Markdown>
 
       <div style="margin: 10px auto;"></div>
 
       <span><strong>题目样例: </strong></span><br>
       <div style="margin: 10px auto;"></div>
-      <div :key="example" v-for="example in problem_content['examples']">
+      <div :key="index" v-for="example, index in problem_content['examples']">
         <el-container>
           <el-aside width="50%">
             输入:<br>
@@ -61,16 +61,9 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
-import Comment from "../components/comment.vue";
-
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdownItHighlight);
-markdown.use(markdown_with_katex);
+import MonacoEditor from "~/components/editor.vue";
+import Comment from "~/components/comment.vue";
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -102,7 +95,6 @@ export default {
         } else {
           this.problem_content['tags'] = JSON.parse(this.problem_content['tags']);
           this.problem_content['examples'] = JSON.parse(this.problem_content['examples']);
-          this.rendered_content = markdown.render(this.problem_content['description']);
         }
       });
       axios.get('/api/v1/judge/info').then((response) => {
@@ -139,7 +131,8 @@ export default {
   },
   components: {
     editor: MonacoEditor,
-    comment: Comment
+    comment: Comment,
+    Markdown
   },
   mounted() {
     this.init();

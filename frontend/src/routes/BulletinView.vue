@@ -5,20 +5,13 @@
     </div>
     <span>上次修改: {{ bulletin_content['time'] }}</span>
     <div style="margin: 50px;"></div>
-    <div class="markdown-body" id="markdownRenderedPlace" v-html="rendered_content"></div>
+    <Markdown :code="bulletin_content['content']"></markdown>
   </el-card>
 </template>
 
 <script>
 import axios from "axios";
-import MonacoEditor from "../components/editor.vue";
-import markdownItHighlight from 'markdown-it-highlight';
-
-const markdown = require('markdown-it')(),
-    markdown_with_katex = require('@iktakahiro/markdown-it-katex');
-
-markdown.use(markdown_with_katex);
-markdown.use(markdownItHighlight);
+import Markdown from "~/components/markdown.vue";
 
 export default {
   methods: {
@@ -40,8 +33,6 @@ export default {
             type: "error",
             message: "公告内容拉取失败!"
           });
-        } else {
-          this.rendered_content = markdown.render(this.bulletin_content['content']);
         }
       });
     },
@@ -55,8 +46,10 @@ export default {
       user_info: "",
       logged_in: "",
       bulletin_content: "",
-      rendered_content: ""
     }
+  },
+  components: {
+    Markdown: Markdown
   }
 };
 </script>

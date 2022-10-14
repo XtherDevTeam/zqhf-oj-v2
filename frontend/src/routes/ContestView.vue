@@ -179,8 +179,6 @@ export default {
             this.rendered_description = markdown.render(
               this.contest_info.description
             );
-
-            console.log('caonima ', this.contest_info.joined);
           }
         });
     },
@@ -200,7 +198,15 @@ export default {
         });
     },
     goto_problem_view(row) {
-      window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + row.index;
+      if (!this.contest_info.ended) {
+        window.location = '/#/contests/solve?contest=' + this.$route.query["id"] + '&t=' + row.index;
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '比赛已结束，正在前往题库页面......'
+        });
+        window.location = '/#/problems/view?id=' + row.id;
+      }
     },
     refresh_ranking_table() {
       axios

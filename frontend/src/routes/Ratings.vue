@@ -83,7 +83,6 @@ export default {
     return {
       user_info: "",
       logged_in: "",
-      app_name: this.$parent.$parent.$parent.app_name,
       ratings_data: [],
       ratings_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
       ratings_limit: this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']),

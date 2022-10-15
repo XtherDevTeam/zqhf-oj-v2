@@ -238,7 +238,6 @@ export default {
       pageName: "contest-view",
       user_info: {},
       logged_in: false,
-      app_name: this.$parent.$parent.$parent.app_name,
       ranking_page_start: 0,
       ranking_page_limit: 16,
       ranking_data: [],

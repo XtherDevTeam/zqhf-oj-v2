@@ -208,7 +208,6 @@ export default {
     return {
       user_info: "",
       logged_in: "",
-      app_name: this.$parent.$parent.$parent.app_name,
       problems_data: [],
       problems_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
       problems_limit: this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']),

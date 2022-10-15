@@ -121,6 +121,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import utils from '~/utils';
 
 export default {
   methods: {
@@ -265,7 +266,7 @@ export default {
       create_bulletin_dialog_visible: false,
       create_bulletin_dialog_name: "",
       create_bulletin_dialog_content: "",
-      app_name: this.$parent.$parent.$parent.app_name
+      app_name: utils.getAppName()
     };
   },
 };

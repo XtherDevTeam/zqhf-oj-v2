@@ -85,6 +85,7 @@
 
 <script>
 import axios from "axios";
+import utils from "~/utils.js"
 
 export default {
   methods: {
@@ -159,7 +160,7 @@ export default {
       activeIndex2: "1",
       logged_in: false,
       user_info: {},
-      app_name: "肇庆华赋在线评测系统",
+      app_name: utils.getAppName(),
       change_password_dialog_visible: false,
       change_password_new_password: "",
       change_password_origin_password: ""

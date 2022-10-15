@@ -59,5 +59,8 @@ export default {
             }
         }
         return format;
+    },
+    getAppName() {
+        return "肇庆华赋在线评测系统";
     }
 }

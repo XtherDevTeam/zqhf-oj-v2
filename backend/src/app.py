@@ -914,10 +914,6 @@ def create_contest():
 
 @app.route("/v1/contests/get/<int:id>", methods=['GET'])
 def get_contest_detail(id: int):
-    require_user = require_user_permission()
-    if require_user is not True:
-        return require_user
-
     data = backend.query_contests_by_id(id)
 
     if data is None:
@@ -931,10 +927,6 @@ def get_contest_detail(id: int):
 
 @app.route("/v1/contests/get/<int:start>/<int:size>", methods=['GET'])
 def get_contests(start: int, size: int):
-    require_user = require_user_permission()
-    if require_user is not True:
-        return require_user
-
     data = backend.query_contests_by_swap(start, size)
     return {'code': 0, 'text': '请求成功!', 'data': data}
 

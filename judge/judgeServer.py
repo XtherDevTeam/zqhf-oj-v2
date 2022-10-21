@@ -177,16 +177,13 @@ def checker(result, expectedOutput):
         return result
     
     result['stdout'] = result['stdout'].replace('\r', '')
-
-    if result['stdout'] != "":
-        while result['stdout'][-1] == '\n' or result['stdout'][-1] == ' ':
-            result['stdout'] = result['stdout'][0:-1]
-
     expectedOutput = expectedOutput.replace('\r', '')
 
-    if expectedOutput != "":
-        while expectedOutput[-1] == '\n' or expectedOutput[-1] == ' ' or expectedOutput[-1] == '\0' or expectedOutput[-1] == '\r':
-            expectedOutput = expectedOutput[0:-1]
+    while len(result['stdout']) and (result['stdout'][-1] == '\n' or result['stdout'][-1] == ' '):
+        result['stdout'] = result['stdout'][0:-1]
+
+    while len(expectedOutput) and (expectedOutput[-1] == '\n' or expectedOutput[-1] == ' '):
+        expectedOutput = expectedOutput[0:-1]
 
     if len(result['stdout']) != len(expectedOutput):
         result['status'] = 'Wrong Answer at character ' + str(len(result['stdout'])) + ' of ' + str(len(expectedOutput))

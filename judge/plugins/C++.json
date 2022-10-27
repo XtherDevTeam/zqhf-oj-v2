@@ -3,6 +3,6 @@
     "file-type": "text/x-c++src",
     "file-ext": "cpp",
     "descriptions": "G++ Compiler with default c++ standard",
-    "compile_command": "g++ -fsanitize=address,undefined $source_file -o $binary_file",
+    "compile_command": "g++ $source_file -o $binary_file",
     "exec_command": "$binary_file"
 }

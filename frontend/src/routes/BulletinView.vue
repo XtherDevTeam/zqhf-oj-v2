@@ -4,7 +4,7 @@
       <span>{{ bulletin_content['name'] }}</span>
     </div>
     <span>上次修改: {{ bulletin_content['time'] }}</span>
-    <div style="margin: 50px;"></div>
+    <div style="margin: 25px;"></div>
     <Markdown :code="bulletin_content['content']"></markdown>
   </el-card>
 </template>

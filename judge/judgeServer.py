@@ -225,19 +225,20 @@ def submit_1():
             file.write(data['input'])
         
         result_data = execute_plugin(task_id, use_plugin, data['time_limit'], data['mem_limit'])
-        return checker({
+        result_data = checker({
             'status': result_data[0],
             'stdout': str(result_data[1]),
             'stderr': str(result_data[2]),
             'return_code': str(result_data[3])
         }, data['output'])
+        do_remove_task_files(task_id, use_plugin)
+        return result_data
         
         
 # 第三次优化评测机 一次编译多次运行 需要主机传入所有数据点
 @app.route('/checker', methods=['POST'])
 def submit_2():
     with lock:
-        print(flask.request.files.keys())
         data = json.loads(flask.request.files.get('json').stream.read())
         result = []
         result = {

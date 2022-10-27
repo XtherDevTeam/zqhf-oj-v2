@@ -341,6 +341,32 @@ def add_out_checkpoint_to_problem(pid: int, checkpoint_name: str, output_data):
         return True
     else:
         return False
+    
+    
+def get_in_checkpoint(pid: int, checkpoint_name: str):
+    filename = config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.in'
+    if query_problem_by_id(pid) is not None:
+        os.makedirs(config.get('uploads-path') +
+                    "/problems_data/" + str(pid), exist_ok=True)
+        
+        if os.access(filename, os.F_OK):
+            return filename
+        return Exception("file not exist")
+    else:
+        raise Exception("problem not exist")
+
+
+def get_out_checkpoint(pid: int, checkpoint_name: str):
+    filename = config.get('uploads-path') + "/problems_data/" + str(pid) + "/" + checkpoint_name + '.out'
+    if query_problem_by_id(pid) is not None:
+        os.makedirs(config.get('uploads-path') +
+                    "/problems_data/" + str(pid), exist_ok=True)
+        
+        if os.access(filename, os.F_OK):
+            return filename
+        return Exception("file not exist")
+    else:
+        raise Exception("problem not exist")
 
 
 def remove_checkpoint_from_problem(pid: int, checkpoint_name: str):

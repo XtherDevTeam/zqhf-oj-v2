@@ -82,6 +82,7 @@
       <el-tab-pane label="排名榜" name="ranking">
         <span class="contest-info">
           {{ user_info.data.username }} 的比赛情况: 总分 {{ my_ranking.final_score }} 排名 {{ my_ranking.ranking }}
+          <el-button style="float: right; padding: 3px 0" type="text" @click="refresh_ranking_table()">刷新</el-button>
         </span>
 
         <el-table :data="ranking_data" style="width: 100%">
@@ -93,13 +94,6 @@
             </template>
           </el-table-column>
           <el-table-column fixed prop="final_score" label="最终分数"></el-table-column>
-          <el-table-column fixed>
-            <template slot="header">
-              <el-button type="primary" @click="refresh_ranking_table">刷新</el-button>
-            </template>
-            <template>
-            </template>
-          </el-table-column>
         </el-table>
 
       <div style="margin: 20px;"></div>

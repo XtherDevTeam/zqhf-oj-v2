@@ -96,7 +96,7 @@ export default {
       });
     },
     init() {
-      
+      this.init_copy_btn();
       axios
           .get("/api/v1/user/details", {
             params: {},
@@ -152,7 +152,17 @@ export default {
           .catch(function (error) {
             
           });
-    }
+    },
+    init_copy_btn() {
+      let _this = this;
+      let clipboard = new this.clipboard(".copy-btn");
+      clipboard.on('success', function () {
+        _this.$message({type: "success", message: "复制成功!"});
+      });
+      clipboard.on('error', function () {
+        _this.$message({type: "error", message: "复制失败!"});
+      });
+    },
   },
   data() {
     return {

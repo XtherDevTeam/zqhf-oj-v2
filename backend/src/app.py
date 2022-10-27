@@ -657,6 +657,32 @@ def upload_checkpoint_input_router(ident, checkpoint_name):
                 'code': 2,
                 'text': '题目不存在'
             }
+            
+
+@app.route("/v1/problems/checkpoints/download/<int:ident>/<checkpoint_name>/in", methods=['GET'])
+def download_checkpoint_input_router(ident, checkpoint_name):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+    
+    return flask.send_file(backend.get_in_checkpoint(ident, checkpoint_name), 
+                           'text/plain',
+                           True,
+                           download_name=f'Problem{ident}-{checkpoint_name}.in', 
+                           attachment_filename=f'Problem{ident}-{checkpoint_name}.in')
+        
+
+@app.route("/v1/problems/checkpoints/download/<int:ident>/<checkpoint_name>/out", methods=['GET'])
+def download_checkpoint_output_router(ident, checkpoint_name):
+    require_user = require_user_permission()
+    if require_user is not True:
+        return require_user
+    
+    return flask.send_file(backend.get_out_checkpoint(ident, checkpoint_name), 
+                           'text/plain',
+                           True,
+                           download_name=f'Problem{ident}-{checkpoint_name}.out', 
+                           attachment_filename=f'Problem{ident}-{checkpoint_name}.out')
 
 
 # 注意 该路由不对数据进行任何检查 请确认上传完成后为配套的in, out文件

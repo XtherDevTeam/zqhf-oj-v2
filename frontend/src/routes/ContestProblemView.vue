@@ -28,12 +28,12 @@
       <div :key="example" v-for="example in problem_content['examples']">
         <el-container>
           <el-aside width="50%">
-            输入:<br>
+            输入: <el-button class="copy-btn" type="text" data-clipboard-action="copy" :data-clipboard-text="example['in']">复制</el-button>
             <pre><code>{{ example['in'] }}</code>
           </pre>
           </el-aside>
           <el-main style="padding: unset;">
-            输出:<br>
+            输出: <el-button class="copy-btn" type="text" data-clipboard-action="copy" :data-clipboard-text="example['out']">复制</el-button>
             <pre><code>{{ example['out'] }}</code>
           </pre>
           </el-main>
@@ -109,7 +109,7 @@ export default {
       }
     },
     auto_save() {
-      window.localStorage.setItem("zqhf-oj-v2.code-auto-save.problem-" + this.$route.query['id'], this.judge_answer);
+      window.localStorage.setItem("zqhf-oj-v2.code-auto-save.contest-" + this.$route.query['contest'] + '$' + this.$route.query['t'], this.judge_answer);
     },
     submit_judge() {
       axios.post('/api/v1/contests/' + this.$route.query['contest'] + '/problems/submit/' + this.$route.query['t'], {

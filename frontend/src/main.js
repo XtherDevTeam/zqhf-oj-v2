@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import clipboard from 'clipboard';
+//注册到vue原型上
+Vue.prototype.clipboard = clipboard;
+
 import './oj-theme/theme.css';
 
 import ElementUI from 'element-ui';

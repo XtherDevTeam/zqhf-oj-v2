@@ -16,6 +16,7 @@ app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
 @app.route('/submit', methods=['POST'])
 def submit_1():
+    print('got a execute task')
     l = api.get_free_judger_list()
     while not len(l):
         time.sleep(1)
@@ -25,6 +26,7 @@ def submit_1():
 
 @app.route('/checker', methods=['POST'])
 def submit_2():
+    print('got a checker task')
     l = api.get_free_judger_list()
     while not len(l):
         time.sleep(1)

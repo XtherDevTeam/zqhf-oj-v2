@@ -5,7 +5,8 @@ import requests, config, json
 @return Dict 状态信息
 """
 def ask_stat(host : str) -> dict:
-    status = json.loads(requests.get(f'http://{host}/status').content)
+    print('asking status for host ', host)
+    status = json.loads(requests.get(f'http://{host}/status', timeout=1000).content)
     return status
 
 """
@@ -13,7 +14,8 @@ def ask_stat(host : str) -> dict:
 @return Dict 状态信息
 """
 def ask_info(host : str) -> dict:
-    status = json.loads(requests.get(f'http://{host}/info').content)
+    print('asking infomation for host ', host)
+    status = json.loads(requests.get(f'http://{host}/info', timeout=1000).content)
     return status
 
 """
@@ -24,8 +26,11 @@ def get_free_judger_list() -> list:
     ret = []
     idx = 0
     for i in config.judger_hosts:
-        if ask_stat(i)['status'] == 'free':
-            ret.append(idx)
+        try:
+            if ask_stat(i)['status'] == 'free':
+                ret.append(idx)
+        finally:
+            pass
         idx += 1
     return ret
 
@@ -36,7 +41,10 @@ def get_free_judger_list() -> list:
 def get_judger_info() -> list:
     ret = []
     for i in config.judger_hosts:
-        ret.append(ask_info(i))
+        try:
+            ret.append(ask_info(i))
+        finally:
+            pass
     return ret
 
 """

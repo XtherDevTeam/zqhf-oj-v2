@@ -61,7 +61,8 @@
 
     <el-card v-if="logged_in" shadow="hover" class="box-card">
       <div slot="header" class="clearfix">
-        <span>提交答案</span><br>
+        <span>提交答案</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="goto_problem_submit_record()">提交记录</el-button>
       </div>
       <el-select v-model="judge_lang" placeholder="选择提交语言" @change="switch_language">
         <el-option v-for="item in support_judge_language" :key="item" :label="item" :value="item"></el-option>
@@ -147,6 +148,9 @@ export default {
           window.location = '/#/records/view?id=' + response.data['data'];
         }
       })
+    },
+    goto_problem_submit_record() {
+      window.location = `/#/records?uid=${this.user_info.data.id}&pid=${this.$route.query['id']}`;
     },
     handleClick() {},
     refresh_checkpoint_list() {

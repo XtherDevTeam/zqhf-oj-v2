@@ -4,6 +4,19 @@
       <div slot="header" class="clearfix">
         <span>评测记录</span>
       </div>
+      <div>
+        <span>查找记录：</span>
+
+        <el-input style="width: 200px;" placeholder="" v-model="search.uid">
+          <template slot="prepend">用户UID: </template>
+        </el-input>
+
+        <el-input style="width: 200px;" placeholder="" v-model="search.pid">
+          <template slot="prepend">题目ID: </template>
+        </el-input>
+
+        <el-button icon="el-icon-search" @click="update_record_data()"></el-button>
+      </div>
       <el-table :data="records_data" style="width: 100%" @row-click="problem_click">
         <el-table-column fixed prop="id" label="评测编号" width="128"></el-table-column>
         <el-table-column fixed prop="author" label="上传者UID" width="128"></el-table-column>
@@ -54,28 +67,41 @@ export default {
           .catch(function (error) {
             
           });
-      axios.get("/api/v1/judge/get/" + this.records_start + "/" + this.records_limit).then((response) => {
-        if (response.data['code'] !== 0) {
-          this.$message({
-            type: 'error',
-            message: '拉取评测数据列表失败: ' + response.data['text']
-          });
-        } else {
-          this.records_data = response.data['data'];
-          for (let record = 0; record < this.records_data.length; record++) {
-            this.records_data[record]['author'] = this.records_data[record]['author']['username']
-          }
-        }
-      })
+
+        this.update_record_data();
     },
     handlePageNumberChange() {
-      window.location = '/#/records?from=' + (this.records_limit * this.page_number) + '&limit=' + this.records_limit;
+      window.location = `/#/records?from=${this.records_limit * this.page_number}&limit=${this.records_limit}&uid=${this.search.uid}&pid=${this.search.pid}`;
       this.records_start = this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']);
       this.records_limit = this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']);
-      this.init();
+      this.update_record_data();
     },
     problem_click(toCheck) {
       window.location = '/#/records/view?id=' + toCheck.id;
+    },
+    update_record_data() {
+      try {
+        axios.post(`/api/v1/judge/get/${this.records_start}/${this.records_limit}`,
+                  {'uid': parseInt(this.search.uid), 'pid': parseInt(this.search.pid)}).then((response) => {
+          if (response.data['code'] !== 0) {
+            this.$message({
+              type: 'error',
+              message: '拉取评测数据列表失败: ' + response.data['text']
+            });
+          } else {
+            this.records_data = response.data['data'];
+            for (let record = 0; record < this.records_data.length; record++) {
+              this.records_data[record]['author'] = this.records_data[record]['author']['username']
+            }
+          }
+        })
+      } catch (e) {
+        this.$message({
+          type: 'error',
+          message: '拉取评测数据列表失败: ' + e
+        });
+      }
+      
     }
   },
   components: {
@@ -89,6 +115,10 @@ export default {
       records_start: this.$route.query['from'] === undefined ? 0 : parseInt(this.$route.query['from']),
       records_limit: this.$route.query['limit'] === undefined ? 16 : parseInt(this.$route.query['limit']),
       page_number: 0,
+      search: {
+        uid: this.$route.query['uid'] === undefined ? "-1" : this.$route.query['uid'],
+        pid: this.$route.query['pid'] === undefined ? "-1" : this.$route.query['pid'],
+      }
     }
   }
   ,

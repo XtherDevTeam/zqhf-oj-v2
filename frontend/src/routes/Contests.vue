@@ -1,6 +1,6 @@
 <template>
   <div style="width: 90%;margin: 0 auto;">
-    <el-dialog width="50%" title="创建比赛" :visible.sync="new_contest_dialog_visible">
+    <el-dialog width="90%" title="创建比赛" :visible.sync="new_contest_dialog_visible">
       <span>请创建完成后于 修改比赛 处添加题目</span>
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_contest.contestName">
         <template slot="prepend">标题</template>

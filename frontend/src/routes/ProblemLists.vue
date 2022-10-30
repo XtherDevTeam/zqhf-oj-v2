@@ -1,6 +1,6 @@
 <template>
   <div style="width: 90%;margin: 0 auto;">
-    <el-dialog width="50%" title="创建题单" :visible.sync="new_problem_list_dialog_visible">
+    <el-dialog width="90%" title="创建题单" :visible.sync="new_problem_list_dialog_visible">
       <span>新建题单之后编辑题单以新增题目</span>
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_problem_list_name">
         <template slot="prepend">标题</template>

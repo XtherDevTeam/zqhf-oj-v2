@@ -1,6 +1,6 @@
 <template>
   <div style="width: 90%;margin: 0 auto;">
-    <el-dialog width="50%" title="创建题目" :visible.sync="new_problem_dialog_visible">
+    <el-dialog width="90%" title="创建题目" :visible.sync="new_problem_dialog_visible">
       <span>新增题目样例请创建题目后修改</span>
       <el-input style="margin: 10px auto;" placeholder="请输入内容" v-model="new_problem_name">
         <template slot="prepend">标题</template>
@@ -58,6 +58,19 @@
         close-text="知道了"
         v-if="logged_in && user_info['data']['other_message']['permission_level'] >= 1">
       </el-alert>
+      <div style="margin: 10px;"></div>
+      <div>
+        <span>查找题目: </span>
+        <el-input style="width: 92%;" placeholder="请输入内容" v-model="search_input" class="input-with-select">
+          <el-select style="width: 100px;" v-model="search_select" slot="prepend" placeholder="请选择">
+            <el-option label="题号" value="by_id"></el-option>
+            <el-option label="作者" value="by_author"></el-option>
+            <el-option label="题面" value="by_description"></el-option>
+            <el-option label="标签" value="by_tags"></el-option>
+          </el-select>
+          <el-button slot="append" icon="el-icon-search" @click="on_search_event"></el-button>
+        </el-input>
+      </div>
       <el-table :data="problems_data" style="width: 100%" @row-click="problem_click">
         <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
         <el-table-column fixed prop="name" label="题目名"></el-table-column>
@@ -192,6 +205,40 @@ export default {
         }
       })
     },
+    on_search_event() {
+      if (this.search_input === "") {
+        this.$message({
+          type: 'error',
+          message: "输入为空!"
+        });
+      } else if (this.search_select === "") {
+        this.$message({
+          type: 'error',
+          message: "请选择搜索方式!"
+        });
+      } else {
+        axios
+            .get("/api/v1/search/problems/" + this.search_select + "/" + this.search_input, {
+              params: {},
+            })
+            .then((response) => {
+              if (response.data['code'] === 0) {
+                this.problems_data = response.data['data'];
+                for (let problemsDataKey in this.problems_data) {
+                  this.problems_data[problemsDataKey]['tags'] = JSON.parse(this.problems_data[problemsDataKey]['tags']);
+                }
+              } else {
+                this.$message({
+                  type: "error",
+                  message: "错误[" + response.data['code'] + ']: ' + response.data['text']
+                });
+              }
+            })
+            .catch(function (error) {
+              
+            });
+      }
+    },
     check_general_permission(compare) {
       if (this.logged_in) {
         return this.user_info['data']['other_message']['permission_level'] === 1 && this.user_info['data']['username'] === compare ||
@@ -221,6 +268,8 @@ export default {
       new_problem_temp_tag_name: "",
       new_problem_temp_tag_visible: false,
       page_number: 0,
+      search_input: "",
+      search_select: "",
     }
   }
   ,

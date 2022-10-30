@@ -1,6 +1,6 @@
 <template>
   <div style="width: 90%;margin: 0 auto;">
-    <el-dialog width="50%" title="新建文章" :visible.sync="new_article_dialog_visible">
+    <el-dialog width="90%" title="新建文章" :visible.sync="new_article_dialog_visible">
       <el-input placeholder="请输入内容" v-model="new_article_name">
         <template slot="prepend">标题</template>
       </el-input>

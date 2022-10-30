@@ -60,7 +60,7 @@
       </el-header>
       <el-main style="margin: 0 auto;" id="app-container">
         <div class="ui main-container" style="height: 100%; ">
-          <el-dialog v-if="logged_in" title="修改密码" :visible.sync="change_password_dialog_visible" width="30%">
+          <el-dialog v-if="logged_in" title="修改密码" :visible.sync="change_password_dialog_visible" width="50%">
             <span>正在修改 {{ user_info['data']['username'] }} 的密码</span>
             <div style="margin: 10px;"></div>
             <el-input placeholder="请输入原密码" v-model="change_password_origin_password" show-password></el-input>

@@ -153,9 +153,23 @@ def change_user_password(user: int, password: str):
     set_user_attr_by_id(user, 'password', make_password_md5(password))
 
 
-def query_records_by_swap(start: int, count: int):
-    data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
-                    [count, start])
+def query_records_by_swap(start: int, count: int, author: int = -1, problem: int = -1):
+    data = []
+    if author != -1:
+        if problem != -1:
+            data = query_db("select id, author, lang, problem, status, score from oj_records where author = ? and problem = ? order by id desc limit ? offset ?",
+                        [author, problem, count, start])
+        else:
+            data = query_db("select id, author, lang, problem, status, score from oj_records where author = ? order by id desc limit ? offset ?",
+                            [author, count, start])
+    else:
+        if problem != -1:
+            data = query_db("select id, author, lang, problem, status, score from oj_records where problem = ? order by id desc limit ? offset ?",
+                        [problem, count, start])
+        else:
+            data = query_db("select id, author, lang, problem, status, score from oj_records order by id desc limit ? offset ?",
+                            [count, start])
+            
     for i in data:
         i['author'] = query_user_by_id_min(i['author'])
     return data
@@ -249,15 +263,15 @@ def search_problems(way: str, content: str):
     result = []
     if way == "by_id":
         result = query_db(
-            "select id,name,description,tags from oj_problems where id = ?", [content])
+            "select id,author,name,description,tags from oj_problems where id = ?", [content])
     elif way == "by_author":
-        result = query_db("select id,name,description,tags from oj_problems where author like ?", [
+        result = query_db("select id,author,name,description,tags from oj_problems where author like ?", [
             "%" + content + "%"])
     elif way == "by_description":
-        result = query_db("select id,name,description,tags from oj_problems where description like ?",
+        result = query_db("select id,author,name,description,tags from oj_problems where description like ?",
                           ["%" + json.dumps(content)[1:-1] + "%"])
     elif way == "by_tags":
-        result = query_db("select id,name,description,tags from oj_problems where tags like ?",
+        result = query_db("select id,author,name,description,tags from oj_problems where tags like ?",
                           ["%" + json.dumps(content)[1:-1] + "%"])
     return result
 
@@ -534,7 +548,7 @@ def run_judge_task(pid: int, author: int, code: str, lang: str):
     timestamp = int(time.time() * 100)
     jid = create_judge(pid, author, code, lang, timestamp)
 
-    threading.Timer(0.1, submit_judge_main, (jid,)).start()
+    threading.Timer(0, submit_judge_main, (jid,)).start()
 
     return jid
 

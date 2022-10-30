@@ -1,7 +1,7 @@
 <template>
   <div id="edit">
     <!-- dialogs -->
-    <el-dialog width="50%" title="创建样例" :visible.sync="new_example_dialog_visible">
+    <el-dialog width="90%" title="创建样例" :visible.sync="new_example_dialog_visible">
       此处为输入输出样例，不是数据文件上传处！<br>
       <el-container>
         <el-aside width="50%">
@@ -25,7 +25,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog width="50%" title="修改样例" :visible.sync="edit_example_dialog_visible">
+    <el-dialog width="90%" title="修改样例" :visible.sync="edit_example_dialog_visible">
       此处为输入输出样例，不是数据文件上传处！<br>
       <el-container>
         <el-aside width="50%">
@@ -49,7 +49,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog width="50%" title="修改数据点" :visible.sync="edit_checkpoint_dialog_visible">
+    <el-dialog width="90%" title="修改数据点" :visible.sync="edit_checkpoint_dialog_visible">
       <span>{{ edit_checkpoint_mode === "in" ? "修改输入(.in)" : "修改输出(.out)" }}</span><br>
       <el-upload
           name="file" drag

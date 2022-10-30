@@ -79,14 +79,16 @@ def judge_server_api_router():
     return {"code": 0, "text": "请求成功!", "data": backend.submit_judge_free(data)}
 
 
-@app.route("/v1/judge/get/<int:start>/<int:limit>", methods=['GET'])
+@app.route("/v1/judge/get/<int:start>/<int:limit>", methods=['POST'])
 def judge_record_get_by_swap_router(start, limit):
+    data = flask.request.get_json()
+    print(data)
     return {
         'code': 0,
         'text': '操作成功',
-        'data': backend.query_records_by_swap(start, limit)
+        'data': backend.query_records_by_swap(start, limit, data['uid'], data['pid'])
     }
-
+    
 
 @app.route("/v1/judge/machines", methods=['GET'])
 def judge_machine():

@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-dialog title="新建公告" :visible.sync="create_bulletin_dialog_visible" width="50%">
+    <el-dialog title="新建公告" :visible.sync="create_bulletin_dialog_visible" width="100%">
       <el-input placeholder="请输入内容" v-model="create_bulletin_dialog_name">
         <template slot="prepend">标题</template>
       </el-input>

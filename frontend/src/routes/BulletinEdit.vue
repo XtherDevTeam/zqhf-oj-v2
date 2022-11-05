@@ -8,8 +8,8 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">公告内容</span>
-    <editor style="margin: 10px auto;" v-model="bulletin_content" language="markdown"
-            width="100%" height="256px"></editor>
+    <MarkdownEditor style="margin: 10px auto;" v-model="bulletin_content" language="markdown"
+            width="100%" height="256px"></MarkdownEditor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
   </el-card>
 </template>
@@ -17,6 +17,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 export default {
   methods: {
@@ -71,6 +72,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   mounted() {
     this.init();

@@ -35,6 +35,7 @@ import ContestEditPage from "./routes/ContestEdit";
 import ContestProblemViewPage from "./routes/ContestProblemView";
 import RatingsPage from "./routes/Ratings";
 import OnlineIDE from "./routes/OnlineIDE";
+import Experiment from "./routes/Experiment";
 
 const routes = [
     {path: '/', component: Home},
@@ -62,6 +63,7 @@ const routes = [
     {path: '/login', component: LoginPage},
     {path: '/register', component: RegisterPage},
     {path: '/ide', component: OnlineIDE},
+    {path: '/experiment', component: Experiment},
     {path: '*', component: NotFound},
 ]
 

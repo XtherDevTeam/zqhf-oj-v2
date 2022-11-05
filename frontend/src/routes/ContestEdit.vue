@@ -26,13 +26,12 @@
       <div style="height: 10px"></div>
 
       <span style="margin: 20px auto">比赛介绍(可使用Markdown + LaTeX)</span>
-      <editor
+      <MarkdownEditor
         style="margin: 10px auto"
-        v-model="contest_data.contestDescription"
-        language="markdown"
+        :code="contest_data.contestDescription"
         width="100%"
         height="256px"
-      ></editor>
+      ></MarkdownEditor>
 
       <el-table :data="problems_content" style="width: 100%">
         <el-table-column prop="id" fixed="right" label="题目编号" width="100px"></el-table-column>
@@ -65,6 +64,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 export default {
   methods: {
@@ -170,6 +170,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   mounted() {
     this.init();

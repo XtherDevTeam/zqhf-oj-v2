@@ -8,8 +8,8 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">文章内容</span>
-    <editor style="margin: 10px auto;" v-model="article_content" language="markdown"
-            width="100%" height="256px"></editor>
+    <MarkdownEditor style="margin: 10px auto;" :code="article_content"
+            width="100%" height="256px"></MarkdownEditor>
     <el-radio v-model="article_visible" label="true">对所有人可见</el-radio>
     <el-radio v-model="article_visible" label="false">对自己可见</el-radio>
     <el-button type="primary" @click="submit_changes">提交</el-button>
@@ -18,7 +18,7 @@
 
 <script>
 import axios from "axios";
-import MonacoEditor from "~/components/editor.vue";
+import markdownEditor from "../components/markdown-editor.vue";
 
 export default {
   methods: {
@@ -76,6 +76,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: markdownEditor,
   },
   mounted() {
     this.init();

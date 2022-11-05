@@ -8,9 +8,8 @@
     </el-input>
     <div style="margin: 10px auto;"></div>
     <span style="margin: 10px auto;">题单介绍</span>
-    <editor style="margin: 10px auto;" v-model="problem_list_description" language="markdown"
-
-            width="100%" height="256px"></editor>
+    <MarkdownEditor style="margin: 10px auto;" :code="problem_list_description"
+            width="100%" height="256px"></MarkdownEditor>
     <div style="margin: 10px auto;"></div>
 
     <el-table :data="problem_list_content" style="width: 100%">
@@ -36,6 +35,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 export default {
   methods: {
@@ -121,6 +121,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   mounted() {
     this.init();

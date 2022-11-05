@@ -6,8 +6,8 @@
       </el-input>
       <div style="margin: 20px auto;"></div>
       <span style="font-size: 14px;"><h3>内容</h3></span>
-      <editor style="margin: 10px auto;" v-model="new_article_text" language="markdown"
-              width="100%" height="256px"></editor>
+      <MarkdownEditor style="margin: 10px auto;" :code="new_article_text"
+              width="100%" height="256px"></MarkdownEditor>
 
       <el-switch
           v-model="new_article_visible"
@@ -80,6 +80,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 
 export default {
@@ -184,6 +185,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   data() {
     return {

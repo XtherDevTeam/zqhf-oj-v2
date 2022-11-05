@@ -6,9 +6,8 @@
         <template slot="prepend">标题</template>
       </el-input>
       <span style="margin: 20px auto;">题单介绍(可使用Markdown + LaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="new_problem_list_description" language="markdown"
-
-              width="100%" height="256px"></editor>
+      <MarkdownEditor style="margin: 10px auto;" :code="new_problem_list_description"
+              width="100%" height="256px"></MarkdownEditor>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="new_problem_list_dialog_visible = false">取 消</el-button>
@@ -71,6 +70,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 
 export default {
@@ -175,6 +175,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   data() {
     return {

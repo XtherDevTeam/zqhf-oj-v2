@@ -10,8 +10,8 @@
       <template slot="prepend">介绍</template>
     </el-input>
     <span style="margin: 10px auto;">长介绍(将显示在个人主页)</span>
-    <editor style="margin: 10px auto;" v-model="full_introduction" language="markdown"
-            width="100%" height="256px"></editor>
+    <MarkdownEditor style="margin: 10px auto;" :code="full_introduction"
+            width="100%" height="256px"></MarkdownEditor>
     <el-button type="primary" @click="submit_changes">提交</el-button>
     <div style="margin: 10px auto;"></div>
     <el-upload class="avatar-uploader" action="/api/v1/user/image/upload"
@@ -28,6 +28,7 @@
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
 import 'mavon-editor/dist/css/index.css'
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 export default {
   methods: {
@@ -91,6 +92,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   mounted() {
     this.init();

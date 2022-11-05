@@ -23,9 +23,8 @@
       <div style="margin: 20px auto;"></div>
 
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + LaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="new_problem_description" language="markdown"
-
-              width="100%" height="256px"></editor>
+      <MarkdownEditor style="margin: 10px auto;" :code="new_problem_description"
+              width="100%" height="256px"></MarkdownEditor>
 
       <el-tag :key="index" v-for="tag, index in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"
               @close="new_problem_tags_remove(tag)">
@@ -106,6 +105,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 
 export default {
@@ -250,6 +250,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   data() {
     return {

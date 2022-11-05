@@ -144,8 +144,8 @@
 
       <div style="margin: 20px auto;"></div>
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + LaTeX)</span>
-      <editor style="margin: 10px auto;" v-model="problem_description" language="markdown"
-              width="100%" height="256px"></editor>
+      <MarkdownEditor style="margin: 10px auto;" v-model="problem_description" language="markdown"
+              width="100%" height="256px"></MarkdownEditor>
 
       <span style="margin: 10px auto;">Special Judge 配置(请使用C++代码编写)</span>
       <editor style="margin: 10px auto;" v-model="problem_special_judge_code" language="cpp"
@@ -192,6 +192,7 @@
 <script>
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
+import MarkdownEditor from '../components/markdown-editor.vue';
 
 export default {
   methods: {
@@ -377,6 +378,7 @@ export default {
   },
   components: {
     editor: MonacoEditor,
+    MarkdownEditor: MarkdownEditor,
   },
   mounted() {
     this.init();

@@ -6,7 +6,7 @@
       </el-input>
       <div style="margin: 10px auto;"></div>
       <span style="margin: 10px auto;">公告内容</span>
-      <MarkdownEditor style="margin: 10px auto;" :code="create_bulletin_dialog_content"
+      <MarkdownEditor style="margin: 10px auto;" v-model="create_bulletin_dialog_content"
               width="100%" height="256px"></MarkdownEditor>
       <span slot="footer" class="dialog-footer">
         <el-button @click="create_bulletin_dialog_visible = false">取 消</el-button>

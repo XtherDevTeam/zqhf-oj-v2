@@ -25,7 +25,6 @@ export default {
   },
   data() {
     return {
-      code: "",
       renderedContent: "",
       themeMedia: {},
     };
@@ -49,7 +48,7 @@ export default {
   },
   model: {
     prop: ["code"],
-    event: ["change"],
+    event: [],
   },
 };
 </script>

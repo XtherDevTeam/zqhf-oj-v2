@@ -28,7 +28,7 @@
       <span style="margin: 20px auto">比赛介绍(可使用Markdown + LaTeX)</span>
       <MarkdownEditor
         style="margin: 10px auto"
-        :code="contest_data.contestDescription"
+        v-model="contest_data.contestDescription"
         width="100%"
         height="256px"
       ></MarkdownEditor>

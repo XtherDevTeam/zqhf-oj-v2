@@ -20,7 +20,7 @@
           <div style="margin: 10px auto;"></div>
           <span><strong>题目介绍: </strong></span><br>
           <div style="margin: 10px auto;"></div>
-          <Markdown :code="problem_content['description']"></Markdown>
+          <Markdown v-model="problem_content['description']"></Markdown>
 
           <div style="margin: 10px auto;"></div>
 

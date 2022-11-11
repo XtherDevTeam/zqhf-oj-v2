@@ -1,7 +1,8 @@
 <template>
     <div>
-        <MarkdownEditor :code="code"></MarkdownEditor>
-        <div v-html="code"></div>
+        <MarkdownEditor v-model="code"></MarkdownEditor>
+        <div v-html="code">
+        </div>
     </div>
 </template>
 

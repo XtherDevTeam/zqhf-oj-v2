@@ -23,7 +23,7 @@
       <div style="margin: 20px auto;"></div>
 
       <span style="margin: 20px auto;">题目介绍(可使用Markdown + LaTeX)</span>
-      <MarkdownEditor style="margin: 10px auto;" :code="new_problem_description"
+      <MarkdownEditor style="margin: 10px auto;" v-model="new_problem_description"
               width="100%" height="256px"></MarkdownEditor>
 
       <el-tag :key="index" v-for="tag, index in new_problem_tags" closable :disable-transitions="false" style="margin: 0 5px;"

@@ -6,7 +6,7 @@
       </el-input>
       <div style="margin: 20px auto;"></div>
       <span style="font-size: 14px;"><h3>内容</h3></span>
-      <MarkdownEditor style="margin: 10px auto;" :code="new_article_text"
+      <MarkdownEditor style="margin: 10px auto;" v-model="new_article_text"
               width="100%" height="256px"></MarkdownEditor>
 
       <el-switch

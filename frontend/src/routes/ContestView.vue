@@ -9,7 +9,7 @@
         </span>
 
         <h3>比赛介绍</h3>
-        <Markdown :code="contest_info['description']"></Markdown>
+        <Markdown v-model="contest_info['description']"></Markdown>
 
         <div style="height: 20px"></div>
 

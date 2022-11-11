@@ -28,7 +28,7 @@
       </div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
       <div style="height: 10px;"></div>
-      <Markdown :code="show_user_info['data']['full_introduction']"></Markdown>
+      <Markdown v-model="show_user_info['data']['full_introduction']"></Markdown>
     </el-card>
   </div>
 </template>

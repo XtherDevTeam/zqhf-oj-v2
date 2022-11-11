@@ -6,7 +6,7 @@
       </div>
       <span>作者: {{ article_content['author']['username'] }}</span>
       <div style="margin: 25px;"></div>
-      <Markdown :code="article_content['text']"></markdown>
+      <Markdown v-model="article_content['text']"></markdown>
     </el-card>
     <div style="margin: 20px;"></div>
     <comment class="box-card" :area_id="'article:' + this.$route.query['id']"></comment>

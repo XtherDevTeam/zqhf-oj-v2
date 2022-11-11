@@ -19,7 +19,7 @@
       <div style="height: 10px"></div>
 
       <span style="margin: 20px auto;">比赛介绍(可使用Markdown + LaTeX)</span>
-      <MarkdownEditor style="margin: 10px auto;" :code="new_contest.contestDescription"
+      <MarkdownEditor style="margin: 10px auto;" v-model="new_contest.contestDescription"
               width="100%" height="256px"></MarkdownEditor>
 
       <span slot="footer" class="dialog-footer">

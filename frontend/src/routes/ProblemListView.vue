@@ -6,7 +6,7 @@
       </div>
       <span><strong>题单介绍: </strong></span><br>
       <div style="margin: 10px auto;"></div>
-      <Markdown :code="problem_list_content['description']"></Markdown>
+      <Markdown v-model="problem_list_content['description']"></Markdown>
       <div style="margin: 10px auto;"></div>
       <el-table :data="problem_list_content.problems" style="width: 100%" @row-click="goto_problem">
         <el-table-column prop="id" fixed label="题目编号" width="100px"></el-table-column>

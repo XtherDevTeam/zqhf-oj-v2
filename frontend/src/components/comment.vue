@@ -14,7 +14,7 @@
                  v-if="logged_in && (user_info.data.id === comment.author.id || user_info.data['other_message']['permission_level'] === 2)">
         删除
       </el-button>
-      <Markdown :code="comment['text']"></Markdown>
+      <Markdown v-model="comment['text']"></Markdown>
     </el-card>
   </div>
 </template>

@@ -4,7 +4,7 @@
       <editor v-model="code" language="markdown" height="100%" width="100%"></editor>
     </el-col>
     <el-col :span="12" style="height: 100%;">
-      <markdown :code="code" style="width: 100%; height: 100%; margin: 10px 10px;"></markdown>
+      <markdown v-model="code" style="width: 100%; height: 100%; margin: 10px 10px;overflow: auto;"></markdown>
     </el-col>
   </el-row>
 </template>
@@ -17,10 +17,7 @@ export default {
   components: { editor, Markdown },
   name: "MarkdownEditor",
   props: {
-    code: {
-      type: String,
-      default: "",
-    },
+    code: String,
     height: {
       type: String,
       default: "300px",
@@ -31,14 +28,18 @@ export default {
     },
   },
   data() {
-    return {
-      code: "",
-    };
+    return {};
   },
   methods: {},
-  watch: {},
+  watch: {
+    code(val) {
+      this.code = val;
+      this.$emit("change", this.code);
+    },
+  },
   model: {
     prop: ["code"],
+    event: ["change"],
   },
 };
 </script>

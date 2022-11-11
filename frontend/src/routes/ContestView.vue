@@ -69,7 +69,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="题目列表" name="problem-list">
-        <el-table :data="this.contest_info.problems" style="width: 100%" :row-class-name="generateIndex" @row-click="goto_problem_view">
+        <el-table :data="contest_info.problems" style="width: 100%" :row-class-name="generateIndex" @row-click="goto_problem_view">
           <el-table-column prop="id" fixed label="题目编号" width="100px"></el-table-column>
           <el-table-column prop="author" label="上传者" width="128"></el-table-column>
           <el-table-column prop="name" label="题目名"></el-table-column>
@@ -120,6 +120,7 @@ import MonacoEditor from "~/components/editor.vue";
 
 import utils from "../utils";
 import Markdown from "~/components/markdown.vue";
+import ProblemsShower from '../components/problems-shower.vue';
 
 export default {
   methods: {
@@ -225,8 +226,8 @@ export default {
   },
   components: {
     editor: MonacoEditor,
-    Markdown
-},
+    Markdown,
+  },
   data() {
     return {
       pageName: "contest-view",

@@ -105,6 +105,21 @@ def query_user_by_id_min(user: int):
     return data
 
 
+def query_user_solved_problems_by_id(user: int):
+    data = query_db("select other_message from oj_users where id = ?", [user], True)
+    if data is None:
+        return data
+    
+    data = pickle.loads(data['other_message'])['ac_problems']
+
+    result = []
+    for i in data:
+        _ = query_problem_by_id_simple(i)
+        if _ is not None:
+            result.append(_)
+    return result
+
+
 def query_user_by_id_simple(user: int):
     data = query_db("select * from oj_users where id = ?", [user], True)
     data['other_message'] = pickle.loads(data['other_message'])
@@ -449,6 +464,9 @@ def query_problem_by_id_simple(ident: int):
 
     data = query_db("select id, name, author, tags, appear_time from oj_problems where id = ?", [
         ident], one=True)
+    
+    if data is None:
+        return data
     
     if int(time.time()) >= data['appear_time']:
         data['tags'] = json.loads(data['tags'])

@@ -33,29 +33,9 @@
         height="256px"
       ></MarkdownEditor>
 
-      <el-table :data="problems_content" style="width: 100%">
-        <el-table-column prop="id" fixed="right" label="题目编号" width="100px"></el-table-column>
-        <el-table-column fixed prop="author" label="上传者" width="128"></el-table-column>
-        <el-table-column fixed prop="name" label="题目名"></el-table-column>
-        <el-table-column fixed v-slot="scope" label="标签">
-          <el-tag :key="tag" v-for="tag in scope.row.tags" style="margin: 0 2px;">{{ tag }}</el-tag>
-        </el-table-column>
+      <problems-shower v-model="problems_content" :changable="false"></problems-shower>
 
-        <el-table-column fixed="right" label="操作">
-          <template v-slot="scope">
-            <el-button @click="remove_problem_from_list(scope.$index)" type="text" size="small">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-    <div style="height: 10px"></div>
-
-    <el-input placeholder="插入题目ID" v-model="insert_problem_id" style="width: 128px;"></el-input>
-    <el-button type="primary" @click="insert_problem_to_list">插入题目</el-button>
-
-    <div style="margin: 10px auto;"></div>
-
-    <el-button type="primary" @click="submit_changes">提交</el-button>
+      <el-button type="primary" @click="submit_changes">提交</el-button>
 
     </el-card>
   </div>
@@ -65,6 +45,7 @@
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
 import MarkdownEditor from '../components/markdown-editor.vue';
+import ProblemsShower from '../components/problems-shower.vue';
 
 export default {
   methods: {
@@ -129,29 +110,6 @@ export default {
           }
         });
     },
-    remove_problem_from_list(idx) {
-      this.problems_content.splice(idx, 1);
-    },
-    insert_problem_to_list() {
-      if (this.insert_problem_id === "") {
-        this.$message({
-          type: "error",
-          message: "将要插入的题目ID为空!"
-        });
-      }
-      axios.get('/api/v1/problems/get/' + this.insert_problem_id).then((response) => {
-        if (response.data['code'] === 0 && this.problems_content.indexOf(response.data['data']) === -1 && response.data['data'] !== null) {
-          response.data['data'].tags = JSON.parse(response.data['data'].tags);
-          this.problems_content.push(response.data['data']);
-          this.insert_problem_id = "";
-        } else {
-          this.$message({
-            type: "error",
-            message: "插入题目失败!"
-          });
-        }
-      })
-    }
   },
   data() {
     return {
@@ -171,6 +129,7 @@ export default {
   components: {
     editor: MonacoEditor,
     MarkdownEditor: MarkdownEditor,
+    ProblemsShower,
   },
   mounted() {
     this.init();

@@ -27,8 +27,17 @@
           </el-alert>
       </div>
       <div class="text item"><span>介绍: {{ show_user_info['data']['introduction'] }}</span></div>
-      <div style="height: 10px;"></div>
-      <Markdown v-model="show_user_info['data']['full_introduction']"></Markdown>
+      
+      <el-tabs v-model="pageName" @tab-click="handleClick" >
+        <el-tab-pane label="个人介绍" name="self-introduction">
+          <div style="height: 10px;"></div>
+          <Markdown v-model="show_user_info['data']['full_introduction']"></Markdown>
+        </el-tab-pane>
+        <el-tab-pane label="通过题目" name="solved-problems">
+          <div style="height: 10px;"></div>
+          <problems-shower v-model="solved" :changable="false"></problems-shower>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -37,6 +46,7 @@
 import axios from "axios";
 import MonacoEditor from "~/components/editor.vue";
 import Markdown from "~/components/markdown.vue";
+import ProblemsShower from '../components/problems-shower.vue';
 
 export default {
   methods: {
@@ -66,6 +76,22 @@ export default {
           .catch(function (error) {
             
           });
+
+        var url = "/api/v1/user/solved_problems";
+        if (this.$route.query['id'] !== undefined) {
+          url += "?user_id=" + this.$route.query['id'];
+        }
+        axios
+          .get(url).then((response) => {
+            if(response.data.code !== 0) {
+              this.$message({
+                    type: "error",
+                    message: "[" + response.data['code'] + "] " + response.data['text'] + " 拉取用户信息失败!"
+                  });
+            } else {
+              this.solved = response.data.data;
+            }
+          })
     }
   },
   data() {
@@ -73,10 +99,13 @@ export default {
       user_info: {},
       full_introduction_rendered: "",
       show_user_info: {},
+      solved: [],
+      pageName: "self-introduction",
     };
   },
   components: {
-    Markdown
+    Markdown,
+    ProblemsShower
   },
   mounted: function () {
     this.init();

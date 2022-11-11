@@ -3,6 +3,7 @@ import json
 import threading
 import time
 import re
+import os
 
 import flask
 from flask_cors import CORS
@@ -226,6 +227,42 @@ def user_detail_router():
         del result['password']
         del result['other_message']
         del result['user_image']
+        return {
+            'code': 0,
+            'text': '请求成功',
+            'data': result
+        }
+
+
+@app.route("/v1/user/solved_problems", methods=['GET'])
+def user_solved_problems_router():
+    ident = flask.request.args.get('username')
+    if ident is None:
+        ident = flask.request.args.get('user_id')
+        if ident is None:
+            if flask.session.get('user_id') is None:
+                return {"code": 7, "text": "用户未登录!"}
+            result = backend.query_user_solved_problems_by_id(flask.session['user_id'])
+            return {
+                'code': 0,
+                'text': '请求成功',
+                'data': result
+            }
+        else:
+            result = backend.query_user_solved_problems_by_id(int(ident))
+            if result is None:
+                return {"code": 2, "text": "用户不存在!"}
+            return {
+                'code': 0,
+                'text': '请求成功',
+                'data': result
+            }
+    else:
+        if ident.startswith('"'):
+            ident = ident[1:-1]
+        result = backend.query_user_solved_problems_by_id(ident)
+        if result is None:
+            return {"code": 2, "text": "用户不存在!"}
         return {
             'code': 0,
             'text': '请求成功',
@@ -692,14 +729,22 @@ def download_checkpoint_output_router(ident, checkpoint_name):
 def upload_checkpoint_all_router(ident):
     filename = flask.request.files.get("file").filename
     
+    if filename.endswith(".ans"):
+        filename = filename[0:-3] + "out"
+    
+    print('wdnmd', filename)
+        
+            
     if not filename.endswith(".in") and not filename.endswith(".out"):
         return {
             'code': 5,
             'text': '失败: 文件名必须以 .in, .out结尾 收到: ' + filename
         }
+    
     with io.BytesIO() as dst:
         flask.request.files.get("file").save(dst)
         dst.seek(0)
+        print(filename)
         if not backend.add_file_to_problem(ident, filename, dst.read()):
             return {
                 'code': 2,

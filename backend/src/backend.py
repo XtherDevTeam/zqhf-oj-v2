@@ -1257,6 +1257,3 @@ def submit_to_contest_problem(cid: int, tid: int, author: int, code: str, lang: 
 def initialize_backend():
     connect_db()
     initializeContestSchedules()
-
-
-initialize_backend()

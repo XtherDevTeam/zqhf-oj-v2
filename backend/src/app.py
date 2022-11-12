@@ -1158,5 +1158,7 @@ def contest_judge_submit_router(cid, tid):
 
 
 if __name__ == "__main__":
+    backend.initialize_backend()
+    
     app.run(host=config.get("api-server-host"),
             port=config.get("api-server-port"))

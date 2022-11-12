@@ -12,7 +12,6 @@ import judge
 import requests
 import databaseObject
 import shutil
-import _zqhf_oj_v2_spj
 
 DATABASE = config.get("database-path")
 db = None

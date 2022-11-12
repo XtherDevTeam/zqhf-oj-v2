@@ -1,5 +1,15 @@
 <template>
-  <h3>未找到页面!</h3>
+  <div style="width: 90%;margin: 0 auto;">
+    <el-card shadow="hover" class="box-card">
+      <div slot="header" class="clearfix">
+        <span>出错啦！</span>
+      </div>
+      <div style="text-align: center;">
+        您的页面在传输过程中被 jerry_chou 的垃圾服务器当成同类丢掉了。<br/>
+        <img src="../assets/404.png"/>
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>

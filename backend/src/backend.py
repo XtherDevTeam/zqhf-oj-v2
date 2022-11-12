@@ -43,7 +43,7 @@ def query_db(query, args=(), one=False):
     try:
         cur = db.execute(query, args)
     except Exception:
-        pass
+        return None
         
     rv = [dict((cur.description[idx][0], value)
                for idx, value in enumerate(row)) for row in cur.fetchall()]
@@ -560,12 +560,12 @@ def submit_judge_main(jid: int):
                  [json.dumps(response['checkpoints']), response['score'], jid])
     
     if response['ac']:
-        other_message = query_user_by_id(record_content['author'])['other_message']
+        other_message = query_user_by_id(record_content['author']['id'])['other_message']
         if not other_message['ac_problems'].count(record_content['problem']):
-            ac_count = query_user_by_id(record_content['author'])['ac_count'] + 1
+            ac_count = query_user_by_id(record_content['author']['id'])['ac_count'] + 1
             other_message['ac_problems'].append(record_content['problem'])
-            set_user_attr_by_id(record_content['author'], 'ac_count', ac_count)
-            set_user_attr_by_id(record_content['author'], 'other_message', pickle.dumps(other_message))
+            set_user_attr_by_id(record_content['author']['id'], 'ac_count', ac_count)
+            set_user_attr_by_id(record_content['author']['id'], 'other_message', pickle.dumps(other_message))
         
 
 

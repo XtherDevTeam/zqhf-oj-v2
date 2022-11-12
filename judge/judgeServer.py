@@ -19,8 +19,10 @@ lock = threading.Lock()
 app = flask.Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 256*1024*1024
 
+cpu_info = cpuinfo.get_cpu_info()
+
 machine = {
-    'cpu': cpuinfo.get_cpu_info()['brand_raw'],
+    'cpu': cpu_info['brand_raw'] if cpu_info.get('brand_raw') is not None else 'Unknown',
     'mem': psutil.virtual_memory().total / 1024 / 1024
 }
 

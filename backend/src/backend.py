@@ -558,6 +558,14 @@ def submit_judge_main(jid: int):
     
     query_db("update oj_records set points = ?, score = ? where id = ?",
                  [json.dumps(response['checkpoints']), response['score'], jid])
+    
+    if response['ac']:
+        other_message = query_user_by_id(record_content['author'])['other_message']
+        if not other_message['ac_problems'].count(record_content['problem']):
+            ac_count = query_user_by_id(record_content['author'])['ac_count'] + 1
+            other_message['ac_problems'].append(record_content['problem'])
+            set_user_attr_by_id(record_content['author'], 'ac_count', ac_count)
+            set_user_attr_by_id(record_content['author'], 'other_message', pickle.dumps(other_message))
         
 
 

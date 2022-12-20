@@ -59,9 +59,14 @@ def after_request(response):
     return response
 
 
-@app.route("/", methods=['GET'])
+@app.route("/v1", methods=['GET'])
 def root_router():
     return {"code": 0, "text": "API服务状态正常!"}
+
+
+@app.route("/v1/info", methods=['GET'])
+def info_router():
+    return {"code": 0, "text": "请求成功!", "data": backend.get_oj_info()}
 
 
 @app.route("/v1/judge/info", methods=['GET'])

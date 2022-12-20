@@ -33,7 +33,7 @@
         height="256px"
       ></MarkdownEditor>
 
-      <problems-shower v-model="problems_content" :changable="false"></problems-shower>
+      <problems-shower v-model="problems_content" :changable="true"></problems-shower>
 
       <el-button type="primary" @click="submit_changes">提交</el-button>
 

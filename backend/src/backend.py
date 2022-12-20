@@ -12,6 +12,7 @@ import judge
 import requests
 import databaseObject
 import shutil
+import uuid
 
 DATABASE = config.get("database-path")
 db = None
@@ -19,9 +20,9 @@ lock = threading.Lock()
 loadedContestDatabases = {}
 loadedContestTasks = {}
 
-event_loop = asyncio.new_event_loop()
-
 waiting_tasks = []
+
+judge_callback_tasks = {}
 
 
 def connect_db():
@@ -59,6 +60,14 @@ def check_login(user: str, password: str):
     if user_item is None:
         return False
     return user_item['password'] == make_password_md5(password)
+
+
+def get_oj_info():
+    return {
+        'oj': 'zqhf-oj-v2',
+        'api-compatibility': 'hoshi',
+        'server-time': time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+    }
 
 
 # 我他妈是个弱智
@@ -1220,7 +1229,6 @@ def update_contest_user_score(cid: int, uid: int, scores: list, final_score: int
 # 评测比赛题目代码 + 统分
 def submit_to_contest_problem_helper(cid: int, tid: int, jid: int):
     submit_judge_main(jid)
-
     # 题目评测完毕 统计分数
     contest = query_contests_by_id(cid)
     record = query_records_by_id(jid)
@@ -1237,7 +1245,7 @@ def submit_to_contest_problem_helper(cid: int, tid: int, jid: int):
         data['final_score'] += i
 
     update_contest_user_score(cid, record['author']['id'], data['scores'], data['final_score'])
-
+    
 
 # 提交比赛题目代码
 def submit_to_contest_problem(cid: int, tid: int, author: int, code: str, lang: str):
@@ -1260,6 +1268,10 @@ def submit_to_contest_problem(cid: int, tid: int, author: int, code: str, lang: 
     threading.Timer(0.1, submit_to_contest_problem_helper, (cid, tid, judge_id)).start()
 
     return {'status': True, 'data': judge_id}
+
+
+def get_uuid():
+    return uuid.uuid4()
 
 
 def initialize_backend():
